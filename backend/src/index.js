@@ -138,7 +138,6 @@ server.on('connection', socket => {
               socket.send(JSON.stringify({ type: 'usernameChecked', userID: row.userID }));
               console.log(`Username ${username} exists with userID ${row.userID} and has been sent`);
             } else {
-              socket.send(JSON.stringify({ error: 'Username does not exist. Please create an account.' }));
               socket.send(JSON.stringify({ type: 'usernameDoesNotExist'}));
             }
             });
