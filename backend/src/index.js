@@ -1,5 +1,6 @@
 const WebSocket = require('ws');
 const { RivalsServer, RivalsServerPort } = require('../components/constants');
+const db = require('./db'); // Import the database module
 
 const server = new WebSocket.Server({ port: RivalsServerPort });
 const clients = new Map();
@@ -15,15 +16,51 @@ server.on('connection', socket => {
       if (data.type === 'login') {
         // Store the client with the playerID and gameID as the key
         clients.set(data.playerID, { socket, gameID: data.gameID });
-        console.log(`Player ${data.playerID} logged in for game ${data.gameID}`);
-        
-        // Send a login confirmation back to the client
-        socket.send(JSON.stringify({ message: `Player ${data.playerID} logged in for game ${data.gameID}` }));
+          console.log(`Player ${data.playerID} logged in for game ${data.gameID}`);
+  
+          // Send a login confirmation back to the client
+          socket.send(JSON.stringify({ message: `Player ${data.playerID} logged in for game ${data.gameID}` }));
+        } else if (data.type === 'register') {
+          const generateUserID = () => {
+            return Math.floor(100000 + Math.random() * 900000);
+          }
+  
+          let userID = generateUserID();
+  
+          db.get(`SELECT userID FROM users WHERE userID = ?`, [userID], (err, row) => {
+            if (err) {
+              console.error(err.message);
+              socket.send(JSON.stringify({ error: 'Database error' }));
+              return;
+            }
+  
+            // Regenerate userID if it already exists
+            while (row) {
+              userID = generateUserID();
+              db.get(`SELECT userID FROM users WHERE userID = ?`, [userID], (err, row) => { // Reassign 'row' within the loop
+                if (err) {
+                  console.error(err.message);
+                  socket.send(JSON.stringify({ error: 'Database error' }));
+                  return;
+                }
+              });
+            }
+  
+            db.run(`INSERT INTO users (userID, userName) VALUES (?, ?)`, [userID, data.userName], function(err) {
+              if (err) {
+                console.error(err.message);
+                socket.send(JSON.stringify({ error: 'Failed to register user' }));
+                return;
+              }
+              console.log(`A row has been inserted with rowid ${this.lastID}`);
+              socket.send(JSON.stringify({ message: `User registered with userID ${userID}` }));
+            });
+          });
       } else if (data.type === 'gameOver') {
-        // Send the game result to all clients with the matching gameID
-        sendGameResultToClients(data.gameID, data.result);
-      }
-    } catch (error) {
+          // Send the game result to all clients with the matching gameID
+          sendGameResultToClients(data.gameID, data.result);
+        }
+      } catch (error) {
       console.error('Error parsing message:', error);
       socket.send(JSON.stringify({ error: 'Invalid message format' }));
     }
