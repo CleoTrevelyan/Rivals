@@ -20,10 +20,8 @@ server.on('connection', socket => {
         //   break;
 
         case 'gameOver':
-          const winningPlayer = data.winningPlayer;
-          const losingPlayer = data.losingPlayer;
-          // Send the game result to all clients with the matching gameID
-           ({ winningPlayer, losingPlayer, gameID } = data);
+          let { winningPlayer, losingPlayer, gameID } = data;
+          console.log(`Game over: ${winningPlayer} won against ${losingPlayer} in game ${gameID}`);
     
           db.get(`SELECT elo FROM userStats WHERE userID = ?`, [winningPlayer], (err, winner) => {
             if (err) {
