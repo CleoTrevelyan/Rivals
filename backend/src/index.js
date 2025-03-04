@@ -1,5 +1,6 @@
 const WebSocket = require('ws');
 const { RivalsServer, RivalsServerPort } = require('../components/constants');
+const db = require('./db'); // Import the database module
 
 const server = new WebSocket.Server({ port: RivalsServerPort });
 const clients = new Map();
@@ -29,11 +30,56 @@ server.on('connection', socket => {
           // Send the game result to all clients with the matching gameID
           sendGameResultToClients(data.gameID, data.winningPlayer + ' wins');
           break;
-
-        case 'checkUsername':
+        case 'register':
+          const generateUserID = () => {
+            return Math.floor(100000 + Math.random() * 900000);
+          }
+  
+          let userID = generateUserID();
+  
+          db.get(`SELECT userID FROM users WHERE userID = ?`, [userID], (err, row) => {
+            if (err) {
+              console.error(err.message);
+              socket.send(JSON.stringify({ error: 'Database error' }));
+              return;
+            }
+  
+            // Regenerate userID if it already exists
+            while (row) {
+              userID = generateUserID();
+              db.get(`SELECT userID FROM users WHERE userID = ?`, [userID], (err, row) => { // Reassign 'row' within the loop
+                if (err) {
+                  console.error(err.message);
+                  socket.send(JSON.stringify({ error: 'Database error' }));
+                  return;
+                }
+              });
+            }
+  
+            db.run(`INSERT INTO users (userID, userName) VALUES (?, ?)`, [userID, data.userName], function(err) {
+              if (err) {
+                console.error(err.message);
+                socket.send(JSON.stringify({ error: 'Failed to register user' }));
+                return;
+              }
+              console.log(`A row has been inserted with rowid ${this.lastID}`);
+              socket.send(JSON.stringify({ message: `User registered with userID ${userID}` }));
+  
+              // Insert into userStats
+              db.run(`INSERT INTO userStats (userID) VALUES (?)`, [userID], function(err) {
+                if (err) {
+                  console.error(err.message);
+                  // Consider whether to send an error back to the client or just log it
+                  return;
+                }
+                console.log(`userStats entry created for userID ${userID}`);
+              });
+            });
+          });
           break;
-
-        default:
+          case 'checkUsername':
+          break;
+          default:
           console.error('Unknown message type:', data.type);
           socket.send(JSON.stringify({ error: 'Unknown message type' }));
           break;
