@@ -20,8 +20,12 @@ server.on('connection', socket => {
         // Send a login confirmation back to the client
         socket.send(JSON.stringify({ message: `Player ${data.playerID} logged in for game ${data.gameID}` }));
       } else if (data.type === 'gameOver') {
+        const winningPlayer = data.winningPlayer;
+        const losingPlayer = data.losingPlayer;
+        //put MMR calculation here`
         // Send the game result to all clients with the matching gameID
-        sendGameResultToClients(data.gameID, data.result);
+        sendGameResultToClients(data.gameID, data.winningPlayer + ' wins');
+
       }
     } catch (error) {
       console.error('Error parsing message:', error);

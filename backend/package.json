@@ -10,6 +10,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "ws": "^8.18.1"
+    "ws": "^8.18.1",
+    "cookie": ">=0.7.0"
+  },
+  "devDependencies": {
+    "cookie": ">=0.7.0"
   }
 }
