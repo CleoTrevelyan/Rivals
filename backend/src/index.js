@@ -92,7 +92,7 @@ server.on('connection', socket => {
               });
             }
   
-            db.run(`INSERT INTO users (userID, userName) VALUES (?, ?)`, [userID, data.userName], function(err) {
+            db.run(`INSERT INTO users (userID, userName) VALUES (?, ?)`, [userID, data.username], function(err) {
               if (err) {
                 console.error(err.message);
                 socket.send(JSON.stringify({ error: 'Failed to register user' }));
@@ -115,7 +115,19 @@ server.on('connection', socket => {
           break;
         case 'checkUsername':
           const username = data.username;
-          //check username in database if it exists, return true if it does and false with error message containing either doesnt exist and the user needs to create an account or database error
+            db.get(`SELECT userID FROM users WHERE userName = ?`, [username], (err, row) => {
+            if (err) {
+              console.error(err.message);
+              socket.send(JSON.stringify({ error: 'Database error' }));
+              return;
+            }
+
+            if (row) {
+              socket.send(JSON.stringify({ userID: row.userID }));
+            } else {
+              socket.send(JSON.stringify({ error: 'Username does not exist. Please create an account.' }));
+            }
+            });
           break;
         default:
           console.error('Unknown message type:', data.type);

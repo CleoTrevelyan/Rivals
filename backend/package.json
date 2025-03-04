@@ -10,9 +10,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "cookie": ">=0.7.0",
     "sqlite3": "^5.1.7",
-    "ws": "^8.18.1",
-    "cookie": ">=0.7.0"
+    "websocat": "^1.1.0",
+    "ws": "^8.18.1"
   },
   "devDependencies": {
     "cookie": ">=0.7.0"
