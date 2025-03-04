@@ -1,4 +1,4 @@
-const { FrontendPort } = require('./frontend/components/constants.js');
+const { FrontendPort } = require('./MVP/components/constants.js');
 const { exec } = require('child_process');
 const open = require('open');
 
