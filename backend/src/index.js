@@ -26,7 +26,7 @@ server.on('connection', socket => {
         case 'gameOver':
           const winningPlayer = data.winningPlayer;
           const losingPlayer = data.losingPlayer;
-          //put MMR calculation here`
+          //put ELO calculation here`
           // Send the game result to all clients with the matching gameID
           sendGameResultToClients(data.gameID, data.winningPlayer + ' wins');
           break;
@@ -77,9 +77,11 @@ server.on('connection', socket => {
             });
           });
           break;
-          case 'checkUsername':
+        case 'checkUsername':
+          const username = data.username;
+          //check username in database if it exists, return true if it does and false with error message containing either doesnt exist and the user needs to create an account or database error
           break;
-          default:
+        default:
           console.error('Unknown message type:', data.type);
           socket.send(JSON.stringify({ error: 'Unknown message type' }));
           break;
