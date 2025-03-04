@@ -12,20 +12,31 @@ server.on('connection', socket => {
     try {
       const data = JSON.parse(message);
 
-      if (data.type === 'login') {
-        // Store the client with the playerID and gameID as the key
-        clients.set(data.playerID, { socket, gameID: data.gameID });
-        console.log(`Player ${data.playerID} logged in for game ${data.gameID}`);
-        
-        // Send a login confirmation back to the client
-        socket.send(JSON.stringify({ message: `Player ${data.playerID} logged in for game ${data.gameID}` }));
-      } else if (data.type === 'gameOver') {
-        const winningPlayer = data.winningPlayer;
-        const losingPlayer = data.losingPlayer;
-        //put MMR calculation here`
-        // Send the game result to all clients with the matching gameID
-        sendGameResultToClients(data.gameID, data.winningPlayer + ' wins');
+      switch (data.type) {
+        case 'login':
+          // Store the client with the playerID and gameID as the key
+          clients.set(data.playerID, { socket, gameID: data.gameID });
+          console.log(`Player ${data.playerID} logged in for game ${data.gameID}`);
+          
+          // Send a login confirmation back to the client
+          socket.send(JSON.stringify({ message: `Player ${data.playerID} logged in for game ${data.gameID}` }));
+          break;
 
+        case 'gameOver':
+          const winningPlayer = data.winningPlayer;
+          const losingPlayer = data.losingPlayer;
+          //put MMR calculation here`
+          // Send the game result to all clients with the matching gameID
+          sendGameResultToClients(data.gameID, data.winningPlayer + ' wins');
+          break;
+
+        case 'checkUsername':
+          break;
+
+        default:
+          console.error('Unknown message type:', data.type);
+          socket.send(JSON.stringify({ error: 'Unknown message type' }));
+          break;
       }
     } catch (error) {
       console.error('Error parsing message:', error);
