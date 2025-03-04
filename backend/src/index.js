@@ -43,11 +43,19 @@ server.on('connection', socket => {
               } else {
                 console.error("Couldn't find one or both players");
               }
-
+              
+              let newWinnerElo, newLoserElo;
               // Update Elo values
               if(!isDraw){ 
-                const newWinnerElo = winner.elo + ELO_CHANGE;
-                const newLoserElo = loser.elo - ELO_CHANGE;
+                newWinnerElo = winner.elo + ELO_CHANGE;
+                newLoserElo = loser.elo - ELO_CHANGE;
+                console.log(`New Elo for ${winningPlayer}: ${newWinnerElo}`);
+                console.log(`New Elo for ${losingPlayer}: ${newLoserElo}`);
+              }else{
+                newWinnerElo = winner.elo;
+                newLoserElo = loser.elo;
+                console.log(`New Elo for ${winningPlayer}: ${newWinnerElo}`);
+                console.log(`New Elo for ${losingPlayer}: ${newLoserElo}`);
               }
 
               db.run(`UPDATE userStats SET elo = ? WHERE userID = ?`, [newWinnerElo, winningPlayer], (err) => {
