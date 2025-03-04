@@ -20,10 +20,8 @@ server.on('connection', socket => {
         //   break;
 
         case 'gameOver':
-          const winningPlayer = data.winningPlayer;
-          const losingPlayer = data.losingPlayer;
-          // Send the game result to all clients with the matching gameID
-           ({ winningPlayer, losingPlayer, gameID } = data);
+          let { winningPlayer, losingPlayer, gameID } = data;
+          console.log(`Game over: ${winningPlayer} won against ${losingPlayer} in game ${gameID}`);
     
           db.get(`SELECT elo FROM userStats WHERE userID = ?`, [winningPlayer], (err, winner) => {
             if (err) {
@@ -123,7 +121,8 @@ server.on('connection', socket => {
             }
 
             if (row) {
-              socket.send(JSON.stringify({ userID: row.userID }));
+              socket.send(JSON.stringify({ type: 'usernameChecked', userID: row.userID }));
+              console.log(`Username ${username} exists with userID ${row.userID} and has been sent`);
             } else {
               socket.send(JSON.stringify({ error: 'Username does not exist. Please create an account.' }));
             }
