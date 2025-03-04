@@ -54,9 +54,19 @@ server.on('connection', socket => {
               }
               console.log(`A row has been inserted with rowid ${this.lastID}`);
               socket.send(JSON.stringify({ message: `User registered with userID ${userID}` }));
+  
+              // Insert into userStats
+              db.run(`INSERT INTO userStats (userID) VALUES (?)`, [userID], function(err) {
+                if (err) {
+                  console.error(err.message);
+                  // Consider whether to send an error back to the client or just log it
+                  return;
+                }
+                console.log(`userStats entry created for userID ${userID}`);
+              });
             });
           });
-      } else if (data.type === 'gameOver') {
+        } else if (data.type === 'gameOver') {
           // Send the game result to all clients with the matching gameID
           sendGameResultToClients(data.gameID, data.result);
         }

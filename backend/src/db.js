@@ -14,4 +14,11 @@ db.serialize(() => {
   )`);
 });
 
+db.run(`CREATE TABLE IF NOT EXISTS userStats (
+    userID INTEGER PRIMARY KEY,
+    elo INTEGER DEFAULT 1000,
+    wins INTEGER DEFAULT 0,
+    FOREIGN KEY (userID) REFERENCES users(userID)
+  )`);
+
 module.exports = db;
