@@ -22,10 +22,7 @@ server.on('connection', socket => {
         case 'gameOver':
           const winningPlayer = data.winningPlayer;
           const losingPlayer = data.losingPlayer;
-          //put ELO calculation here`
           // Send the game result to all clients with the matching gameID
-          // Assuming data contains winningPlayer and losingPlayer userIDs
-          // Assuming data contains winningPlayer and losingPlayer userIDs
            ({ winningPlayer, losingPlayer, gameID } = data);
     
           db.get(`SELECT elo FROM userStats WHERE userID = ?`, [winningPlayer], (err, winner) => {
@@ -63,6 +60,7 @@ server.on('connection', socket => {
                 } else {
                   console.log(`Updated Elo for ${losingPlayer} to ${newLoserElo}`);
                 }
+                updateLeaderboard(db);
               });
             });
           });
@@ -144,6 +142,30 @@ server.on('connection', socket => {
 });
 
 console.log(`WebSocket server is running on ${RivalsServer}`);
+
+function updateLeaderboard(db) {
+    db.all(`
+        SELECT us.userID, u.userName, us.elo
+        FROM userStats us
+        JOIN users u ON us.userID = u.userID
+        ORDER BY us.elo DESC
+        LIMIT 10
+    `, [], (err, rows) => {
+        if (err) {
+            console.error(err.message);
+            return;
+        }
+
+        db.serialize(() => {
+          db.run(`DELETE FROM leaderboard`); // Clear existing leaderboard
+          const stmt = db.prepare(`INSERT INTO leaderboard (userID, userName, elo) VALUES (?, ?, ?)`);
+          rows.forEach(row => {
+            stmt.run(row.userID, row.userName, row.elo);
+          });
+          stmt.finalize();
+        });
+    });
+}
 
 // Function to send the game result to all clients with the matching gameID
 function sendGameResultToClients(gameID, result) {

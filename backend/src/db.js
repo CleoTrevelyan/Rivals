@@ -21,4 +21,12 @@ db.run(`CREATE TABLE IF NOT EXISTS userStats (
     FOREIGN KEY (userID) REFERENCES users(userID)
   )`);
 
+db.run(`CREATE TABLE IF NOT EXISTS leaderboard (
+  userID INTEGER,
+  userName TEXT,
+  elo INTEGER,
+  PRIMARY KEY (userID),
+  FOREIGN KEY (userID) REFERENCES users(userID)
+)`);
+
 module.exports = db;
