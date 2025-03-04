@@ -21,8 +21,12 @@ server.on('connection', socket => {
 
         case 'gameOver':
           let { winningPlayer, losingPlayer, gameID, isDraw } = data;
-          console.log(`Game over: ${winningPlayer} won against ${losingPlayer} in game ${gameID}`);
-    
+          
+          if(isDraw){
+            console.log(`Game over: Draw between ${winningPlayer} and ${losingPlayer} in game ${gameID}`);
+          } else {
+            console.log(`Game over: ${winningPlayer} won against ${losingPlayer} in game ${gameID}`);
+          }
           db.get(`SELECT elo FROM userStats WHERE userID = ?`, [winningPlayer], (err, winner) => {
             if (err) {
               console.error(err.message);
@@ -39,10 +43,20 @@ server.on('connection', socket => {
               } else {
                 console.error("Couldn't find one or both players");
               }
-
+              
+              let newWinnerElo, newLoserElo;
               // Update Elo values
-              const newWinnerElo = winner.elo + ELO_CHANGE;
-              const newLoserElo = loser.elo - ELO_CHANGE;
+              if(!isDraw){ 
+                newWinnerElo = winner.elo + ELO_CHANGE;
+                newLoserElo = loser.elo - ELO_CHANGE;
+                console.log(`New Elo for ${winningPlayer}: ${newWinnerElo}`);
+                console.log(`New Elo for ${losingPlayer}: ${newLoserElo}`);
+              }else{
+                newWinnerElo = winner.elo;
+                newLoserElo = loser.elo;
+                console.log(`New Elo for ${winningPlayer}: ${newWinnerElo}`);
+                console.log(`New Elo for ${losingPlayer}: ${newLoserElo}`);
+              }
 
               db.run(`UPDATE userStats SET elo = ? WHERE userID = ?`, [newWinnerElo, winningPlayer], (err) => {
                 if (err) {
@@ -124,8 +138,7 @@ server.on('connection', socket => {
               socket.send(JSON.stringify({ type: 'usernameChecked', userID: row.userID }));
               console.log(`Username ${username} exists with userID ${row.userID} and has been sent`);
             } else {
-              socket.send(JSON.stringify({ error: 'Username does not exist. Please create an account.' }));
-              socket.send(JSON.stringify({ type: 'usernameDoesNotExist', userID: row.userID }));
+              socket.send(JSON.stringify({ type: 'usernameDoesNotExist'}));
             }
             });
           break;
