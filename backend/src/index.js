@@ -189,6 +189,7 @@ function updateLeaderboard(db) {
           });
           stmt.finalize();
         });
+        console.log(rows);
     });
 }
 
