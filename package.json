@@ -1,0 +1,11 @@
+{
+  "name": "rivals-app",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node start-all.js"
+  },
+  "devDependencies": {
+    "concurrently": "^7.0.0",
+    "open": "^8.4.2"
+  }
+}
