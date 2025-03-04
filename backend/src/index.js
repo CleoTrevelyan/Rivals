@@ -2,6 +2,8 @@ const WebSocket = require('ws');
 const { RivalsServer, RivalsServerPort } = require('../components/constants');
 const db = require('./db'); // Import the database module
 
+const ELO_CHANGE = 20;
+
 const server = new WebSocket.Server({ port: RivalsServerPort });
 const clients = new Map();
 
@@ -14,22 +16,58 @@ server.on('connection', socket => {
       const data = JSON.parse(message);
 
       switch (data.type) {
-        case 'login':
-          // Store the client with the playerID and gameID as the key
-          clients.set(data.playerID, { socket, gameID: data.gameID });
-          console.log(`Player ${data.playerID} logged in for game ${data.gameID}`);
-          
-          // Send a login confirmation back to the client
-          socket.send(JSON.stringify({ message: `Player ${data.playerID} logged in for game ${data.gameID}` }));
-          break;
+        // case 'login': 
+        //   break;
 
         case 'gameOver':
           const winningPlayer = data.winningPlayer;
           const losingPlayer = data.losingPlayer;
           //put ELO calculation here`
           // Send the game result to all clients with the matching gameID
-          sendGameResultToClients(data.gameID, data.winningPlayer + ' wins');
+          // Assuming data contains winningPlayer and losingPlayer userIDs
+          // Assuming data contains winningPlayer and losingPlayer userIDs
+           ({ winningPlayer, losingPlayer, gameID } = data);
+    
+          db.get(`SELECT elo FROM userStats WHERE userID = ?`, [winningPlayer], (err, winner) => {
+            if (err) {
+              console.error(err.message);
+              return;
+            }
+            db.get(`SELECT elo FROM userStats WHERE userID = ?`, [losingPlayer], (err, loser) => {
+              if (err) {
+                console.error(err.message);
+                return;
+              }
+
+              if (winner && loser) {
+                sendGameResultToClients(gameID, { winningPlayer, losingPlayer, winningPlayerElo: winner.elo, losingPlayerElo: loser.elo });
+              } else {
+                console.error("Couldn't find one or both players");
+              }
+
+              // Update Elo values
+              const newWinnerElo = winner.elo + ELO_CHANGE;
+              const newLoserElo = loser.elo - ELO_CHANGE;
+
+              db.run(`UPDATE userStats SET elo = ? WHERE userID = ?`, [newWinnerElo, winningPlayer], (err) => {
+                if (err) {
+                  console.error(err.message);
+                } else {
+                  console.log(`Updated Elo for ${winningPlayer} to ${newWinnerElo}`);
+                }
+              });
+
+              db.run(`UPDATE userStats SET elo = ? WHERE userID = ?`, [newLoserElo, losingPlayer], (err) => {
+                if (err) {
+                  console.error(err.message);
+                } else {
+                  console.log(`Updated Elo for ${losingPlayer} to ${newLoserElo}`);
+                }
+              });
+            });
+          });
           break;
+          
         case 'register':
           const generateUserID = () => {
             return Math.floor(100000 + Math.random() * 900000);
