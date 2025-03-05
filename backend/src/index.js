@@ -1,9 +1,11 @@
 const WebSocket = require('ws');
 const { RivalsServer, RivalsServerPort } = require('../components/constants');
 const { handleLogin } = require('../components/handleLogin'); // Correctly import handleLogin
+const { handleGameOver } = require('../components/handleGameOver'); // Correctly import handleGameOver
+const { handleRegister } = require('../components/handleRegister'); // Correctly import handleRegister
+const { checkUsername } = require('../components/checkRivalsData'); // Correctly import checkUsername
 const db = require('./db'); // Import the database module
 const bcrypt = require('bcrypt'); // Import bcrypt
-const saltRounds = 10; // Recommended salt rounds for bcrypt
 
 const ELO_CHANGE = 20;
 
@@ -38,135 +40,13 @@ server.on('connection', socket => {
                     handleLogin(socket, data, clients, clientID, db);
                     break;
                 case 'gameOver':
-                    let { winningPlayer, losingPlayer, gameID, isDraw } = data;
-                    if (isDraw) {
-                        console.log(`Game over: Draw between ${winningPlayer} and ${losingPlayer} in game ${gameID}`);
-                    } else {
-                        console.log(`Game over: ${winningPlayer} won against ${losingPlayer} in game ${gameID}`);
-                    }
-                    db.get(`SELECT elo FROM userStats WHERE userID = ?`, [winningPlayer], (err, winner) => {
-                        if (err) {
-                            console.error(err.message);
-                            return;
-                        }
-                        db.get(`SELECT elo FROM userStats WHERE userID = ?`, [losingPlayer], (err, loser) => {
-                            if (err) {
-                                console.error(err.message);
-                                return;
-                            }
-
-                            if (winner && loser) {
-                                sendGameResultToClients(gameID, { winningPlayer, losingPlayer, winningPlayerElo: winner.elo, losingPlayerElo: loser.elo });
-                            } else {
-                                console.error("Couldn't find one or both players");
-                            }
-
-                            let newWinnerElo, newLoserElo;
-                            // Update Elo values
-                            if (!isDraw) {
-                                newWinnerElo = winner.elo + ELO_CHANGE;
-                                newLoserElo = loser.elo - ELO_CHANGE;
-                                console.log(`New Elo for ${winningPlayer}: ${newWinnerElo}`);
-                                console.log(`New Elo for ${losingPlayer}: ${newLoserElo}`);
-                            } else {
-                                newWinnerElo = winner.elo;
-                                newLoserElo = loser.elo;
-                                console.log(`New Elo for ${winningPlayer}: ${newWinnerElo}`);
-                                console.log(`New Elo for ${losingPlayer}: ${newLoserElo}`);
-                            }
-
-                            db.run(`UPDATE userStats SET elo = ? WHERE userID = ?`, [newWinnerElo, winningPlayer], (err) => {
-                                if (err) {
-                                    console.error(err.message);
-                                } else {
-                                    console.log(`Updated Elo for ${winningPlayer} to ${newWinnerElo}`);
-                                }
-                            });
-
-                            db.run(`UPDATE userStats SET elo = ? WHERE userID = ?`, [newLoserElo, losingPlayer], (err) => {
-                                if (err) {
-                                    console.error(err.message);
-                                } else {
-                                    console.log(`Updated Elo for ${losingPlayer} to ${newLoserElo}`);
-                                }
-                                updateLeaderboard(db);
-                            });
-                        });
-                    });
+                    handleGameOver(data, db, clients);
                     break;
                 case 'register':
-                    // Use directly from data: const { username, email, password } = data;
-                    const generateUserID = () => {
-                        return Math.floor(100000 + Math.random() * 900000);
-                    }
-
-                    let userID = generateUserID();
-
-                    db.get(`SELECT userID FROM users WHERE userID = ?`, [userID], (err, row) => {
-                        if (err) {
-                            console.error(err.message);
-                            socket.send(JSON.stringify({ error: 'Database error' }));
-                            return;
-                        }
-
-                        // Regenerate userID if it already exists
-                        while (row) {
-                            userID = generateUserID();
-                            db.get(`SELECT userID FROM users WHERE userID = ?`, [userID], (err, row) => { // Reassign 'row' within the loop
-                                if (err) {
-                                    console.error(err.message);
-                                    socket.send(JSON.stringify({ error: 'Database error' }));
-                                    return;
-                                }
-                            });
-                        }
-
-                        // Hash the password
-                        bcrypt.hash(data.password, saltRounds, (err, hash) => {
-                            if (err) {
-                                console.error(err.message);
-                                socket.send(JSON.stringify({ error: 'Failed to register user' }));
-                                return;
-                            }
-
-                            db.run(`INSERT INTO users (userID, userName, email, password) VALUES (?, ?, ?, ?)`, [userID, data.username, data.email, hash], function (err) {
-                                if (err) {
-                                    console.error(err.message);
-                                    socket.send(JSON.stringify({ error: 'Failed to register user' }));
-                                    return;
-                                }
-                                console.log(`A row has been inserted with rowid ${this.lastID}`);
-                                socket.send(JSON.stringify({ message: `User registered with userID ${userID}` }));
-
-                                // Insert into userStats
-                                db.run(`INSERT INTO userStats (userID) VALUES (?)`, [userID], function (err) {
-                                    if (err) {
-                                        console.error(err.message);
-                                        // Consider whether to send an error back to the client or just log it
-                                        return;
-                                    }
-                                    console.log(`userStats entry created for userID ${userID}`);
-                                });
-                            });
-                        });
-                    });
+                    handleRegister(socket, data, db);
                     break;
                 case 'checkUsername':
-                    const username = data.username;
-                    db.get(`SELECT userID FROM users WHERE userName = ?`, [username], (err, row) => {
-                        if (err) {
-                            console.error(err.message);
-                            socket.send(JSON.stringify({ error: 'Database error' }));
-                            return;
-                        }
-
-                        if (row) {
-                            socket.send(JSON.stringify({ type: 'usernameChecked', userID: row.userID }));
-                            console.log(`Username ${username} exists with userID ${row.userID} and has been sent`);
-                        } else {
-                            socket.send(JSON.stringify({ type: 'usernameDoesNotExist' }));
-                        }
-                    });
+                    checkUsername(socket, data, db);
                     break;
                 default:
                     console.error('Unknown message type:', data.type);
@@ -193,38 +73,3 @@ server.on('connection', socket => {
 });
 
 console.log(`WebSocket server is running on ${RivalsServer}`);
-
-function updateLeaderboard(db) {
-    db.all(`
-        SELECT us.userID, u.userName, us.elo
-        FROM userStats us
-        JOIN users u ON us.userID = u.userID
-        ORDER BY us.elo DESC
-        LIMIT 10
-    `, [], (err, rows) => {
-        if (err) {
-            console.error(err.message);
-            return;
-        }
-
-        db.serialize(() => {
-            db.run(`DELETE FROM leaderboard`); // Clear existing leaderboard
-            const stmt = db.prepare(`INSERT INTO leaderboard (userID, userName, elo) VALUES (?, ?, ?)`);
-            rows.forEach(row => {
-                stmt.run(row.userID, row.userName, row.elo);
-            });
-            stmt.finalize();
-        });
-        console.log(rows);
-    });
-}
-
-// Function to send the game result to all clients with the matching gameID
-function sendGameResultToClients(gameID, result) {
-    console.log(`Sending game result for game ${gameID}: ${result}`);
-    for (let [playerID, clientInfo] of clients.entries()) {
-        if (clientInfo.gameID === gameID) {
-            clientInfo.socket.send(JSON.stringify({ message: `Game result for game ${gameID}: ${result}` }));
-        }
-    }
-}
