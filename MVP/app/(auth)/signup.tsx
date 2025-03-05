@@ -59,7 +59,7 @@ export default function Signup() {
 
     if (socket) {
       const message = {
-        type: "signup",
+        type: "register",
         email: email,
         username: username,
         password: password,
