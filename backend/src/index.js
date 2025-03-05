@@ -1,5 +1,6 @@
 const WebSocket = require('ws');
 const { RivalsServer, RivalsServerPort } = require('../components/constants');
+const { handleLogin } = require('../components/handleLogin'); // Correctly import handleLogin
 const db = require('./db'); // Import the database module
 const bcrypt = require('bcrypt'); // Import bcrypt
 const saltRounds = 10; // Recommended salt rounds for bcrypt
@@ -9,8 +10,14 @@ const ELO_CHANGE = 20;
 const server = new WebSocket.Server({ port: RivalsServerPort });
 const clients = new Map();
 
+// So that ClientIDs don't collide with UserIDs
 const generateClientID = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let id = '';
+    for (let i = 0; i < 6; i++) {
+        id += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return id;
 };
 
 server.on('connection', socket => {
@@ -28,47 +35,7 @@ server.on('connection', socket => {
 
             switch (data.type) {
                 case 'login':
-                    // Determine if the input is a username or an email
-                    const isEmail = data.email ? true : false;
-                    const query = isEmail ? `SELECT userID, password FROM users WHERE email = ?` : `SELECT userID, password FROM users WHERE userName = ?`;
-                    const identifier = isEmail ? data.email : data.username;
-
-                    db.get(query, [identifier], (err, row) => {
-                        if (err) {
-                            console.error(err.message);
-                            socket.send(JSON.stringify({ error: 'Database error' }));
-                            return;
-                        }
-
-                        if (row) {
-                            bcrypt.compare(data.password, row.password, (err, result) => {
-                                if (err) {
-                                    console.error(err.message);
-                                    socket.send(JSON.stringify({ error: 'Authentication error' }));
-                                    return;
-                                }
-
-                                if (result) {
-                                    // Passwords match
-                                    socket.send(JSON.stringify({ type: 'loginSuccess', userID: row.userID, message: 'Successfully logged in!' }));
-                                    console.log(`User ${data.username} logged in successfully.`);
-
-                                    // Update the clients map to use userID instead of clientID
-                                    clients.set(row.userID, clients.get(clientID));
-                                    clients.delete(clientID);
-                                    clientID = row.userID; // Update clientID to userID
-                                } else {
-                                    // Passwords don't match
-                                    socket.send(JSON.stringify({ type: 'loginFailed', message: 'Invalid credentials' }));
-                                    console.log(`Login failed for user ${data.username}.`);
-                                }
-                            });
-                        } else {
-                            // User not found
-                            socket.send(JSON.stringify({ type: 'loginFailed', message: 'Invalid credentials' }));
-                            console.log(`Login failed for user ${data.username}. User not found.`);
-                        }
-                    });
+                    handleLogin(socket, data, clients, clientID, db);
                     break;
                 case 'gameOver':
                     let { winningPlayer, losingPlayer, gameID, isDraw } = data;
