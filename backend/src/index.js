@@ -28,8 +28,12 @@ server.on('connection', socket => {
 
             switch (data.type) {
                 case 'login':
-                    // Use directly from data: const { username, password } = data;
-                    db.get(`SELECT userID, password FROM users WHERE userName = ?`, [data.username], (err, row) => {
+                    // Determine if the input is a username or an email
+                    const isEmail = data.email ? true : false;
+                    const query = isEmail ? `SELECT userID, password FROM users WHERE email = ?` : `SELECT userID, password FROM users WHERE userName = ?`;
+                    const identifier = isEmail ? data.email : data.username;
+
+                    db.get(query, [identifier], (err, row) => {
                         if (err) {
                             console.error(err.message);
                             socket.send(JSON.stringify({ error: 'Database error' }));
