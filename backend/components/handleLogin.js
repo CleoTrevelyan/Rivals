@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const { v4: uuidv4 } = require('uuid'); // Import uuid for generating unique tokens
 
 function handleLogin(socket, data, clients, clientID, db) {
     // Determine if the input is a username or an email
@@ -23,11 +24,12 @@ function handleLogin(socket, data, clients, clientID, db) {
 
                 if (result) {
                     // Passwords match
-                    socket.send(JSON.stringify({ type: 'loginSuccess', userID: row.userID, message: 'Successfully logged in!' }));
+                    const authToken = uuidv4();
+                    socket.send(JSON.stringify({ type: 'loginSuccess', userID: row.userID, authToken: authToken, message: 'Successfully logged in!' }));
                     console.log(`User ${data.username} logged in successfully.`);
 
-                    // Update the clients map to use userID instead of clientID
-                    clients.set(row.userID, clients.get(clientID));
+                    // Update the clients map to use userID instead of clientID and store the authToken
+                    clients.set(row.userID, { ...clients.get(clientID), authToken: authToken });
                     clients.delete(clientID);
                     clientID = row.userID; // Update clientID to userID
                 } else {

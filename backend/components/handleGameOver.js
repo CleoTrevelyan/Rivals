@@ -1,4 +1,4 @@
-const { ELO_CHANGE } = require('../../MVP/components/constants'); // Correct import path
+const { ELO_CHANGE } = require('./constants'); // Correct import path
 const { sendGameResultToClients } = require('./sendDataToClients');
 const { updateLeaderboard } = require('./leaderBoardHandler');
 
