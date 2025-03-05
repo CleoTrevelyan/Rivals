@@ -50,7 +50,7 @@ server.on('connection', socket => {
 
                                 if (result) {
                                     // Passwords match
-                                    socket.send(JSON.stringify({ type: 'loginSuccess', userID: row.userID }));
+                                    socket.send(JSON.stringify({ type: 'loginSuccess', userID: row.userID, message: 'Successfully logged in!' }));
                                     console.log(`User ${data.username} logged in successfully.`);
 
                                     // Update the clients map to use userID instead of clientID
