@@ -26,8 +26,8 @@ export default function Signup() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [playerID, setPlayerID] = useState("");
-  const [gameID, setGameID] = useState("");
+  //const [playerID, setPlayerID] = useState("");
+  //const [gameID, setGameID] = useState("");
 
   useEffect(() => {
     const ws = new WebSocket(RivalsServer);

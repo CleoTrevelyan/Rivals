@@ -25,8 +25,8 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   // Keep these for WebSocket functionality
-  const [playerID, setPlayerID] = useState("");
-  const [gameID, setGameID] = useState("");
+  //const [playerID, setPlayerID] = useState("");
+  //const [gameID, setGameID] = useState("");
 
   useEffect(() => {
     const ws = new WebSocket(RivalsServer);
