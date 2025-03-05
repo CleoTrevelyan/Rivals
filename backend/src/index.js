@@ -9,8 +9,17 @@ const ELO_CHANGE = 20;
 const server = new WebSocket.Server({ port: RivalsServerPort });
 const clients = new Map();
 
+const generateClientID = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
 server.on('connection', socket => {
+    // Assign a random client ID
+    let clientID = generateClientID();
+    clients.set(clientID, { socket });
+    
     console.log('Client connected');
+    console.log(`Client ID: ${clientID} with data: ${clients.get(clientID)}`);
 
     // Handle incoming messages from clients
     socket.on('message', message => {
@@ -39,6 +48,11 @@ server.on('connection', socket => {
                                     // Passwords match
                                     socket.send(JSON.stringify({ type: 'loginSuccess', userID: row.userID }));
                                     console.log(`User ${data.username} logged in successfully.`);
+
+                                    // Update the clients map to use userID instead of clientID
+                                    clients.set(row.userID, clients.get(clientID));
+                                    clients.delete(clientID);
+                                    clientID = row.userID; // Update clientID to userID
                                 } else {
                                     // Passwords don't match
                                     socket.send(JSON.stringify({ type: 'loginFailed', message: 'Invalid credentials' }));
@@ -52,7 +66,6 @@ server.on('connection', socket => {
                         }
                     });
                     break;
-
                 case 'gameOver':
                     let { winningPlayer, losingPlayer, gameID, isDraw } = data;
                     if (isDraw) {
@@ -110,7 +123,6 @@ server.on('connection', socket => {
                         });
                     });
                     break;
-
                 case 'register':
                     // Use directly from data: const { username, email, password } = data;
                     const generateUserID = () => {
