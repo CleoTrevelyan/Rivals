@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "cookie": ">=0.7.0",
     "sqlite3": "^5.1.7",
     "websocat": "^1.1.0",
