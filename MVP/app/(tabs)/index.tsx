@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Text, View, Button, TextInput, StyleSheet } from "react-native";
+import { Text, View, Button, StyleSheet } from "react-native";
 import { RivalsServer } from "@/components/constants.js";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from "expo-router";
 
 export default function Index() {
   const [message, setMessage] = useState("");
   const [socket, setSocket] = useState<WebSocket | null>(null);
-  const [playerID, setPlayerID] = useState(""); // State for player identifier
-  const [gameID, setGameID] = useState(""); // State for game identifier
 
   useEffect(() => {
     const ws = new WebSocket(RivalsServer);
@@ -30,51 +30,79 @@ export default function Index() {
     };
   }, []);
 
-  const sendMessage = () => {
-    if (socket) {
-      const message = {
-        type: "login",
-        playerID: playerID,
-        gameID: gameID,
-      };
-      socket.send(JSON.stringify(message));
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('userToken');
+      router.replace('/(auth)');
+    } catch (error) {
+      console.error('Error logging out:', error);
     }
   };
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 20,
-      }}
-    >
-      <TextInput
-        placeholder="Enter Player ID"
-        value={playerID}
-        onChangeText={setPlayerID}
-        style={styles.textInput}
-      />
-      <TextInput
-        placeholder="Enter Game ID"
-        value={gameID}
-        onChangeText={setGameID}
-        style={styles.textInput}
-      />
-      <Text>{message ? message : "No message received"}</Text>
-      <Button title="Login" onPress={sendMessage} />
+    <View style={styles.container}>
+      <Text style={styles.welcomeText}>Welcome to Rivals!</Text>
+      <Text style={styles.subtitle}>Your gaming dashboard</Text>
+      
+      <View style={styles.messageContainer}>
+        <Text style={styles.messageText}>
+          {message ? message : "No messages from server"}
+        </Text>
+      </View>
+      
+      <View style={styles.buttonContainer}>
+        <Button 
+          title="Logout" 
+          onPress={handleLogout} 
+          color="#FF3D71"
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  textInput: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 20,
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#F0F3F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  welcomeText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1A1A2E',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 18,
+    color: '#8F9BB3',
+    marginBottom: 32,
+    textAlign: 'center',
+  },
+  messageContainer: {
     width: '100%',
-    paddingHorizontal: 10,
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    marginBottom: 32,
+    minHeight: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  messageText: {
+    fontSize: 16,
+    color: '#1A1A2E',
+    textAlign: 'center',
+  },
+  buttonContainer: {
+    width: '50%',
   },
 });
