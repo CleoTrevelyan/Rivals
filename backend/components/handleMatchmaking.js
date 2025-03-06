@@ -67,7 +67,6 @@ function handleMatchmaking (data, clients, matchmakingUsers) {
             playerToken: playerToken,
             opponentID: opponentID,
             opponentElo: opponentElo,
-            matchToken: matchToken
         }));
         clients.get(opponentID).socket.send(JSON.stringify({
             type: 'matchFound',
@@ -76,7 +75,6 @@ function handleMatchmaking (data, clients, matchmakingUsers) {
             playerToken: opponentToken,
             opponentID: playerID,
             opponentElo: playerElo,
-            matchToken: matchToken
         }));
         clients.get(playerID).isMatchmaking = false;
         clients.get(opponentID).isMatchmaking = false;

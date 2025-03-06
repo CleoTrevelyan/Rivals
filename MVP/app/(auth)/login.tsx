@@ -37,7 +37,7 @@ export default function Login() {
       const data = JSON.parse(event.data);
       if (data.type === 'loginSuccess') {
         await AsyncStorage.setItem('authToken', data.authToken);
-
+        
         setMessage("Login successful!");
       } else if (data.type === 'loginFailed') {
         setMessage(data.message);
