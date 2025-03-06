@@ -14,7 +14,6 @@ import { Feather } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import { authStyles } from "@/styles/authStyles";
 import PerlinNoiseBackground from "@/components/perlinHero";
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 export default function Login() {
   const [message, setMessage] = useState("");
@@ -36,8 +35,6 @@ export default function Login() {
     ws.onmessage = async (event) => {
       const data = JSON.parse(event.data);
       if (data.type === 'loginSuccess') {
-        await AsyncStorage.setItem('authToken', data.authToken);
-        
         setMessage("Login successful!");
       } else if (data.type === 'loginFailed') {
         setMessage(data.message);
