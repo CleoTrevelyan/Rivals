@@ -31,9 +31,17 @@ export default function Signup() {
   useEffect(() => {
     const ws = new WebSocket(RivalsServer);
 
-    ws.onopen = () => {
+    ws.onopen = async () => {
       console.log("Connected to the WebSocket server");
       setSocket(ws);
+      const authToken = await AsyncStorage.getItem("authToken");
+      if (authToken) {
+        const message = {
+          type: "authTokenVerification",
+          authToken: authToken,
+        };
+        ws.send(JSON.stringify(message));
+      }
     };
 
     ws.onmessage = (event) => {
@@ -64,6 +72,7 @@ export default function Signup() {
     // Skip backend connection to navigate to home
     console.log("Demo signup with:", { email, username });
 
+    /*
     try {
       // Dummy token stored to simulate login
       await AsyncStorage.setItem("userToken", "demo-token-12345");
@@ -73,8 +82,9 @@ export default function Signup() {
       console.error("Error storing token:", error);
       setMessage("Error during signup process");
     }
+    */
 
-    /* 
+    
     // Original backend connection code - commented out
     if (socket) {
       const message = {
@@ -88,7 +98,6 @@ export default function Signup() {
       socket.send(JSON.stringify(message));
       console.log("Signup data:", message);
     }
-    */
   };
 
   return (

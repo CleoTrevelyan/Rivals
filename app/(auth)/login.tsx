@@ -28,19 +28,35 @@ export default function Login() {
   useEffect(() => {
     const ws = new WebSocket(RivalsServer);
 
-    ws.onopen = () => {
+    ws.onopen = async () => {
       console.log("Connected to the WebSocket server");
       setSocket(ws);
+
+      // Send authTokenVerification request
+      const authToken = await AsyncStorage.getItem("authToken");
+      if (authToken) {
+        const message = {
+          type: "authTokenVerification",
+          authToken: authToken,
+        };
+        ws.send(JSON.stringify(message));
+      }
     };
 
     ws.onmessage = async (event) => {
       const data = JSON.parse(event.data);
       if (data.type === "loginSuccess") {
+        await AsyncStorage.setItem("playerID", data.userID);
         await AsyncStorage.setItem("authToken", data.authToken);
+        router.replace("/(tabs)");
 
         setMessage("Login successful!");
       } else if (data.type === "loginFailed") {
         setMessage(data.message);
+      } else if (data.type === "authTokenVerified") {
+        router.replace("/(tabs)");
+      } else if (data.type === "authTokenInvalid") {
+        setMessage("Session expired. Please log in again.");
       }
     };
 
@@ -59,28 +75,20 @@ export default function Login() {
       setMessage("Please fill in all fields");
       return;
     }
-    console.log("Demo login with:", { username });
 
     try {
-      await AsyncStorage.setItem("userToken", "demo-token-12345");
-      // Head to home screen
-      router.replace("/(tabs)");
+      if (socket) {
+        const message = {
+          type: "login",
+          username: username,
+          password: password,
+        };
+        socket.send(JSON.stringify(message));
+      }
     } catch (error) {
-      console.error("Error storing token:", error);
+      console.error("Error during login process:", error);
       setMessage("Error during login process");
     }
-
-    /* 
-    // Original backend connection code - commented out
-    if (socket) {
-      const message = {
-        type: "login",
-        username: username,
-        password: password,
-      };
-      socket.send(JSON.stringify(message));
-    }
-    */
   };
 
   return (
