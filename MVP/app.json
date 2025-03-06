@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "MVP",
-    "slug": "frontend",
+    "name": "Rivals",
+    "slug": "Rivals",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -15,8 +15,7 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "package": "com.cleothomas.MVP"
+      }
     },
     "web": {
       "bundler": "metro",
@@ -43,9 +42,8 @@
         "origin": false
       },
       "eas": {
-        "projectId": "b91babeb-73a0-4825-8716-99d2a80ca29e"
+        "projectId": "759a5aba-c85b-4d6e-bd0a-5736cc71583e"
       }
-    },
-    "owner": "rivals-app"
+    }
   }
 }
