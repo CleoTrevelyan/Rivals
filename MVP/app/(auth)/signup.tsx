@@ -56,7 +56,10 @@ export default function Signup() {
       setMessage("Passwords don't match");
       return;
     }
-
+    if(username.includes('@')){
+      setMessage("Username cannot contain '@'");
+      return;
+    }
     if (socket) {
       const message = {
         type: "register",
