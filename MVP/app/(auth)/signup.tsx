@@ -14,12 +14,11 @@ import { Feather } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import { authStyles } from "@/styles/authStyles";
 import PerlinNoiseBackground from "@/components/perlinHero";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Signup() {
   const [message, setMessage] = useState("");
   const [socket, setSocket] = useState<WebSocket | null>(null);
-
-  // Signup form states
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -51,15 +50,32 @@ export default function Signup() {
     };
   }, []);
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     if (password !== confirmPassword) {
       setMessage("Passwords don't match");
       return;
     }
-    if(username.includes('@')){
+
+    if (username.includes("@")) {
       setMessage("Username cannot contain '@'");
       return;
     }
+
+    // Skip backend connection to navigate to home
+    console.log("Demo signup with:", { email, username });
+
+    try {
+      // Dummy token stored to simulate login
+      await AsyncStorage.setItem("userToken", "demo-token-12345");
+      // Go to the home screen
+      router.replace("/(tabs)");
+    } catch (error) {
+      console.error("Error storing token:", error);
+      setMessage("Error during signup process");
+    }
+
+    /* 
+    // Original backend connection code - commented out
     if (socket) {
       const message = {
         type: "register",
@@ -72,6 +88,7 @@ export default function Signup() {
       socket.send(JSON.stringify(message));
       console.log("Signup data:", message);
     }
+    */
   };
 
   return (
@@ -112,26 +129,55 @@ export default function Signup() {
               </Text>
 
               <View style={authStyles.featuresContainer}>
-                {/* Features cards */}
+                {/* Feature card: Find matches and earn */}
                 <View style={authStyles.featureCard}>
-                  <Text style={authStyles.featureTitle}>
-                    Find matches and earn
-                  </Text>
-                  {/* Feature content would go here */}
+                  <Image
+                    source={require("@/assets/images/placeholders/placeholder1.png")}
+                    style={authStyles.featureCardBackground}
+                    resizeMode="cover"
+                  />
+                  <View style={authStyles.featureCardContent}>
+                    <Text style={authStyles.featureTitle}>
+                      Find matches and earn
+                    </Text>
+                    <Text style={authStyles.featureDescription}>
+                      Stake on every match, or compete for free to rank up
+                    </Text>
+                  </View>
                 </View>
 
+                {/* Feature card: Play as a team */}
                 <View style={authStyles.featureCard}>
-                  <Text style={authStyles.featureTitle}>
-                    Play as a team and earn together
-                  </Text>
-                  {/* Feature content would go here */}
+                  <Image
+                    source={require("@/assets/images/placeholders/placeholder2.png")}
+                    style={authStyles.featureCardBackground}
+                    resizeMode="cover"
+                  />
+                  <View style={authStyles.featureCardContent}>
+                    <Text style={authStyles.featureTitle}>
+                      Play as a team and earn together
+                    </Text>
+                    <Text style={authStyles.featureDescription}>
+                      Manage your crew, splitting buy-ins and payouts
+                    </Text>
+                  </View>
                 </View>
 
+                {/* Feature card: Compete in matches */}
                 <View style={authStyles.featureCard}>
-                  <Text style={authStyles.featureTitle}>
-                    Compete in matches, leagues and tournaments
-                  </Text>
-                  {/* Feature content would go here */}
+                  <Image
+                    source={require("@/assets/images/placeholders/placeholder3.png")}
+                    style={authStyles.featureCardBackground}
+                    resizeMode="cover"
+                  />
+                  <View style={authStyles.featureCardContent}>
+                    <Text style={authStyles.featureTitle}>
+                      Compete in matches, leagues and tournaments
+                    </Text>
+                    <Text style={authStyles.featureDescription}>
+                      Create your own rules or join existing competitions
+                    </Text>
+                  </View>
                 </View>
               </View>
             </View>
