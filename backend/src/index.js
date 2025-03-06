@@ -8,7 +8,6 @@ const { checkUsername } = require('../components/checkRivalsData'); // Correctly
 const { handleMatchmaking } = require('../components/handleMatchmaking'); // Correctly import handleMatchmaking
 const { handleAuthToken } = require('../components/handleAuthToken'); // Correctly import handleAuthToken
 const db = require('./db'); // Import the database module
-const bcrypt = require('bcrypt'); // Import bcrypt for password hashing
 
 const ELO_CHANGE = 20;
 

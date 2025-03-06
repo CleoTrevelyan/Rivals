@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid'); // Import uuid for generating unique tokens
 
 function handleLogin(socket, data, clients, clientID, db) {

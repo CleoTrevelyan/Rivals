@@ -1,5 +1,5 @@
 const saltRounds = 10; // Recommended salt rounds for bcrypt
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 function handleRegister(socket, data, db) {
     const generateUserID = () => {
