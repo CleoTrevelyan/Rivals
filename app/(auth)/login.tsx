@@ -78,7 +78,7 @@ export default function Login() {
     try {
       await AsyncStorage.setItem("userToken", "demo-token-12345");
       // Head to home screen
-      router.replace("/(tabs)");
+      router.replace("/(home)");
     } catch (error) {
       console.error("Error storing token:", error);
       setMessage("Error during login process");
