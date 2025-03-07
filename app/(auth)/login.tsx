@@ -14,7 +14,6 @@ import { Feather } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import { authStyles } from "@/styles/authStyles";
 import PerlinNoiseBackground from "@/components/perlinHero";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Login() {
   const [message, setMessage] = useState("");
@@ -31,9 +30,7 @@ export default function Login() {
     ws.onopen = async () => {
       console.log("Connected to the WebSocket server");
       setSocket(ws);
-
-      // Send authTokenVerification request
-      const authToken = await AsyncStorage.getItem("authToken");
+      const authToken = await getAuthToken(); //HERE
       if (authToken) {
         const message = {
           type: "authTokenVerification",
@@ -46,10 +43,7 @@ export default function Login() {
     ws.onmessage = async (event) => {
       const data = JSON.parse(event.data);
       if (data.type === "loginSuccess") {
-        await AsyncStorage.setItem("playerID", data.userID);
-        await AsyncStorage.setItem("authToken", data.authToken);
-        router.replace("/(tabs)");
-
+        console.log('Received token: ', data.cookie);//HERE
         setMessage("Login successful!");
       } else if (data.type === "loginFailed") {
         setMessage(data.message);

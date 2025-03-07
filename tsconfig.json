@@ -6,8 +6,9 @@
       "@/*": ["./*"],
       "@components/*": ["./components/*"],
       "@assets/*": ["./assets/*"],
-      "@styles/*": ["./styles/*"],
-    }
+      "@styles/*": ["./styles/*"]
+    },
+    "jsx": "react"
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
 }

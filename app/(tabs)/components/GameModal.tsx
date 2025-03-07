@@ -21,13 +21,14 @@ interface GameModalProps {
   visible: boolean;
   onClose: () => void;
 }
+const playerID = AsyncStorage.getItem("playerID");
 
 const GameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
   const [stage, setStage] = useState<GameStage>("join");
   const [isLoading, setIsLoading] = useState(false);
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [currentPlayer, setCurrentPlayer] = useState<Player>({
-    id: AsyncStorage.getItem("playerID"),
+    id: playerID,
     name: "You",
     avatar: "J",
     isReady: false,

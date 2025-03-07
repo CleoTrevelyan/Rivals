@@ -46,6 +46,9 @@ export default function Signup() {
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
+      if (data.type === "authTokenVerified") {
+              router.replace("/(tabs)");
+      }
       setMessage(data.message);
     };
 
