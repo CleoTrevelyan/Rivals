@@ -36,7 +36,13 @@ export default function Signup() {
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      setMessage(data.message);
+      if (data.type === "authTokenVerified") {
+              router.replace("/(home)");
+      } else if (data.type === "authTokenInvalid") {
+              setMessage("Session expired. Please log in again.");
+      }else{
+        setMessage(data.message);
+      }
     };
 
     ws.onclose = () => {
