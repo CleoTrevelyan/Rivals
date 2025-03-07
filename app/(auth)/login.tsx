@@ -37,7 +37,7 @@ export default function Login() {
       const data = JSON.parse(event.data);
       if (data.type === "loginSuccess") {
         console.log("Received token: ", data.cookie);
-        await AsyncStorage.setItem("authToken", data.authToken);
+        await AsyncStorage.setItem("playerID", data.userID);
         setMessage("Login successful!");
         router.replace("/(home)");
       } else if (data.type === "loginFailed") {

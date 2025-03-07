@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { gameModalStyles } from "@/styles/gameModalStyles";
 import { Ionicons } from "@expo/vector-icons";
-import { RivalsServer } from "@/components/constants.js";
+import { RivalsServer } from "@/components/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type GameStage = "join" | "searching" | "ready" | "playing" | "results";
@@ -32,6 +32,8 @@ interface GameModalProps {
 }
 
 const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
+  const [message, setMessage] = useState("");
+  const [socket, setSocket] = useState<WebSocket | null>(null);
   const [stage, setStage] = useState<GameStage>("join");
   const [isLoading, setIsLoading] = useState(false);
   const [playerID, setPlayerID] = useState<string | null>(null);
@@ -82,6 +84,20 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
     }
   }, [visible]);
 
+  const matchmakeFlow = (action: string) => {
+    switch (action) {
+      case "endGame":
+        setStage("results");
+        break;
+      case "playAgain":
+        setStage("ready");
+        setCurrentPlayer((prev) => ({ ...prev, isReady: false }));
+        if (opponent) {
+          setOpponent((prev) => ({ ...prev, isReady: false }));
+        }
+        break;
+    }
+  };
   // Load playerID from AsyncStorage
   useEffect(() => {
     const loadPlayerID = async () => {
@@ -96,54 +112,64 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
         setCurrentPlayer((prev) => ({ ...prev, id: "user-123" }));
       }
     };
-
     loadPlayerID();
-  }, []);
-
-  const simulateFlow = (action: string) => {
-    switch (action) {
-      case "startSearch":
-        setIsLoading(true);
-        setStage("searching");
-        // Simulate finding a match after 2 seconds
-        setTimeout(() => {
-          setIsLoading(false);
-          setStage("ready");
-        }, 2000);
-        break;
-
-      case "cancelSearch":
-        setStage("join");
-        break;
-
-      case "playerReady":
-        setCurrentPlayer((prev) => ({ ...prev, isReady: true }));
-        // Simulate opponent getting ready after 1.5 seconds
-        setTimeout(() => {
-          if (opponent) {
-            setOpponent((prev) => ({ ...prev, isReady: true }));
-            // Start game after both players ready
-            setTimeout(() => {
-              setStage("playing");
-            }, 1000);
-          }
-        }, 1500);
-        break;
-
-      case "endGame":
-        // Simulate game ending with player winning
-        setStage("results");
-        break;
-
-      case "playAgain":
+    const ws = new WebSocket(RivalsServer);
+    ws.onopen = () => {
+      console.log("Connected to the WebSocket server");
+          setSocket(ws);
+    };
+    ws.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "matchFound") {
+        console.log("Opponent: ", data.opponentName);
         setStage("ready");
-        setCurrentPlayer((prev) => ({ ...prev, isReady: false }));
-        if (opponent) {
-          setOpponent((prev) => ({ ...prev, isReady: false }));
-        }
-        break;
+      }else if(data.type === 'enteringMatch'){
+        setOpponent((prev) => ({ ...prev, isReady: true }));
+        setStage("playing");
+        console.log('Starting game');
+      }else if (data.type === 'waitingForOpponent'){
+        setOpponent((prev) => ({ ...prev, isReady: false }));
+        console.log('waiting for opponent');
+      }else{
+        console.log(data.error);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log("Disconnected from the WebSocket server");
+    };
+    
+    return () => {
+      ws.close();
+    };
+  }, []);
+  
+  const startSearch = async () => {
+    const playerID = await AsyncStorage.getItem("playerID");
+    setStage("searching");
+    setIsLoading(true);
+    console.log('Matchmaking');
+    socket?.send(JSON.stringify({
+      type: 'matchmake',
+      playerID: playerID,
+      game: 'NnC',
+    }));
+    if(socket){
+      console.log(socket);
     }
-  };
+  }
+  const cancelSearch = () => {
+    socket?.send(JSON.stringify({
+      type: 'cancelMatchmaking',
+    }));
+    setStage("join");
+  }
+  const playerReady = () => {
+    setCurrentPlayer((prev) => ({ ...prev, isReady: true }));
+    socket?.send(JSON.stringify({
+      type: 'isReady',
+    }));
+  }
 
   // Render breadcrumb navigation
   const renderBreadcrumb = () => {
@@ -279,7 +305,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
 
         <TouchableOpacity
           style={gameModalStyles.actionButton}
-          onPress={() => simulateFlow("startSearch")}
+          onPress={() => startSearch()}
         >
           <Text style={gameModalStyles.actionButtonText}>Continue</Text>
         </TouchableOpacity>
@@ -302,7 +328,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
           </Text>
           <TouchableOpacity
             style={gameModalStyles.cancelButton}
-            onPress={() => simulateFlow("cancelSearch")}
+            onPress={() => cancelSearch()}
           >
             <Text style={gameModalStyles.cancelButtonText}>Cancel Search</Text>
           </TouchableOpacity>
@@ -406,7 +432,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
 
         <TouchableOpacity
           style={gameModalStyles.actionButton}
-          onPress={() => simulateFlow("playerReady")}
+          onPress={() => playerReady()}
           disabled={currentPlayer.isReady}
         >
           <Text style={gameModalStyles.actionButtonText}>
@@ -463,7 +489,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
 
         <TouchableOpacity
           style={gameModalStyles.actionButton}
-          onPress={() => simulateFlow("endGame")}
+          onPress={() => matchmakeFlow("endGame")}
         >
           <Text style={gameModalStyles.actionButtonText}>End Game (Demo)</Text>
         </TouchableOpacity>
@@ -551,7 +577,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
 
         <TouchableOpacity
           style={gameModalStyles.actionButton}
-          onPress={() => simulateFlow("playAgain")}
+          onPress={() => matchmakeFlow("playAgain")}
         >
           <Text style={gameModalStyles.actionButtonText}>REMATCH?</Text>
         </TouchableOpacity>
