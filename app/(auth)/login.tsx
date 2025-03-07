@@ -14,6 +14,7 @@ import { Feather } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import { authStyles } from "@/styles/authStyles";
 import PerlinNoiseBackground from "@/components/perlinHero";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Login() {
   const [message, setMessage] = useState("");
@@ -27,22 +28,15 @@ export default function Login() {
   useEffect(() => {
     const ws = new WebSocket(RivalsServer);
 
-    ws.onopen = async () => {
+    ws.onopen = () => {
       console.log("Connected to the WebSocket server");
       setSocket(ws);
-      const authToken = await getAuthToken(); //HERE
-      if (authToken) {
-        const message = {
-          type: "authTokenVerification",
-          authToken: authToken,
-        };
-        ws.send(JSON.stringify(message));
-      }
     };
 
     ws.onmessage = async (event) => {
       const data = JSON.parse(event.data);
       if (data.type === "loginSuccess") {
+<<<<<<< HEAD
         console.log("Received token: ", data.cookie); //HERE
         setMessage("Login successful!");
       } else if (data.type === "loginFailed") {
@@ -51,6 +45,13 @@ export default function Login() {
         router.replace("/(home)");
       } else if (data.type === "authTokenInvalid") {
         setMessage("Session expired. Please log in again.");
+=======
+        await AsyncStorage.setItem("authToken", data.authToken);
+
+        setMessage("Login successful!");
+      } else if (data.type === "loginFailed") {
+        setMessage(data.message);
+>>>>>>> 5e5c71ddd45613071ffe7e337a9d3ee0b8544574
       }
     };
 
@@ -75,20 +76,28 @@ export default function Login() {
       setMessage("Please fill in all fields");
       return;
     }
+    console.log("Demo login with:", { username });
 
     try {
-      if (socket) {
-        const message = {
-          type: "login",
-          username: username,
-          password: password,
-        };
-        socket.send(JSON.stringify(message));
-      }
+      await AsyncStorage.setItem("userToken", "demo-token-12345");
+      // Head to home screen
+      router.replace("/(tabs)");
     } catch (error) {
-      console.error("Error during login process:", error);
+      console.error("Error storing token:", error);
       setMessage("Error during login process");
     }
+
+    /* 
+    // Original backend connection code - commented out
+    if (socket) {
+      const message = {
+        type: "login",
+        username: username,
+        password: password,
+      };
+      socket.send(JSON.stringify(message));
+    }
+    */
   };
 
   return (
