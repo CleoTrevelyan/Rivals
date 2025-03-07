@@ -3,13 +3,11 @@ import { View, Text, TouchableOpacity, Modal } from "react-native";
 import { gameModalStyles } from "@/styles/gameModalStyles";
 import { Ionicons } from "@expo/vector-icons";
 import PageLoader from "@/components/pageLoader";
-import { RivalsServer } from "@/components/constants.js";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type GameStage = "join" | "searching" | "ready" | "playing" | "results";
 
 interface Player {
-  id: any;
+  id: string;
   name: string;
   avatar?: string;
   isReady: boolean;
@@ -25,9 +23,8 @@ interface GameModalProps {
 const GameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
   const [stage, setStage] = useState<GameStage>("join");
   const [isLoading, setIsLoading] = useState(false);
-  const [socket, setSocket] = useState<WebSocket | null>(null);
   const [currentPlayer, setCurrentPlayer] = useState<Player>({
-    id: AsyncStorage.getItem("playerID"),
+    id: "player1",
     name: "You",
     avatar: "J",
     isReady: false,
@@ -36,67 +33,28 @@ const GameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
   });
   const [opponent, setOpponent] = useState<Player | null>(null);
 
-  useEffect(() => {
-    const ws = new WebSocket(RivalsServer);
-    ws.onopen = async () => {
-      console.log("Connected to the WebSocket server");
-      setSocket(ws);
-      console.log("Connected to the WebSocket server");
-      setSocket(ws);
-      const authToken = await AsyncStorage.getItem("authToken");
-      if (authToken) {
-        const message = {
-          type: "authTokenVerification",
-          authToken: authToken,
-        };
-        ws.send(JSON.stringify(message));
-      }
-    };
-    ws.onmessage = async (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === "matchFound") {
-        setIsLoading(false);
-        setOpponent({
-          id: data.opponentID,
-          name: data.opponentName,
-          avatar: "O",
-          isReady: false,
-          symbol: "O",
-          score: 0,
-        });
-        setStage("ready");
-      } else if (data.type === "matchNotFound") {
-        setIsLoading(true);
-      }
-    };
-    ws.onclose = () => {
-      console.log("Disconnected from the WebSocket server");
-    };
-
-    return () => {
-      ws.close();
-    };
-  }, []);
-
   const handleAction = () => {
     switch (stage) {
       case "join":
         // Start searching for opponent
         setIsLoading(true);
-        try {
-          if (socket) {
-            const data = {
-              type: "matchmake",
-              playerID: currentPlayer.id,
-              game: 'NnC',
-            };
-            socket.send(JSON.stringify(data));
-            setIsLoading(false);
-            setStage("searching");
-          }
-        } catch (error) {
-          console.error("Error matchmaking:", error);
-        }
+        setTimeout(() => {
+          setIsLoading(false);
+          setStage("searching");
+
+          // Simulate finding an opponent after some time
+          setTimeout(() => {
+            setOpponent({
+              id: "opponent1",
+              name: "Opponent",
+              avatar: "O",
+              isReady: false,
+              symbol: "O",
+              score: 0,
+            });
+            setStage("ready");
+          }, 2000);
+        }, 1000);
         break;
 
       case "ready":
