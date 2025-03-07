@@ -9,7 +9,8 @@ export const homeStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 20,
+    // backgroundColor: "#222B45",
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
     borderBottomColor: "#EDF1F7",
@@ -119,8 +120,8 @@ export const homeStyles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 0, 
-    opacity: 0.8, 
+    zIndex: 0,
+    opacity: 0.8,
   },
   contentContainer: {
     flex: 1,
@@ -132,7 +133,7 @@ export const homeStyles = StyleSheet.create({
   // Section styling (common for all sections)
   sectionContainer: {
     marginBottom: 24,
-    backgroundColor: "rgba(255, 255, 255, 0.9)", 
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
     borderRadius: 12,
     padding: 16,
     elevation: 2,
@@ -163,7 +164,7 @@ export const homeStyles = StyleSheet.create({
   // Live matches horizontal section at the top
   liveMatchesSection: {
     marginBottom: 24,
-    backgroundColor: "rgba(255, 255, 255, 0.9)", 
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
     borderRadius: 12,
     padding: 16,
     elevation: 2,

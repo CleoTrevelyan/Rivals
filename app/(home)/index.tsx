@@ -14,8 +14,10 @@ import { router } from "expo-router";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { homeStyles } from "@/styles/homeStyles";
 import PerlinNoiseBackground from "@/components/perlinHero";
-import GameModal from "./components/GameModal";
+import JoinGameModal from "./components/JoinGameModal";
+import CreateGameModal from "./components/CreateGameModal";
 import TournamentsScreen from "./components/TournamentScreen";
+import CreateGameButton from "./components/CreateGameButton";
 
 // Simulated user balance
 const userBalance = "$14,230";
@@ -25,6 +27,10 @@ export default function HomeScreen() {
   const windowWidth = Dimensions.get("window").width;
   const [showGameModal, setShowGameModal] = useState<boolean>(false);
 
+  // Separate state for create game modal
+  const [showCreateGameModal, setShowCreateGameModal] =
+    useState<boolean>(false);
+
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem("userToken");
@@ -32,6 +38,11 @@ export default function HomeScreen() {
     } catch (error) {
       console.error("Error logging out:", error);
     }
+  };
+
+  // Function to handle Create Game button press - now only opens CreateGameModal
+  const handleCreateGamePress = () => {
+    setShowCreateGameModal(true);
   };
 
   const renderTab = (tabName: string) => {
@@ -187,7 +198,6 @@ export default function HomeScreen() {
   };
 
   const renderFeaturedEvents = () => {
-    // Your existing implementation...
     return (
       <View style={homeStyles.sectionContainer}>
         <View style={homeStyles.sectionHeader}>
@@ -259,7 +269,6 @@ export default function HomeScreen() {
   };
 
   const renderGames = () => {
-    // Your existing implementation...
     const games = [
       { id: "trending", icon: "trending-up", title: "Trending" },
       { id: "dota2", icon: "gamepad", title: "Dota 2" },
@@ -295,6 +304,7 @@ export default function HomeScreen() {
               ]}
               onPress={() => {
                 if (game.id === "tictactoe") {
+                  // For existing games, show the join game modal
                   setShowGameModal(true);
                 } else {
                   alert("Game coming soon!");
@@ -315,7 +325,6 @@ export default function HomeScreen() {
   };
 
   const renderTopCompetitions = () => {
-    // Your existing implementation...
     const competitions = [
       { id: "comp1", name: "DOTA", icon: "futbol", count: 26 },
       { id: "comp2", name: "Fortnite", icon: "futbol", count: 12 },
@@ -549,6 +558,9 @@ export default function HomeScreen() {
           </Text>
         </View>
 
+        {/* Create Game Button */}
+        <CreateGameButton onPress={handleCreateGamePress} />
+
         <TouchableOpacity style={homeStyles.balanceButton}>
           <Text style={homeStyles.balanceText}>{userBalance}</Text>
         </TouchableOpacity>
@@ -581,19 +593,20 @@ export default function HomeScreen() {
 
       {/* Main content with background */}
       <View style={homeStyles.mainContentWrapper}>
-        {/* Perlin Noise Background - positioned as fixed */}
-        {/* <View style={homeStyles.backgroundContainer}>
-          <PerlinNoiseBackground />
-        </View> */}
-
         {/* Render content based on active tab */}
         {renderContent()}
       </View>
 
-      {/* Game Modal */}
-      <GameModal
+      {/* Game Modal - for joining existing games */}
+      <JoinGameModal
         visible={showGameModal}
         onClose={() => setShowGameModal(false)}
+      />
+
+      {/* Create Game Modal - for creating new games */}
+      <CreateGameModal
+        visible={showCreateGameModal}
+        onClose={() => setShowCreateGameModal(false)}
       />
     </SafeAreaView>
   );
