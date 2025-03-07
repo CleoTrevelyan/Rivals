@@ -44,6 +44,11 @@ export default function Login() {
         router.replace("/(home)");
       } else if (data.type === "authTokenInvalid") {
         setMessage("Session expired. Please log in again.");
+        await AsyncStorage.setItem("authToken", data.authToken);
+
+        setMessage("Login successful!");
+      } else if (data.type === "loginFailed") {
+        setMessage(data.message);
       }
     };
 
@@ -73,7 +78,7 @@ export default function Login() {
     try {
       await AsyncStorage.setItem("userToken", "demo-token-12345");
       // Head to home screen
-      router.replace("/(home)");
+      router.replace("/(tabs)");
     } catch (error) {
       console.error("Error storing token:", error);
       setMessage("Error during login process");
