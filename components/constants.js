@@ -1,4 +1,4 @@
-const RivalsServer = '35.178.210.185';
+const RivalsServer = '35.178.210.185:8080';
 const RivalsServerPort = 8080;
 const FrontendPort = 3000;
 const ELO_CHANGE = 20;
