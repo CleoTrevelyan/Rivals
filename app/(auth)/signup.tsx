@@ -49,8 +49,24 @@ export default function Signup() {
     };
   }, []);
 
+  // Quick bypass function to go directly to home
+  const goDirectlyToHome = () => {
+    router.replace("/(home)");
+  };
+
   // Modified to bypass authentication and go directly to home
   const handleSignup = async () => {
+    // Basic validation
+    if (password !== confirmPassword) {
+      setMessage("Passwords don't match");
+      return;
+    }
+
+    if (username.includes("@")) {
+      setMessage("Username cannot contain '@'");
+      return;
+    }
+
     try {
       // Store a dummy token to simulate being logged in
       await AsyncStorage.setItem("userToken", "dummy-dev-token");
@@ -67,30 +83,10 @@ export default function Signup() {
       router.replace("/(home)");
     } catch (error) {
       console.error("Error during development navigation:", error);
-      if (password !== confirmPassword) {
-        setMessage("Passwords don't match");
-        return;
-      }
+      setMessage("Error during signup process");
+    }
 
-      if (username.includes("@")) {
-        setMessage("Username cannot contain '@'");
-        return;
-      }
-
-      // Skip backend connection to navigate to home
-      console.log("Demo signup with:", { email, username });
-
-      try {
-        // Dummy token stored to simulate login
-        await AsyncStorage.setItem("userToken", "demo-token-12345");
-        // Go to the home screen
-        router.replace("/(home)");
-      } catch (error) {
-        console.error("Error storing token:", error);
-        setMessage("Error during signup process");
-      }
-
-      /* 
+    /* 
     // Original backend connection code - commented out
     if (socket) {
       const message = {
@@ -105,239 +101,233 @@ export default function Signup() {
       console.log("Signup data:", message);
     }
     */
-    }
+  };
 
-    // Quick bypass function to go directly to home
-    const goDirectlyToHome = () => {
-      router.replace("/(home)");
-    };
+  return (
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={authStyles.container}
+    >
+      <ScrollView contentContainerStyle={authStyles.scrollContainer}>
+        <View style={authStyles.contentContainer}>
+          {/* Left Panel - Branding and marketing content */}
+          <View style={authStyles.leftPanel}>
+            {/* Add Perlin noise background */}
+            <PerlinNoiseBackground />
 
-    return (
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={authStyles.container}
-      >
-        <ScrollView contentContainerStyle={authStyles.scrollContainer}>
-          <View style={authStyles.contentContainer}>
-            {/* Left Panel - Branding and marketing content */}
-            <View style={authStyles.leftPanel}>
-              {/* Add Perlin noise background */}
-              <PerlinNoiseBackground />
-
-              <View style={authStyles.leftPanelContent}>
-                <View style={authStyles.logoContainer}>
+            <View style={authStyles.leftPanelContent}>
+              <View style={authStyles.logoContainer}>
+                <Image
+                  source={require("@/assets/images/logo-light.svg")}
+                  style={authStyles.logo}
+                  resizeMode="contain"
+                />
+              </View>
+              <View style={authStyles.titleContainer}>
+                <Text style={authStyles.headerText}>EXPERIENCE THE</Text>
+                <Text style={authStyles.headerText}>FUTURE OF GAMING</Text>
+              </View>
+              <Text style={authStyles.subHeaderText}>
+                Immerse yourself in Rivals,
+              </Text>
+              <Text style={authStyles.subHeaderText}>
+                where you can stake and wager on your games.
+              </Text>
+              <Text style={authStyles.subHeaderText}>
+                Explore diverse betting markets tailored to competitive
+                gameplay.
+              </Text>
+              <View style={authStyles.featuresContainer}>
+                {/* Feature card: Play as a team */}
+                <View style={authStyles.featureCard}>
                   <Image
-                    source={require("@/assets/images/logo-light.svg")}
-                    style={authStyles.logo}
-                    resizeMode="contain"
+                    source={require("@/assets/images/placeholders/placeholder2.png")}
+                    style={authStyles.featureCardBackground}
+                    resizeMode="cover"
                   />
-                </View>
-                <View style={authStyles.titleContainer}>
-                  <Text style={authStyles.headerText}>EXPERIENCE THE</Text>
-                  <Text style={authStyles.headerText}>FUTURE OF GAMING</Text>
-                </View>
-                <Text style={authStyles.subHeaderText}>
-                  Immerse yourself in Rivals,
-                </Text>
-                <Text style={authStyles.subHeaderText}>
-                  where you can stake and wager on your games.
-                </Text>
-                <Text style={authStyles.subHeaderText}>
-                  Explore diverse betting markets tailored to competitive
-                  gameplay.
-                </Text>
-                <View style={authStyles.featuresContainer}>
-                  {/* Feature card: Play as a team */}
-                  <View style={authStyles.featureCard}>
-                    <Image
-                      source={require("@/assets/images/placeholders/placeholder2.png")}
-                      style={authStyles.featureCardBackground}
-                      resizeMode="cover"
-                    />
-                    <View style={authStyles.featureCardContent}>
-                      <Text style={authStyles.featureTitle}>
-                        Play as a team and earn together
-                      </Text>
-                      <Text style={authStyles.featureDescription}>
-                        Manage your crew, splitting buy-ins and payouts
-                      </Text>
-                    </View>
-                  </View>
-                  {/* Feature card: Find matches and earn */}
-                  <View style={authStyles.mainFeatureCard}>
-                    <Image
-                      source={require("@/assets/images/placeholders/placeholder1.png")}
-                      style={authStyles.featureCardBackground}
-                      resizeMode="cover"
-                    />
-                    <View style={authStyles.featureCardContent}>
-                      <Text style={authStyles.featureTitle}>
-                        Find matches and earn
-                      </Text>
-                      <Text style={authStyles.featureDescription}>
-                        Stake on every match, or compete for free to rank up
-                      </Text>
-                    </View>
-                  </View>
-
-                  {/* Feature card: Compete in matches */}
-                  <View style={authStyles.featureCard}>
-                    <Image
-                      source={require("@/assets/images/placeholders/placeholder3.png")}
-                      style={authStyles.featureCardBackground}
-                      resizeMode="cover"
-                    />
-                    <View style={authStyles.featureCardContent}>
-                      <Text style={authStyles.featureTitle}>
-                        Compete in matches, leagues and tournaments
-                      </Text>
-                      <Text style={authStyles.featureDescription}>
-                        Create your own rules or join existing competitions
-                      </Text>
-                    </View>
+                  <View style={authStyles.featureCardContent}>
+                    <Text style={authStyles.featureTitle}>
+                      Play as a team and earn together
+                    </Text>
+                    <Text style={authStyles.featureDescription}>
+                      Manage your crew, splitting buy-ins and payouts
+                    </Text>
                   </View>
                 </View>
-              </View>
-            </View>
-
-            {/* Right Panel - Authentication form */}
-            <View style={authStyles.rightPanel}>
-              <Text style={authStyles.authTitle}>SIGN UP</Text>
-
-              {/* Development shortcut */}
-              <TouchableOpacity
-                style={[
-                  authStyles.submitButton,
-                  { backgroundColor: "#4CAF50", marginBottom: 15 },
-                ]}
-                onPress={goDirectlyToHome}
-              >
-                <Text style={authStyles.submitButtonText}>
-                  DEV MODE: Go to Home
-                </Text>
-              </TouchableOpacity>
-
-              <View style={authStyles.inputContainer}>
-                <TextInput
-                  style={authStyles.input}
-                  placeholder="Email"
-                  placeholderTextColor="#8F9BB3"
-                  value={email}
-                  onChangeText={setEmail}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                />
-              </View>
-
-              <View style={authStyles.inputContainer}>
-                <TextInput
-                  style={authStyles.input}
-                  placeholder="Username"
-                  placeholderTextColor="#8F9BB3"
-                  value={username}
-                  onChangeText={setUsername}
-                  autoCapitalize="none"
-                />
-              </View>
-
-              <View style={authStyles.inputContainer}>
-                <TextInput
-                  style={authStyles.input}
-                  placeholder="Password"
-                  placeholderTextColor="#8F9BB3"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={!showPassword}
-                />
-                <TouchableOpacity
-                  style={authStyles.eyeIcon}
-                  onPress={() => setShowPassword(!showPassword)}
-                >
-                  <Feather
-                    name={showPassword ? "eye" : "eye-off"}
-                    size={20}
-                    color="#8F9BB3"
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <View style={authStyles.inputContainer}>
-                <TextInput
-                  style={authStyles.input}
-                  placeholder="Confirm Password"
-                  placeholderTextColor="#8F9BB3"
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  secureTextEntry={!showConfirmPassword}
-                />
-                <TouchableOpacity
-                  style={authStyles.eyeIcon}
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  <Feather
-                    name={showConfirmPassword ? "eye" : "eye-off"}
-                    size={20}
-                    color="#8F9BB3"
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <TouchableOpacity
-                style={authStyles.submitButton}
-                onPress={handleSignup}
-              >
-                <Text style={authStyles.submitButtonText}>Sign Up</Text>
-              </TouchableOpacity>
-
-              {message && <Text style={authStyles.messageText}>{message}</Text>}
-
-              <View style={authStyles.dividerContainer}>
-                <View style={authStyles.divider} />
-                <Text style={authStyles.dividerText}>or continue with</Text>
-                <View style={authStyles.divider} />
-              </View>
-
-              <View style={authStyles.socialButtonsContainer}>
-                <TouchableOpacity style={authStyles.socialButton}>
+                {/* Feature card: Find matches and earn */}
+                <View style={authStyles.mainFeatureCard}>
                   <Image
-                    source={require("@/assets/images/steam-icon.svg")}
-                    style={authStyles.socialIcon}
+                    source={require("@/assets/images/placeholders/placeholder1.png")}
+                    style={authStyles.featureCardBackground}
+                    resizeMode="cover"
                   />
-                </TouchableOpacity>
-                <TouchableOpacity style={authStyles.socialButton}>
-                  <Image
-                    source={require("@/assets/images/discord-icon.svg")}
-                    style={authStyles.socialIcon}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity style={authStyles.socialButton}>
-                  <Image
-                    source={require("@/assets/images/apple-icon.svg")}
-                    style={authStyles.socialIcon}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity style={authStyles.socialButton}>
-                  <Image
-                    source={require("@/assets/images/google-icon.svg")}
-                    style={authStyles.socialIcon}
-                  />
-                </TouchableOpacity>
-              </View>
+                  <View style={authStyles.featureCardContent}>
+                    <Text style={authStyles.featureTitle}>
+                      Find matches and earn
+                    </Text>
+                    <Text style={authStyles.featureDescription}>
+                      Stake on every match, or compete for free to rank up
+                    </Text>
+                  </View>
+                </View>
 
-              <View style={authStyles.switchAuthContainer}>
-                <Text style={authStyles.switchAuthText}>
-                  Already have an account?
-                </Text>
-                <Link href="/(auth)/login" asChild>
-                  <TouchableOpacity>
-                    <Text style={authStyles.switchAuthLink}>Sign In</Text>
-                  </TouchableOpacity>
-                </Link>
+                {/* Feature card: Compete in matches */}
+                <View style={authStyles.featureCard}>
+                  <Image
+                    source={require("@/assets/images/placeholders/placeholder3.png")}
+                    style={authStyles.featureCardBackground}
+                    resizeMode="cover"
+                  />
+                  <View style={authStyles.featureCardContent}>
+                    <Text style={authStyles.featureTitle}>
+                      Compete in matches, leagues and tournaments
+                    </Text>
+                    <Text style={authStyles.featureDescription}>
+                      Create your own rules or join existing competitions
+                    </Text>
+                  </View>
+                </View>
               </View>
             </View>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    );
-  };
+
+          {/* Right Panel - Authentication form */}
+          <View style={authStyles.rightPanel}>
+            <Text style={authStyles.authTitle}>SIGN UP</Text>
+
+            {/* Development shortcut */}
+            <TouchableOpacity
+              style={[
+                authStyles.submitButton,
+                { backgroundColor: "#4CAF50", marginBottom: 15 },
+              ]}
+              onPress={goDirectlyToHome}
+            >
+              <Text style={authStyles.submitButtonText}>
+                DEV MODE: Go to Home
+              </Text>
+            </TouchableOpacity>
+
+            <View style={authStyles.inputContainer}>
+              <TextInput
+                style={authStyles.input}
+                placeholder="Email"
+                placeholderTextColor="#8F9BB3"
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+            </View>
+
+            <View style={authStyles.inputContainer}>
+              <TextInput
+                style={authStyles.input}
+                placeholder="Username"
+                placeholderTextColor="#8F9BB3"
+                value={username}
+                onChangeText={setUsername}
+                autoCapitalize="none"
+              />
+            </View>
+
+            <View style={authStyles.inputContainer}>
+              <TextInput
+                style={authStyles.input}
+                placeholder="Password"
+                placeholderTextColor="#8F9BB3"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+              />
+              <TouchableOpacity
+                style={authStyles.eyeIcon}
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Feather
+                  name={showPassword ? "eye" : "eye-off"}
+                  size={20}
+                  color="#8F9BB3"
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={authStyles.inputContainer}>
+              <TextInput
+                style={authStyles.input}
+                placeholder="Confirm Password"
+                placeholderTextColor="#8F9BB3"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry={!showConfirmPassword}
+              />
+              <TouchableOpacity
+                style={authStyles.eyeIcon}
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                <Feather
+                  name={showConfirmPassword ? "eye" : "eye-off"}
+                  size={20}
+                  color="#8F9BB3"
+                />
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={authStyles.submitButton}
+              onPress={handleSignup}
+            >
+              <Text style={authStyles.submitButtonText}>Sign Up</Text>
+            </TouchableOpacity>
+
+            {message && <Text style={authStyles.messageText}>{message}</Text>}
+
+            <View style={authStyles.dividerContainer}>
+              <View style={authStyles.divider} />
+              <Text style={authStyles.dividerText}>or continue with</Text>
+              <View style={authStyles.divider} />
+            </View>
+
+            <View style={authStyles.socialButtonsContainer}>
+              <TouchableOpacity style={authStyles.socialButton}>
+                <Image
+                  source={require("@/assets/images/steam-icon.svg")}
+                  style={authStyles.socialIcon}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity style={authStyles.socialButton}>
+                <Image
+                  source={require("@/assets/images/discord-icon.svg")}
+                  style={authStyles.socialIcon}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity style={authStyles.socialButton}>
+                <Image
+                  source={require("@/assets/images/apple-icon.svg")}
+                  style={authStyles.socialIcon}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity style={authStyles.socialButton}>
+                <Image
+                  source={require("@/assets/images/google-icon.svg")}
+                  style={authStyles.socialIcon}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={authStyles.switchAuthContainer}>
+              <Text style={authStyles.switchAuthText}>
+                Already have an account?
+              </Text>
+              <Link href="/(auth)/login" asChild>
+                <TouchableOpacity>
+                  <Text style={authStyles.switchAuthLink}>Sign In</Text>
+                </TouchableOpacity>
+              </Link>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
 }

@@ -36,19 +36,16 @@ export default function Login() {
     ws.onmessage = async (event) => {
       const data = JSON.parse(event.data);
       if (data.type === "loginSuccess") {
-        console.log("Received token: ", data.cookie); //HERE
+        console.log("Received token: ", data.cookie);
+        await AsyncStorage.setItem("authToken", data.authToken);
         setMessage("Login successful!");
+        router.replace("/(home)");
       } else if (data.type === "loginFailed") {
         setMessage(data.message);
       } else if (data.type === "authTokenVerified") {
         router.replace("/(home)");
       } else if (data.type === "authTokenInvalid") {
         setMessage("Session expired. Please log in again.");
-        await AsyncStorage.setItem("authToken", data.authToken);
-
-        setMessage("Login successful!");
-      } else if (data.type === "loginFailed") {
-        setMessage(data.message);
       }
     };
 
@@ -62,9 +59,12 @@ export default function Login() {
   }, []);
 
   const getAuthToken = async (): Promise<string | null> => {
-    // Implement your logic to get the auth token here
-    // For example, you might fetch it from local storage or an API
-    return "your-auth-token"; // Replace with actual logic
+    try {
+      return await AsyncStorage.getItem("authToken");
+    } catch (error) {
+      console.error("Error getting auth token:", error);
+      return null;
+    }
   };
 
   const handleLogin = async () => {
