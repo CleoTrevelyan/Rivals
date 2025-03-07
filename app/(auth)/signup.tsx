@@ -25,30 +25,18 @@ export default function Signup() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  //const [playerID, setPlayerID] = useState("");
-  //const [gameID, setGameID] = useState("");
 
   useEffect(() => {
+    // Optional: You can still set up WebSocket for other functionality
     const ws = new WebSocket(RivalsServer);
 
-    ws.onopen = async () => {
+    ws.onopen = () => {
       console.log("Connected to the WebSocket server");
       setSocket(ws);
-      const authToken = await AsyncStorage.getItem("authToken");
-      if (authToken) {
-        const message = {
-          type: "authTokenVerification",
-          authToken: authToken,
-        };
-        ws.send(JSON.stringify(message));
-      }
     };
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (data.type === "authTokenVerified") {
-              router.replace("/(tabs)");
-      }
       setMessage(data.message);
     };
 
@@ -61,46 +49,30 @@ export default function Signup() {
     };
   }, []);
 
+  // Modified to bypass authentication and go directly to home
   const handleSignup = async () => {
-    if (password !== confirmPassword) {
-      setMessage("Passwords don't match");
-      return;
-    }
-
-    if (username.includes("@")) {
-      setMessage("Username cannot contain '@'");
-      return;
-    }
-
-    // Skip backend connection to navigate to home
-    console.log("Demo signup with:", { email, username });
-
-    /*
     try {
-      // Dummy token stored to simulate login
-      await AsyncStorage.setItem("userToken", "demo-token-12345");
-      // Go to the home screen
-      router.replace("/(tabs)");
-    } catch (error) {
-      console.error("Error storing token:", error);
-      setMessage("Error during signup process");
-    }
-    */
+      // Store a dummy token to simulate being logged in
+      await AsyncStorage.setItem("userToken", "dummy-dev-token");
 
-    
-    // Original backend connection code - commented out
-    if (socket) {
-      const message = {
-        type: "register",
-        email: email,
-        username: username,
-        password: password,
-        // playerID: playerID,
-        // gameID: gameID,
-      };
-      socket.send(JSON.stringify(message));
-      console.log("Signup data:", message);
+      // Store any other needed values for development
+      if (username) {
+        await AsyncStorage.setItem("playerID", "dev-" + username);
+        await AsyncStorage.setItem("username", username);
+      }
+
+      console.log("Development mode: Bypassing authentication");
+
+      // Navigate to the home/tabs route
+      router.replace("/(home)");
+    } catch (error) {
+      console.error("Error during development navigation:", error);
     }
+  };
+
+  // Quick bypass function to go directly to home
+  const goDirectlyToHome = () => {
+    router.replace("/(home)");
   };
 
   return (
@@ -123,12 +95,10 @@ export default function Signup() {
                   resizeMode="contain"
                 />
               </View>
-
               <View style={authStyles.titleContainer}>
                 <Text style={authStyles.headerText}>EXPERIENCE THE</Text>
                 <Text style={authStyles.headerText}>FUTURE OF GAMING</Text>
               </View>
-
               <Text style={authStyles.subHeaderText}>
                 Immerse yourself in Rivals,
               </Text>
@@ -139,25 +109,7 @@ export default function Signup() {
                 Explore diverse betting markets tailored to competitive
                 gameplay.
               </Text>
-
               <View style={authStyles.featuresContainer}>
-                {/* Feature card: Find matches and earn */}
-                <View style={authStyles.featureCard}>
-                  <Image
-                    source={require("@/assets/images/placeholders/placeholder1.png")}
-                    style={authStyles.featureCardBackground}
-                    resizeMode="cover"
-                  />
-                  <View style={authStyles.featureCardContent}>
-                    <Text style={authStyles.featureTitle}>
-                      Find matches and earn
-                    </Text>
-                    <Text style={authStyles.featureDescription}>
-                      Stake on every match, or compete for free to rank up
-                    </Text>
-                  </View>
-                </View>
-
                 {/* Feature card: Play as a team */}
                 <View style={authStyles.featureCard}>
                   <Image
@@ -171,6 +123,22 @@ export default function Signup() {
                     </Text>
                     <Text style={authStyles.featureDescription}>
                       Manage your crew, splitting buy-ins and payouts
+                    </Text>
+                  </View>
+                </View>
+                {/* Feature card: Find matches and earn */}
+                <View style={authStyles.mainFeatureCard}>
+                  <Image
+                    source={require("@/assets/images/placeholders/placeholder1.png")}
+                    style={authStyles.featureCardBackground}
+                    resizeMode="cover"
+                  />
+                  <View style={authStyles.featureCardContent}>
+                    <Text style={authStyles.featureTitle}>
+                      Find matches and earn
+                    </Text>
+                    <Text style={authStyles.featureDescription}>
+                      Stake on every match, or compete for free to rank up
                     </Text>
                   </View>
                 </View>
@@ -198,6 +166,19 @@ export default function Signup() {
           {/* Right Panel - Authentication form */}
           <View style={authStyles.rightPanel}>
             <Text style={authStyles.authTitle}>SIGN UP</Text>
+
+            {/* Development shortcut */}
+            <TouchableOpacity
+              style={[
+                authStyles.submitButton,
+                { backgroundColor: "#4CAF50", marginBottom: 15 },
+              ]}
+              onPress={goDirectlyToHome}
+            >
+              <Text style={authStyles.submitButtonText}>
+                DEV MODE: Go to Home
+              </Text>
+            </TouchableOpacity>
 
             <View style={authStyles.inputContainer}>
               <TextInput
@@ -263,29 +244,6 @@ export default function Signup() {
                 />
               </TouchableOpacity>
             </View>
-
-            {/* Hidden fields for playerID and gameID - can be shown if needed */}
-            {/* 
-            <View style={authStyles.inputContainer}>
-              <TextInput
-                style={authStyles.input}
-                placeholder="Player ID"
-                placeholderTextColor="#8F9BB3"
-                value={playerID}
-                onChangeText={setPlayerID}
-              />
-            </View>
-            
-            <View style={authStyles.inputContainer}>
-              <TextInput
-                style={authStyles.input}
-                placeholder="Game ID"
-                placeholderTextColor="#8F9BB3"
-                value={gameID}
-                onChangeText={setGameID}
-              />
-            </View>
-            */}
 
             <TouchableOpacity
               style={authStyles.submitButton}

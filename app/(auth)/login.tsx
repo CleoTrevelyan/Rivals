@@ -43,12 +43,12 @@ export default function Login() {
     ws.onmessage = async (event) => {
       const data = JSON.parse(event.data);
       if (data.type === "loginSuccess") {
-        console.log('Received token: ', data.cookie);//HERE
+        console.log("Received token: ", data.cookie); //HERE
         setMessage("Login successful!");
       } else if (data.type === "loginFailed") {
         setMessage(data.message);
       } else if (data.type === "authTokenVerified") {
-        router.replace("/(tabs)");
+        router.replace("/(home)");
       } else if (data.type === "authTokenInvalid") {
         setMessage("Session expired. Please log in again.");
       }
@@ -62,6 +62,12 @@ export default function Login() {
       ws.close();
     };
   }, []);
+
+  const getAuthToken = async (): Promise<string | null> => {
+    // Implement your logic to get the auth token here
+    // For example, you might fetch it from local storage or an API
+    return "your-auth-token"; // Replace with actual logic
+  };
 
   const handleLogin = async () => {
     // Basic validation
@@ -108,7 +114,6 @@ export default function Login() {
                 <Text style={authStyles.headerText}>EXPERIENCE THE</Text>
                 <Text style={authStyles.headerText}>FUTURE OF GAMING</Text>
               </View>
-
               <Text style={authStyles.subHeaderText}>
                 Immerse yourself in Rivals,
               </Text>
@@ -119,25 +124,7 @@ export default function Login() {
                 Explore diverse betting markets tailored to competitive
                 gameplay.
               </Text>
-
               <View style={authStyles.featuresContainer}>
-                {/* Feature card: Find matches and earn */}
-                <View style={authStyles.featureCard}>
-                  <Image
-                    source={require("@/assets/images/placeholders/placeholder1.png")}
-                    style={authStyles.featureCardBackground}
-                    resizeMode="cover"
-                  />
-                  <View style={authStyles.featureCardContent}>
-                    <Text style={authStyles.featureTitle}>
-                      Find matches and earn
-                    </Text>
-                    <Text style={authStyles.featureDescription}>
-                      Stake on every match, or compete for free to rank up
-                    </Text>
-                  </View>
-                </View>
-
                 {/* Feature card: Play as a team */}
                 <View style={authStyles.featureCard}>
                   <Image
@@ -154,7 +141,22 @@ export default function Login() {
                     </Text>
                   </View>
                 </View>
-
+                {/* Feature card: Find matches and earn */}
+                <View style={authStyles.mainFeatureCard}>
+                  <Image
+                    source={require("@/assets/images/placeholders/placeholder1.png")}
+                    style={authStyles.featureCardBackground}
+                    resizeMode="cover"
+                  />
+                  <View style={authStyles.featureCardContent}>
+                    <Text style={authStyles.featureTitle}>
+                      Find matches and earn
+                    </Text>
+                    <Text style={authStyles.featureDescription}>
+                      Stake on every match, or compete for free to rank up
+                    </Text>
+                  </View>
+                </View>
                 {/* Feature card: Compete in matches */}
                 <View style={authStyles.featureCard}>
                   <Image

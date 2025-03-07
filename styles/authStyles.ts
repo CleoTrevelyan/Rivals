@@ -17,7 +17,7 @@ export const authStyles = StyleSheet.create({
   // Left Panel
   leftPanel: {
     flex: 2,
-    padding: 32,
+    padding: 24,
     backgroundColor: "#101025",
     justifyContent: "flex-start",
     position: "relative",
@@ -35,38 +35,52 @@ export const authStyles = StyleSheet.create({
     width: 60,
     height: 60,
   },
+
   titleContainer: {
-    marginTop: 20,
-    marginBottom: 30,
+    marginTop: 4,
+    marginBottom: 20,
     alignItems: "center",
     width: "100%",
   },
   headerText: {
-    fontSize: 40,
+    fontSize: 44,
     fontWeight: "bold",
     color: "#FFFFFF",
-    marginBottom: 4,
+    marginBottom: 2,
     letterSpacing: 1,
     textAlign: "center",
   },
   subHeaderText: {
-    fontSize: 18,
+    fontSize: 16,
     color: "#B0B0C0",
-    marginBottom: 6,
-    lineHeight: 24,
+    marginBottom: 4,
+    lineHeight: 20,
     textAlign: "center",
   },
+
+  // Feature cards - compact version to avoid scrolling
   featuresContainer: {
     width: "100%",
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
+    alignContent: "flex-end",
+    alignItems: "flex-end",
     marginTop: 40,
-    gap: 20,
+    marginBottom: 15,
   },
   featureCard: {
-    flex: 1,
-    height: 220,
-    borderRadius: 12,
+    width: "24%",
+    height: 240, // Reduced height
+    borderRadius: 12, // Slightly smaller radius
+    marginHorizontal: 8,
+    overflow: "hidden",
+    position: "relative",
+  },
+  mainFeatureCard: {
+    width: "24%",
+    height: 280, // Reduced height
+    borderRadius: 12, // Slightly smaller radius
+    marginHorizontal: 8,
     overflow: "hidden",
     position: "relative",
   },
@@ -78,21 +92,26 @@ export const authStyles = StyleSheet.create({
   },
   featureCardContent: {
     position: "absolute",
-    bottom: 0,
+    top: 0,
     left: 0,
     right: 0,
-    padding: 16,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    bottom: 0,
+    padding: 12, // Smaller padding
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
   },
   featureTitle: {
     color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 8,
+    fontSize: 14, // Smaller font
+    fontWeight: "semibold",
+    marginBottom: 4, // Reduced spacing
   },
   featureDescription: {
     color: "#E0E0E0",
-    fontSize: 14,
+    fontSize: 12, // Smaller font
+    lineHeight: 16, // Tighter line height
   },
 
   // Right Panel
