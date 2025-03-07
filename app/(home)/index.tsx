@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Text,
   View,
@@ -18,6 +18,7 @@ import JoinGameModal from "./components/JoinGameModal";
 import CreateGameModal from "./components/CreateGameModal";
 import TournamentsScreen from "./components/TournamentScreen";
 import CreateGameButton from "./components/CreateGameButton";
+import { RivalsServer } from "@/components/constants";
 
 // Simulated user balance
 const userBalance = "$14,230";
@@ -26,19 +27,43 @@ export default function HomeScreen() {
   const [activeTab, setActiveTab] = useState("TRENDING");
   const windowWidth = Dimensions.get("window").width;
   const [showGameModal, setShowGameModal] = useState<boolean>(false);
+  const [socket, setSocket] = useState<WebSocket | null>(null);
 
-  // Separate state for create game modal
-  const [showCreateGameModal, setShowCreateGameModal] =
-    useState<boolean>(false);
+  useEffect(() => {
+    const ws = new WebSocket(RivalsServer);
+
+    ws.onopen = () => {
+      console.log("Connected to the WebSocket server");
+      setSocket(ws);
+    };
+
+    ws.onclose = () => {
+      console.log("Disconnected from the WebSocket server");
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, []);
 
   const handleLogout = async () => {
     try {
-      //send request to remove client
+      if (socket) {
+        const message = {
+          type: "logout",
+        };
+        socket.send(JSON.stringify(message));
+      }
+      await AsyncStorage.removeItem("authToken");
       router.replace("/(auth)");
     } catch (error) {
       console.error("Error logging out:", error);
     }
   };
+  // Separate state for create game modal
+  const [showCreateGameModal, setShowCreateGameModal] =
+    useState<boolean>(false);
+
 
   // Function to handle Create Game button press - now only opens CreateGameModal
   const handleCreateGamePress = () => {
