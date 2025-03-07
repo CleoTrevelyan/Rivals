@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, Modal } from "react-native";
 import { gameModalStyles } from "@/styles/gameModalStyles";
 import { Ionicons } from "@expo/vector-icons";
-import PageLoader from "@/components/pageLoader";
+// import PageLoader from "@/components/pageLoader";
 import { RivalsServer } from "@/components/constants.js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -21,14 +21,14 @@ interface GameModalProps {
   visible: boolean;
   onClose: () => void;
 }
-const playerID = AsyncStorage.getItem("playerID");
 
 const GameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
   const [stage, setStage] = useState<GameStage>("join");
   const [isLoading, setIsLoading] = useState(false);
   const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [playerID, setPlayerID] = useState<string | null>(null);
   const [currentPlayer, setCurrentPlayer] = useState<Player>({
-    id: playerID,
+    id: null, // Will be updated after loading playerID
     name: "You",
     avatar: "J",
     isReady: false,
@@ -36,6 +36,21 @@ const GameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
     score: 0,
   });
   const [opponent, setOpponent] = useState<Player | null>(null);
+
+  // Load playerID from AsyncStorage
+  useEffect(() => {
+    const loadPlayerID = async () => {
+      try {
+        const id = await AsyncStorage.getItem("playerID");
+        setPlayerID(id);
+        setCurrentPlayer((prev) => ({ ...prev, id }));
+      } catch (error) {
+        console.error("Error loading playerID:", error);
+      }
+    };
+
+    loadPlayerID();
+  }, []);
 
   useEffect(() => {
     const ws = new WebSocket(RivalsServer);
@@ -89,7 +104,7 @@ const GameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
             const data = {
               type: "matchmake",
               playerID: currentPlayer.id,
-              game: 'NnC',
+              game: "NnC",
             };
             socket.send(JSON.stringify(data));
             setIsLoading(false);
@@ -414,7 +429,7 @@ const GameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
 
           {renderContent()}
 
-          <PageLoader isLoading={isLoading} />
+          {/* <PageLoader isLoading={isLoading} /> */}
         </View>
       </View>
     </Modal>

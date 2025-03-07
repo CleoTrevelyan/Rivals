@@ -359,7 +359,6 @@ export default function HomeScreen() {
   };
 
   const renderAllMatches = () => {
-    // Your existing implementation...
     // Calculate number of columns based on screen width
     const numColumns = windowWidth > 1200 ? 3 : windowWidth > 768 ? 2 : 1;
 
