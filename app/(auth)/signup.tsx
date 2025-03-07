@@ -55,11 +55,6 @@ export default function Signup() {
     };
   }, []);
 
-  // Quick bypass function to go directly to home
-  const goDirectlyToHome = () => {
-    router.replace("/(home)");
-  };
-
   // Modified to bypass authentication and go directly to home
   const handleSignup = async () => {
     /*
@@ -344,3 +339,4 @@ export default function Signup() {
       </ScrollView>
     </KeyboardAvoidingView>
   );
+}
