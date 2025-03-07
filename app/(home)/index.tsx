@@ -33,7 +33,7 @@ export default function HomeScreen() {
 
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem("userToken");
+      //send request to remove client
       router.replace("/(auth)");
     } catch (error) {
       console.error("Error logging out:", error);

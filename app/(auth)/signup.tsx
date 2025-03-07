@@ -57,15 +57,8 @@ export default function Signup() {
 
   // Modified to bypass authentication and go directly to home
   const handleSignup = async () => {
+    /*
     try {
-      // Store a dummy token to simulate being logged in
-      await AsyncStorage.setItem("userToken", "dummy-dev-token");
-
-      // Store any other needed values for development
-      if (username) {
-        await AsyncStorage.setItem("playerID", "dev-" + username);
-        await AsyncStorage.setItem("username", username);
-      }
 
       console.log("Development mode: Bypassing authentication");
 
@@ -73,30 +66,31 @@ export default function Signup() {
       router.replace("/(home)");
     } catch (error) {
       console.error("Error during development navigation:", error);
-      if (password !== confirmPassword) {
-        setMessage("Passwords don't match");
-        return;
-      }
-
-      if (username.includes("@")) {
-        setMessage("Username cannot contain '@'");
-        return;
-      }
-
+      
       // Skip backend connection to navigate to home
       console.log("Demo signup with:", { email, username });
+      
+    try {
+      // Dummy token stored to simulate login
+      await AsyncStorage.setItem("userToken", "demo-token-12345");
+      // Go to the home screen
+      router.replace("/(home)");
+    } catch (error) {
+      console.error("Error storing token:", error);
+      setMessage("Error during signup process");
+    }
+    */
+      
+      
+    if (password !== confirmPassword) {
+      setMessage("Passwords don't match");
+      return;
+    }
 
-      try {
-        // Dummy token stored to simulate login
-        await AsyncStorage.setItem("userToken", "demo-token-12345");
-        // Go to the home screen
-        router.replace("/(home)");
-      } catch (error) {
-        console.error("Error storing token:", error);
-        setMessage("Error during signup process");
-      }
-
-      /* 
+    if (username.includes("@")) {
+      setMessage("Username cannot contain '@'");
+      return;
+    }
     // Original backend connection code - commented out
     if (socket) {
       const message = {
@@ -110,7 +104,7 @@ export default function Signup() {
       socket.send(JSON.stringify(message));
       console.log("Signup data:", message);
     }
-    */
+    
     }
 
     // Quick bypass function to go directly to home
@@ -346,4 +340,3 @@ export default function Signup() {
       </KeyboardAvoidingView>
     );
   };
-}
