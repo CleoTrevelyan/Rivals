@@ -74,7 +74,7 @@ export default function Login() {
       return;
     }
     console.log("Demo login with:", { username });
-
+    /*
     try {
       await AsyncStorage.setItem("userToken", "demo-token-12345");
       // Head to home screen
@@ -83,8 +83,8 @@ export default function Login() {
       console.error("Error storing token:", error);
       setMessage("Error during login process");
     }
-
-    /* 
+    */
+    
     // Original backend connection code - commented out
     if (socket) {
       const message = {
@@ -94,7 +94,6 @@ export default function Login() {
       };
       socket.send(JSON.stringify(message));
     }
-    */
   };
 
   return (
