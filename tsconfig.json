@@ -1,14 +1,30 @@
 {
-  "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "esModuleInterop": true,
     "strict": true,
     "paths": {
-      "@/*": ["./*"],
-      "@components/*": ["./components/*"],
-      "@assets/*": ["./assets/*"],
-      "@styles/*": ["./styles/*"],
-    }
+      "@/*": [
+        "./*"
+      ],
+      "@components/*": [
+        "./components/*"
+      ],
+      "@assets/*": [
+        "./assets/*"
+      ],
+      "@styles/*": [
+        "./styles/*"
+      ]
+    },
+    "jsx": "react"
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ],
+  "extends": "expo/tsconfig.base"
 }
