@@ -14,7 +14,6 @@ import { Feather } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import { authStyles } from "@/styles/authStyles";
 import PerlinNoiseBackground from "@/components/perlinHero";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Signup() {
   const [message, setMessage] = useState("");
@@ -51,48 +50,40 @@ export default function Signup() {
 
   // Modified to bypass authentication and go directly to home
   const handleSignup = async () => {
-<<<<<<< HEAD
+    /*
     try {
-      // Store a dummy token to simulate being logged in
-      await AsyncStorage.setItem("userToken", "dummy-dev-token");
-
-      // Store any other needed values for development
-      if (username) {
-        await AsyncStorage.setItem("playerID", "dev-" + username);
-        await AsyncStorage.setItem("username", username);
-      }
-
       console.log("Development mode: Bypassing authentication");
 
       // Navigate to the home/tabs route
       router.replace("/(home)");
     } catch (error) {
       console.error("Error during development navigation:", error);
-=======
+    }
+    */
+   
+   /*
+   // Skip backend connection to navigate to home
+   console.log("Demo signup with:", { email, username });
+   try {
+     // Dummy token stored to simulate login
+     // Go to the home screen
+     router.replace("/(tabs)");
+    } catch (error) {
+      console.error("Error storing token:", error);
+      setMessage("Error during signup process");
+    }
+    */
+    
     if (password !== confirmPassword) {
       setMessage("Passwords don't match");
       return;
     }
-
+ 
     if (username.includes("@")) {
       setMessage("Username cannot contain '@'");
       return;
     }
 
-    // Skip backend connection to navigate to home
-    console.log("Demo signup with:", { email, username });
-
-    try {
-      // Dummy token stored to simulate login
-      await AsyncStorage.setItem("userToken", "demo-token-12345");
-      // Go to the home screen
-      router.replace("/(tabs)");
-    } catch (error) {
-      console.error("Error storing token:", error);
-      setMessage("Error during signup process");
-    }
-
-    /* 
     // Original backend connection code - commented out
     if (socket) {
       const message = {
@@ -105,9 +96,7 @@ export default function Signup() {
       };
       socket.send(JSON.stringify(message));
       console.log("Signup data:", message);
->>>>>>> 5e5c71ddd45613071ffe7e337a9d3ee0b8544574
     }
-    */
   };
 
   // Quick bypass function to go directly to home

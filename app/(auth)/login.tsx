@@ -36,22 +36,14 @@ export default function Login() {
     ws.onmessage = async (event) => {
       const data = JSON.parse(event.data);
       if (data.type === "loginSuccess") {
-<<<<<<< HEAD
-        console.log("Received token: ", data.cookie); //HERE
         setMessage("Login successful!");
+        router.replace("/(home)");
       } else if (data.type === "loginFailed") {
         setMessage(data.message);
       } else if (data.type === "authTokenVerified") {
         router.replace("/(home)");
       } else if (data.type === "authTokenInvalid") {
         setMessage("Session expired. Please log in again.");
-=======
-        await AsyncStorage.setItem("authToken", data.authToken);
-
-        setMessage("Login successful!");
-      } else if (data.type === "loginFailed") {
-        setMessage(data.message);
->>>>>>> 5e5c71ddd45613071ffe7e337a9d3ee0b8544574
       }
     };
 
@@ -78,6 +70,7 @@ export default function Login() {
     }
     console.log("Demo login with:", { username });
 
+    /* 
     try {
       await AsyncStorage.setItem("userToken", "demo-token-12345");
       // Head to home screen
@@ -87,7 +80,7 @@ export default function Login() {
       setMessage("Error during login process");
     }
 
-    /* 
+    */
     // Original backend connection code - commented out
     if (socket) {
       const message = {
@@ -97,7 +90,6 @@ export default function Login() {
       };
       socket.send(JSON.stringify(message));
     }
-    */
   };
 
   return (
