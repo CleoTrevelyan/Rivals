@@ -178,7 +178,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
       // If no winner, AI will make a move after a short delay
       setTimeout(() => {
         makeAIMove(newBoard);
-      }, 500);
+      }, 3000);
 
       return true;
     };
@@ -311,20 +311,22 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
     };
   };
 
+  // Always call both hooks but only use the one needed
+  const localGameHook = useLocalTicTacToeGame();
+  const onlineGameHook = useTicTacToeGame({
+    socket,
+    gameID: gameID || undefined,
+    playerID: playerID || undefined,
+    onGameEnd: (result) => {
+      console.log(`Game ended: ${result}`);
+      // Game end will be handled by UI buttons instead of automatic transition
+    },
+    initialPlayerSymbol: currentPlayer.symbol,
+    timeLimit: selectedTimeLimit === "5 MIN" ? 300 : undefined,
+  });
+
   // Choose which hook to use based on local play mode
-  const gameHook = isLocalPlay
-    ? useLocalTicTacToeGame()
-    : useTicTacToeGame({
-        socket,
-        gameID: gameID || undefined,
-        playerID: playerID || undefined,
-        onGameEnd: (result) => {
-          console.log(`Game ended: ${result}`);
-          // Game end will be handled by UI buttons instead of automatic transition
-        },
-        initialPlayerSymbol: currentPlayer.symbol,
-        timeLimit: selectedTimeLimit === "5 MIN" ? 300 : undefined,
-      });
+  const gameHook = isLocalPlay ? localGameHook : onlineGameHook;
 
   // Destructure the game hook variables
   const {
@@ -344,6 +346,23 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
     requestRematch,
     acceptRematch,
   } = gameHook;
+
+  // Function to handle player move
+  const handlePlayerMove = (position: number) => {
+    if (isLocalPlay) {
+      makeMove(position);
+    } else if (socket && gameID && playerID) {
+      socket.send(
+        JSON.stringify({
+          type: 'makeMove',
+          gameID,
+          playerID,
+          position,
+          symbol: playerSymbol,
+        })
+      );
+    }
+  };
 
   // Reset to initial stage when modal is opened
   useEffect(() => {
@@ -1015,7 +1034,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
             gameState={board}
             currentTurn={currentTurn}
             isPlayerTurn={isPlayerTurn}
-            onMove={makeMove}
+            onMove={handlePlayerMove}
             active={isActive}
             timeLimit={selectedTimeLimit === "5 MIN" ? 300 : undefined}
             winner={winner}
