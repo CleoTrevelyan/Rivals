@@ -37,7 +37,7 @@ export default function Login() {
       const data = JSON.parse(event.data);
       if (data.type === "loginSuccess") {
         console.log("Received token: ", data.cookie);
-        await AsyncStorage.setItem("playerID", data.userID);
+        await AsyncStorage.setItem("authToken", data.authToken);
         setMessage("Login successful!");
         router.replace("/(home)");
       } else if (data.type === "loginFailed") {
@@ -74,7 +74,7 @@ export default function Login() {
       return;
     }
     console.log("Demo login with:", { username });
-    /*
+
     try {
       await AsyncStorage.setItem("userToken", "demo-token-12345");
       // Head to home screen
@@ -83,8 +83,8 @@ export default function Login() {
       console.error("Error storing token:", error);
       setMessage("Error during login process");
     }
-    */
-    
+
+    /* 
     // Original backend connection code - commented out
     if (socket) {
       const message = {
@@ -94,6 +94,7 @@ export default function Login() {
       };
       socket.send(JSON.stringify(message));
     }
+    */
   };
 
   return (
@@ -155,7 +156,10 @@ export default function Login() {
                   />
                   <View style={authStyles.featureCardContent}>
                     <Text style={authStyles.featureTitle}>
-                      Find matches and earn
+                      Find matches and{" "}
+                      <Text style={{ fontWeight: "bold", color: "#02F199" }}>
+                        earn
+                      </Text>{" "}
                     </Text>
                     <Text style={authStyles.featureDescription}>
                       Stake on every match, or compete for free to rank up

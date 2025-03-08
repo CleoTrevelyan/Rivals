@@ -38,10 +38,10 @@ export default function Signup() {
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.type === "authTokenVerified") {
-              router.replace("/(home)");
+        router.replace("/(home)");
       } else if (data.type === "authTokenInvalid") {
-              setMessage("Session expired. Please log in again.");
-      }else{
+        setMessage("Session expired. Please log in again.");
+      } else {
         setMessage(data.message);
       }
     };
@@ -80,8 +80,7 @@ export default function Signup() {
       setMessage("Error during signup process");
     }
     */
-      
-      
+
     if (password !== confirmPassword) {
       setMessage("Passwords don't match");
       return;
@@ -104,13 +103,12 @@ export default function Signup() {
       socket.send(JSON.stringify(message));
       console.log("Signup data:", message);
     }
-    
-    }
+  };
 
-    // Quick bypass function to go directly to home
-    const goDirectlyToHome = () => {
-      router.replace("/(home)");
-    };
+  // Quick bypass function to go directly to home
+  const goDirectlyToHome = () => {
+    router.replace("/(home)");
+  };
 
   return (
     <KeyboardAvoidingView
@@ -172,7 +170,10 @@ export default function Signup() {
                   />
                   <View style={authStyles.featureCardContent}>
                     <Text style={authStyles.featureTitle}>
-                      Find matches and earn
+                      Find matches and{" "}
+                      <Text style={{ fontWeight: "bold", color: "#02F199" }}>
+                        earn
+                      </Text>{" "}
                     </Text>
                     <Text style={authStyles.featureDescription}>
                       Stake on every match, or compete for free to rank up
@@ -208,7 +209,7 @@ export default function Signup() {
             <TouchableOpacity
               style={[
                 authStyles.submitButton,
-                { backgroundColor: "#4CAF50", marginBottom: 15 },
+                { backgroundColor: "#02F199", marginBottom: 15 },
               ]}
               onPress={goDirectlyToHome}
             >

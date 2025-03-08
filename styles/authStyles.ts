@@ -97,7 +97,7 @@ export const authStyles = StyleSheet.create({
     right: 0,
     bottom: 0,
     padding: 12, // Smaller padding
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    backgroundColor: "rgba(0, 0, 0, 0.1)",
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
@@ -105,7 +105,7 @@ export const authStyles = StyleSheet.create({
   featureTitle: {
     color: "#FFFFFF",
     fontSize: 14, // Smaller font
-    fontWeight: "semibold",
+    fontWeight: "bold",
     marginBottom: 4, // Reduced spacing
   },
   featureDescription: {

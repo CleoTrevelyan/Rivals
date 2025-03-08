@@ -4,7 +4,7 @@ const { width, height } = Dimensions.get("window");
 const modalWidth =
   width > 768 ? Math.min(width * 0.8, 800) : Math.min(width * 0.95, 550);
 
-export const modalStyles = StyleSheet.create({
+export const gameModalStyles = StyleSheet.create({
   // Friend item styling
   friendDetails: {
     flex: 1,
@@ -25,9 +25,9 @@ export const modalStyles = StyleSheet.create({
     fontWeight: "bold",
   },
   xpText: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 12,
+    marginBottom: 8,
   },
 
   // Navigation styles
@@ -57,12 +57,12 @@ export const modalStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 30,
+    marginBottom: 20,
     width: "100%",
   },
   gameTitle: {
     color: "#FFFFFF",
-    fontSize: 26,
+    fontSize: 20,
     fontWeight: "bold",
     marginRight: 12,
   },
@@ -72,28 +72,28 @@ export const modalStyles = StyleSheet.create({
 
   // Player styles
   playerImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     borderWidth: 3,
     borderColor: "transparent",
-    marginBottom: 12,
+    marginBottom: 8,
   },
   playerLevel: {
     color: "#AAAAAA",
-    fontSize: 14,
-    marginBottom: 8,
+    fontSize: 10,
+    marginBottom: 4,
   },
 
   // Match info
   matchDate: {
     color: "#AAAAAA",
-    fontSize: 14,
+    fontSize: 12,
     marginTop: 8,
   },
   matchTime: {
     color: "#AAAAAA",
-    fontSize: 14,
+    fontSize: 12,
     marginTop: 4,
   },
   optionsGrid: {
@@ -147,8 +147,10 @@ export const modalStyles = StyleSheet.create({
     alignItems: "center",
   },
   modalContainer: {
-    width: modalWidth,
-    minHeight: Math.min(height * 0.7, 600),
+    width: "85%",
+    maxWidth: 650,
+    minHeight: 500,
+    maxHeight: "85%",
     backgroundColor: "#1A2341",
     borderRadius: 12,
     overflow: "hidden",
@@ -164,13 +166,14 @@ export const modalStyles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 24,
-    paddingVertical: 16,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#2E3A59",
   },
   modalContent: {
-    padding: width > 768 ? 32 : 24,
+    padding: 16,
     flex: 1,
+    alignItems: "center",
   },
   closeButton: {
     position: "absolute",
@@ -224,7 +227,7 @@ export const modalStyles = StyleSheet.create({
   stepContainer: {
     alignItems: "center",
     width: "100%",
-    paddingHorizontal: width > 768 ? 24 : 16,
+    paddingHorizontal: width > 768 ? 20 : 12,
   },
   stepTitle: {
     color: "#FFFFFF",
@@ -395,49 +398,55 @@ export const modalStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 32,
-    width: "100%",
+    marginBottom: 20,
+    width: "90%",
+    maxWidth: 500,
+    paddingHorizontal: 10,
   },
   playerContainer: {
     alignItems: "center",
     flex: 1,
+    maxWidth: 110,
   },
   playerColumn: {
     alignItems: "center",
     flex: 1,
   },
   playerAvatar: {
-    width: width > 768 ? 100 : 80,
-    height: width > 768 ? 100 : 80,
-    borderRadius: width > 768 ? 50 : 40,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: "#2A3356",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 12,
+    marginBottom: 8,
+    borderWidth: 2,
+    borderColor: "transparent",
   },
   playerReady: {
     backgroundColor: "#00E096",
   },
   playerAvatarText: {
     color: "#FFFFFF",
-    fontSize: width > 768 ? 40 : 32,
+    fontSize: 24,
     fontWeight: "bold",
   },
   playerName: {
     color: "#FFFFFF",
-    fontSize: width > 768 ? 18 : 16,
-    marginBottom: 8,
+    fontSize: 12,
+    marginBottom: 2,
+    marginTop: 3,
   },
   colorIndicators: {
     flexDirection: "row",
     justifyContent: "center",
-    marginBottom: 12,
+    marginBottom: 8,
   },
   colorDot: {
-    width: width > 768 ? 14 : 12,
-    height: width > 768 ? 14 : 12,
-    borderRadius: width > 768 ? 7 : 6,
-    marginHorizontal: 3,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 2,
   },
   readyIndicator: {
     flexDirection: "row",
@@ -450,12 +459,13 @@ export const modalStyles = StyleSheet.create({
     marginHorizontal: 3,
   },
   vsContainer: {
-    paddingHorizontal: width > 768 ? 24 : 16,
+    paddingHorizontal: 12,
   },
   vsText: {
     color: "#FFFFFF",
-    fontSize: width > 768 ? 32 : 24,
+    fontSize: 20,
     fontWeight: "bold",
+    textAlign: "center",
   },
   waitingForOpponent: {
     alignItems: "center",
@@ -467,13 +477,14 @@ export const modalStyles = StyleSheet.create({
   },
   notReadyText: {
     color: "#00E096",
-    fontSize: width > 768 ? 18 : 16,
+    fontSize: 12,
     textAlign: "center",
   },
   gameboardContainer: {
     alignItems: "center",
     justifyContent: "center",
-    marginVertical: 24,
+    marginVertical: 10,
+    width: "100%",
   },
   gameboard: {
     width: width > 768 ? 320 : 280,
@@ -528,16 +539,17 @@ export const modalStyles = StyleSheet.create({
   },
   actionButton: {
     backgroundColor: "#00E096",
-    paddingVertical: width > 768 ? 18 : 16,
-    paddingHorizontal: width > 768 ? 40 : 32,
-    borderRadius: width > 768 ? 32 : 28,
-    marginTop: 16,
-    minWidth: width > 768 ? 240 : 200,
+    paddingVertical: 12,
+    paddingHorizontal: width > 768 ? 30 : 24,
+    borderRadius: width > 768 ? 24 : 20,
+    marginTop: 12,
+    minWidth: 140,
+    alignItems: "center",
   },
   actionButtonText: {
     color: "#FFFFFF",
     fontWeight: "bold",
-    fontSize: width > 768 ? 20 : 18,
+    fontSize: 16,
   },
   primaryButton: {
     backgroundColor: "#00E096",
@@ -552,6 +564,231 @@ export const modalStyles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: width > 768 ? 20 : 18,
   },
+
+  // Tic-Tac-Toe specific styles
+  playerInfo: {
+    alignItems: "center",
+    position: "relative",
+    flex: 1,
+    maxWidth: 100,
+  },
+  playerTurnIndicator: {
+    position: "absolute",
+    top: -12,
+    backgroundColor: "transparent",
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 10,
+    zIndex: 1,
+  },
+  activePlayerIndicator: {
+    backgroundColor: "#3366FF",
+  },
+  playerTurnText: {
+    color: "#FFFFFF",
+    fontSize: 10,
+    fontWeight: "bold",
+  },
+  playerAvatarFallback: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#2E2E5D",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+  activePlayerAvatar: {
+    borderColor: "#3366FF",
+  },
+  playerSymbolText: {
+    color: "#8F9BB3",
+    fontSize: 14,
+    fontWeight: "bold",
+    marginTop: 2,
+  },
+
+  // Game actions
+  gameActionsContainer: {
+    width: "100%",
+    alignItems: "center",
+    marginTop: 5,
+  },
+  gameOverActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "70%",
+  },
+  rematchButton: {
+    backgroundColor: "#4AE9A0",
+    paddingVertical: 8,
+    minWidth: 120,
+  },
+  exitButton: {
+    backgroundColor: "#8F9BB3",
+    paddingVertical: 8,
+    minWidth: 120,
+  },
+  forfeitButton: {
+    backgroundColor: "#FF3D71",
+    width: "40%",
+    minWidth: 120,
+    paddingVertical: 8,
+  },
+
+  // Rematch notification
+  rematchNotification: {
+    backgroundColor: "#1A1A2E",
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 15,
+    alignItems: "center",
+    width: "70%",
+    alignSelf: "center",
+  },
+  rematchText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    marginBottom: 10,
+  },
+  rematchButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  acceptButton: {
+    backgroundColor: "#4AE9A0",
+    flex: 1,
+    marginRight: 5,
+    paddingVertical: 6,
+  },
+  declineButton: {
+    backgroundColor: "#FF3D71",
+    flex: 1,
+    marginLeft: 5,
+    paddingVertical: 6,
+  },
+
+  // Error messages
+  errorBanner: {
+    backgroundColor: "#FF3D71",
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+    width: "70%",
+    alignSelf: "center",
+  },
+  errorText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    textAlign: "center",
+  },
+
+  // Game board and cells
+  lastMoveCell: {
+    backgroundColor: "rgba(51, 102, 255, 0.2)",
+  },
+
+  // Winner banner
+  winnerBanner: {
+    padding: 8,
+    borderRadius: 5,
+    marginTop: 15,
+    width: "70%",
+  },
+  winBanner: {
+    backgroundColor: "#4AE9A0",
+  },
+  lossBanner: {
+    backgroundColor: "#FF3D71",
+  },
+  drawBanner: {
+    backgroundColor: "#3366FF",
+  },
+  winnerText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+
+  // Container and game status
+  container: {
+    padding: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+  },
+  statusContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    marginBottom: 10,
+  },
+  timerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#1A1A2E",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 15,
+  },
+  timerText: {
+    color: "#FFFFFF",
+    marginLeft: 5,
+    fontWeight: "bold",
+    fontSize: 12,
+  },
+  statusText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  symbolContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  symbolLabel: {
+    color: "#8F9BB3",
+    marginRight: 5,
+    fontSize: 12,
+  },
+  playerSymbol: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+
+  // Game board
+  board: {
+    width: 260,
+    height: 260,
+    backgroundColor: "#1A1A2E",
+    borderRadius: 10,
+    overflow: "hidden",
+  },
+  row: {
+    flex: 1,
+    flexDirection: "row",
+  },
+  cell: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#2E2E5D",
+  },
+  symbol: {
+    fontSize: 42,
+    fontWeight: "bold",
+  },
+  symbolX: {
+    color: "#3366FF",
+  },
+  symbolO: {
+    color: "#FF3D71",
+  },
 });
 
-export const gameModalStyles = modalStyles;
+export default gameModalStyles;
