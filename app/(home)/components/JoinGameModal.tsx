@@ -178,7 +178,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
       // If no winner, AI will make a move after a short delay
       setTimeout(() => {
         makeAIMove(newBoard);
-      }, 3000);
+      }, Math.random() * 500 + 2000);
 
       return true;
     };
@@ -429,6 +429,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
           switch (data.type) {
             case "matchFound":
               console.log("Opponent: ", data.opponentName);
+              setOpponent((prev) => ({ ...prev, name: data.opponentName }));
               setStage("ready");
               break;
 
