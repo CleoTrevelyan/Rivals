@@ -1,4 +1,4 @@
-const RivalsServer = 'wss://18.133.239.26:443';
+const RivalsServer = 'wss://api.getrivals.com:443';
 const RivalsServerPort = 443;
 const FrontendPort = 3000;
 const ELO_CHANGE = 20;

@@ -27,22 +27,37 @@ export default function Signup() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
-    // Optional: You can still set up WebSocket for other functionality
     const ws = new WebSocket(RivalsServer);
 
-    ws.onopen = () => {
+    ws.onopen = async () => {
       console.log("Connected to the WebSocket server");
       setSocket(ws);
+
+      // Send stored JWT for authentication
+      const authToken = await AsyncStorage.getItem("authToken");
+      if (authToken) {
+        ws.send(
+          JSON.stringify({
+            type: "authTokenVerification",
+            authToken: authToken,
+          })
+        );
+      }
     };
 
-    ws.onmessage = (event) => {
+    ws.onmessage = async (event) => {
       const data = JSON.parse(event.data);
-      if (data.type === "authTokenVerified") {
+      if (data.type === "registerSuccess") {
+        console.log("Received token: ", data.authToken);
+        await AsyncStorage.setItem("authToken", data.authToken);
+        setMessage("Signup successful!");
+        router.replace("/(home)");
+      } else if (data.type === "registerFailed") {
+        setMessage(data.message);
+      } else if (data.type === "authTokenVerified") {
         router.replace("/(home)");
       } else if (data.type === "authTokenInvalid") {
         setMessage("Session expired. Please log in again.");
-      } else {
-        setMessage(data.message);
       }
     };
 
@@ -55,32 +70,7 @@ export default function Signup() {
     };
   }, []);
 
-  // Modified to bypass authentication and go directly to home
   const handleSignup = async () => {
-    /*
-    try {
-
-      console.log("Development mode: Bypassing authentication");
-
-      // Navigate to the home/tabs route
-      router.replace("/(home)");
-    } catch (error) {
-      console.error("Error during development navigation:", error);
-      
-      // Skip backend connection to navigate to home
-      console.log("Demo signup with:", { email, username });
-      
-    try {
-      // Dummy token stored to simulate login
-      await AsyncStorage.setItem("userToken", "demo-token-12345");
-      // Go to the home screen
-      router.replace("/(home)");
-    } catch (error) {
-      console.error("Error storing token:", error);
-      setMessage("Error during signup process");
-    }
-    */
-
     if (password !== confirmPassword) {
       setMessage("Passwords don't match");
       return;
@@ -90,15 +80,13 @@ export default function Signup() {
       setMessage("Username cannot contain '@'");
       return;
     }
-    // Original backend connection code - commented out
+
     if (socket) {
       const message = {
         type: "register",
         email: email,
         username: username,
         password: password,
-        // playerID: playerID,
-        // gameID: gameID,
       };
       socket.send(JSON.stringify(message));
       console.log("Signup data:", message);
@@ -207,15 +195,10 @@ export default function Signup() {
 
             {/* Development shortcut */}
             <TouchableOpacity
-              style={[
-                authStyles.submitButton,
-                { backgroundColor: "#02F199", marginBottom: 15 },
-              ]}
+              style={[authStyles.submitButton, { backgroundColor: "#02F199", marginBottom: 15 }]}
               onPress={goDirectlyToHome}
             >
-              <Text style={authStyles.submitButtonText}>
-                DEV MODE: Go to Home
-              </Text>
+              <Text style={authStyles.submitButtonText}>DEV MODE: Go to Home</Text>
             </TouchableOpacity>
 
             <View style={authStyles.inputContainer}>

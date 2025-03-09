@@ -28,15 +28,26 @@ export default function Login() {
   useEffect(() => {
     const ws = new WebSocket(RivalsServer);
 
-    ws.onopen = () => {
+    ws.onopen = async () => {
       console.log("Connected to the WebSocket server");
       setSocket(ws);
+
+      // Send stored JWT for authentication
+      const authToken = await AsyncStorage.getItem("authToken");
+      if (authToken) {
+        ws.send(
+          JSON.stringify({
+            type: "authTokenVerification",
+            authToken: authToken,
+          })
+        );
+      }
     };
 
     ws.onmessage = async (event) => {
       const data = JSON.parse(event.data);
       if (data.type === "loginSuccess") {
-        console.log("Received token: ", data.cookie);
+        console.log("Received token: ", data.authToken);
         await AsyncStorage.setItem("authToken", data.authToken);
         setMessage("Login successful!");
         router.replace("/(home)");
@@ -73,20 +84,7 @@ export default function Login() {
       setMessage("Please fill in all fields");
       return;
     }
-    console.log("Demo login with:", { username });
 
-    /* 
-    try {
-      await AsyncStorage.setItem("userToken", "demo-token-12345");
-      // Head to home screen
-      router.replace("/(home)");
-    } catch (error) {
-      console.error("Error storing token:", error);
-      setMessage("Error during login process");
-    }
-    */
-
-    // Original backend connection code - commented out
     if (socket) {
       const message = {
         type: "login",

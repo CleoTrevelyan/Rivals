@@ -416,9 +416,20 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
     if (!isLocalPlay) {
       const ws = new WebSocket(RivalsServer);
 
-      ws.onopen = () => {
+      ws.onopen = async () => {
         console.log("Connected to the WebSocket server");
         setSocket(ws);
+
+        // Send stored JWT for authentication
+        const authToken = await AsyncStorage.getItem("authToken");
+        if (authToken) {
+          ws.send(
+            JSON.stringify({
+              type: "authTokenVerification",
+              authToken: authToken,
+            })
+          );
+        }
       };
 
       ws.onmessage = async (event) => {
@@ -431,6 +442,11 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
               console.log("Opponent: ", data.opponentName);
               setOpponent((prev) => ({ ...prev, name: data.opponentName }));
               setStage("ready");
+              break;
+
+            case "searchingForMatch":
+              setStage("searching");
+              setIsLoading(true);
               break;
 
             case "enteringMatch":
@@ -483,8 +499,6 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
 
   const startSearch = async () => {
     const playerID = await AsyncStorage.getItem("playerID");
-    setStage("searching");
-    setIsLoading(true);
     console.log("Matchmaking");
     socket?.send(
       JSON.stringify({
