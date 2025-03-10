@@ -393,9 +393,10 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
       }
     };
     loadPlayerID();
+  }, [isLocalPlay]);
 
-    // Only create WebSocket connection if not in local play mode
-    if (!isLocalPlay) {
+  useEffect(() => {
+    if (visible) {
       const ws = new WebSocket(RivalsServer);
 
       ws.onopen = async () => {
@@ -404,13 +405,16 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
 
         // Send stored JWT for authentication
         const authToken = await AsyncStorage.getItem("authToken");
+        
         if (authToken) {
-          ws.send(
-            JSON.stringify({
-              type: "authTokenVerification",
-              authToken: authToken,
-            })
-          );
+          setTimeout(() => {
+            ws.send(
+              JSON.stringify({
+          type: "authTokenVerification",
+          authToken: authToken,
+              })
+            );
+          }, 100);
         }
       };
 
@@ -475,9 +479,14 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
 
       return () => {
         ws.close();
-      };
+      }
+    } else {
+      if (socket) {
+        socket.close();
+        setSocket(null);
+      }
     }
-  }, [isLocalPlay]);
+  }, [visible]);
 
   const startSearch = async () => {
     const playerID = await AsyncStorage.getItem("playerID");
@@ -1378,6 +1387,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
         return null;
     }
   };
+
   return (
     <Modal
       visible={visible}

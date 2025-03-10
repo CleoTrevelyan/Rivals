@@ -36,21 +36,28 @@ export default function HomeScreen() {
   const [socket, setSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
-    const ws = new WebSocket(RivalsServer);
+    if (!showGameModal) {
+      const ws = new WebSocket(RivalsServer);
 
-    ws.onopen = () => {
-      console.log("Connected to the WebSocket server");
-      setSocket(ws);
-    };
+      ws.onopen = () => {
+        console.log("Connected to the WebSocket server");
+        setSocket(ws);
+      };
 
-    ws.onclose = () => {
-      console.log("Disconnected from the WebSocket server");
-    };
+      ws.onclose = () => {
+        console.log("Disconnected from the WebSocket server");
+      };
 
-    return () => {
-      ws.close();
-    };
-  }, []);
+      return () => {
+        ws.close();
+      };
+    } else {
+      if (socket) {
+        socket.close();
+        setSocket(null);
+      }
+    }
+  }, [showGameModal]);
 
   const handleLogout = async () => {
     try {
