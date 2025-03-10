@@ -125,3 +125,59 @@ export interface GameState {
   opponentID?: string;
   opponentName?: string;
 }
+
+export interface Match {
+  game: string;
+  type: string;
+  teams: Array<{
+    name: string;
+    score: number | null;
+    symbol?: "X" | "O";
+  }>;
+  viewers?: number;
+}
+
+export interface LiveMatchCardProps {
+  match: Match;
+  onPress: () => void;
+}
+
+export interface Team {
+  name: string;
+  score: number | null;
+  symbol?: string;
+}
+
+export interface MatchCardProps {
+  game: string;
+  type: string;
+  isLive: boolean;
+  startTime?: string;
+  teams: Team[];
+  viewers?: number;
+}
+
+export interface Competition {
+  icon: string;
+  name: string;
+  count: number;
+}
+
+export interface CompetitionCardProps {
+  competition: Competition;
+  onPress: () => void;
+}
+
+export interface Event {
+  title: string;
+  description: string;
+  buttonText?: string;
+  buttonType?: "stake" | "request";
+  score?: number;
+  time?: string;
+}
+
+export interface EventCardProps {
+  event: Event;
+  onPress: () => void;
+}

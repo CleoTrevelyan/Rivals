@@ -2,23 +2,29 @@ import React, { useState, useEffect } from "react";
 import {
   Text,
   View,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
   Dimensions,
   Image,
+  ImageBackground,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { homeStyles } from "@/styles/homeStyles";
-import PerlinNoiseBackground from "@/components/perlinHero";
 import JoinGameModal from "./components/JoinGameModal";
 import CreateGameModal from "./components/CreateGameModal";
 import TournamentsScreen from "./components/TournamentScreen";
 import CreateGameButton from "./components/CreateGameButton";
 import { RivalsServer } from "@/components/constants";
+
+// Import card components
+import LiveMatchCard from "./components/cards/LiveMatchCard";
+import MatchCard from "./components/cards/MatchCard";
+import EventCard from "./components/cards/EventCard";
+import CompetitionCard from "./components/cards/CompetitionCard";
+import GameButton from "./components/cards/GameButton";
 
 // Simulated user balance
 const userBalance = "$14,230";
@@ -26,7 +32,7 @@ const userBalance = "$14,230";
 export default function HomeScreen() {
   const [activeTab, setActiveTab] = useState("TRENDING");
   const windowWidth = Dimensions.get("window").width;
-  const [showGameModal, setShowGameModal] = useState<boolean>(false);
+  const [showGameModal, setShowGameModal] = useState(false);
   const [socket, setSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
@@ -60,12 +66,11 @@ export default function HomeScreen() {
       console.error("Error logging out:", error);
     }
   };
+
   // Separate state for create game modal
-  const [showCreateGameModal, setShowCreateGameModal] =
-    useState<boolean>(false);
+  const [showCreateGameModal, setShowCreateGameModal] = useState(false);
 
-
-  // Function to handle Create Game button press - now only opens CreateGameModal
+  // Function to handle Create Game button press
   const handleCreateGamePress = () => {
     setShowCreateGameModal(true);
   };
@@ -91,7 +96,7 @@ export default function HomeScreen() {
     );
   };
 
-  // Live matches data - now consolidated in one place for reuse
+  // Live matches data
   const liveMatches = [
     {
       id: "match1",
@@ -102,14 +107,15 @@ export default function HomeScreen() {
         { name: "Virtus Pro", score: 2 },
       ],
       viewers: 1502,
+      isLive: true,
     },
     {
       id: "match2",
       game: "Noughts & Crosses",
       type: "Live Match",
       teams: [
-        { name: "Rivals User 3", score: null, symbol: "X" },
-        { name: "Rivals User 11", score: null, symbol: "O" },
+        { name: "Rivals User 3", score: null, symbol: "X" as "X" },
+        { name: "Rivals User 11", score: null, symbol: "O" as "O" },
       ],
       isLive: true,
     },
@@ -129,10 +135,90 @@ export default function HomeScreen() {
       game: "Noughts & Crosses",
       type: "Live Match",
       teams: [
-        { name: "Rivals User 2", score: null, symbol: "X" },
-        { name: "Rivals User 4", score: null, symbol: "O" },
+        { name: "Rivals User 2", score: null, symbol: "X" as "X" },
+        { name: "Rivals User 4", score: null, symbol: "O" as "O" },
       ],
       isLive: true,
+    },
+  ];
+
+  // Event data for featured events
+  const featuredEvents = [
+    {
+      id: "event1",
+      title: "Fortnite Showdown",
+      description:
+        "Head to head in an epic Fortnite battle. Who will claim victory?",
+      buttonText: "Stake Now",
+      buttonType: "stake" as "stake",
+    },
+    {
+      id: "event2",
+      title: "NBA 2K League",
+      description: "Bucks Gaming vs 76ers GC",
+      score: 95,
+      time: "103",
+    },
+    {
+      id: "event3",
+      title: "Request a Game",
+      description:
+        "Want us to add a game? We're constantly expanding the games we support.",
+      buttonText: "Request",
+      buttonType: "request" as "request",
+    },
+  ];
+
+  // Game data
+  const games = [
+    {
+      id: "trending",
+      icon: "trending-up",
+      title: "Trending",
+      functional: false,
+    },
+    { id: "dota2", icon: "gamepad", title: "Dota 2", functional: false },
+    {
+      id: "tictactoe",
+      icon: "times",
+      title: "Noughts & Crosses",
+      functional: true,
+    },
+    { id: "csgo", icon: "gamepad", title: "CS:GO", functional: false },
+  ];
+
+  // Competition data
+  const competitions = [
+    { id: "comp1", name: "DOTA", icon: "futbol", count: 26 },
+    { id: "comp2", name: "Fortnite", icon: "futbol", count: 12 },
+    { id: "comp3", name: "NBA 2K24", icon: "basketball-ball", count: 8 },
+    { id: "comp4", name: "Madden NFL 25", icon: "gamepad", count: 4 },
+  ];
+
+  // All matches - live and upcoming
+  const allMatches = [
+    ...liveMatches,
+    {
+      id: "match5",
+      game: "FIFA 23",
+      type: "Weekly Tournament",
+      isLive: false,
+      startTime: "18:30",
+      teams: [
+        { name: "Rivals FC", score: null },
+        { name: "Gaming United", score: null },
+      ],
+    },
+    {
+      id: "match6",
+      game: "CS:GO",
+      type: "Major Qualifiers",
+      isLive: false,
+      startTime: "20:15",
+      teams: [
+        { name: "Natus Vincere", score: null },
+        { name: "Astralis", score: null },
+      ],
     },
   ];
 
@@ -155,9 +241,9 @@ export default function HomeScreen() {
           style={homeStyles.horizontalScrollView}
         >
           {liveMatches.map((match) => (
-            <TouchableOpacity
+            <LiveMatchCard
               key={match.id}
-              style={homeStyles.liveMatchCard}
+              match={match}
               onPress={() => {
                 if (match.game === "Noughts & Crosses") {
                   setShowGameModal(true);
@@ -165,57 +251,7 @@ export default function HomeScreen() {
                   alert("Match view coming soon!");
                 }
               }}
-            >
-              <View style={homeStyles.liveMatchHeader}>
-                <View style={homeStyles.gameInfo}>
-                  {match.game === "Dota 2" ? (
-                    <FontAwesome5
-                      name="steam"
-                      size={20}
-                      color="#8F9BB3"
-                      style={homeStyles.gameIcon}
-                    />
-                  ) : (
-                    <FontAwesome5
-                      name="times"
-                      size={20}
-                      color="#8F9BB3"
-                      style={homeStyles.gameIcon}
-                    />
-                  )}
-                  <Text style={homeStyles.matchType}>{match.type}</Text>
-                </View>
-                <View style={homeStyles.liveBadge}>
-                  <Text style={homeStyles.liveIndicatorText}>LIVE</Text>
-                </View>
-              </View>
-
-              <View style={homeStyles.matchTeamsContainer}>
-                {match.teams.map((team, index) => (
-                  <View key={index} style={homeStyles.teamRowHorizontal}>
-                    <Text style={homeStyles.teamName}>{team.name}</Text>
-                    {team.score !== null ? (
-                      <Text style={homeStyles.teamScore}>{team.score}</Text>
-                    ) : (
-                      match.game === "Noughts & Crosses" && (
-                        <View style={homeStyles.noughtsContainer}>
-                          <Text style={homeStyles.noughtsSymbol}>
-                            {"symbol" in team && team.symbol}
-                          </Text>
-                        </View>
-                      )
-                    )}
-                  </View>
-                ))}
-              </View>
-
-              {match.game === "Dota 2" && (
-                <View style={homeStyles.matchFooter}>
-                  <Text style={homeStyles.viewersCount}>{match.viewers}</Text>
-                  <Ionicons name="star-outline" size={20} color="#8F9BB3" />
-                </View>
-              )}
-            </TouchableOpacity>
+            />
           ))}
         </ScrollView>
       </View>
@@ -237,75 +273,19 @@ export default function HomeScreen() {
           showsHorizontalScrollIndicator={false}
           style={homeStyles.featuredScrollView}
         >
-          {/* Fortnite Showdown Card */}
-          <TouchableOpacity
-            style={homeStyles.eventCard}
-            onPress={() => alert("Coming soon!")}
-          >
-            <View style={homeStyles.eventCardContent}>
-              <Text style={homeStyles.eventTitle}>Fortnite Showdown</Text>
-              <Text style={homeStyles.eventDescription}>
-                Head to head in an epic Fortnite battle. Who will claim victory?
-              </Text>
-              <TouchableOpacity style={homeStyles.stakeButton}>
-                <Text style={homeStyles.stakeButtonText}>Stake Now</Text>
-                <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-
-          {/* NBA 2K League Card */}
-          <TouchableOpacity
-            style={homeStyles.eventCard}
-            onPress={() => alert("Coming soon!")}
-          >
-            <View style={homeStyles.eventCardContent}>
-              <Text style={homeStyles.eventTitle}>NBA 2K League</Text>
-              <Text style={homeStyles.eventDescription}>
-                Bucks Gaming vs 76ers GC
-              </Text>
-              <View style={homeStyles.scoreContainer}>
-                <Text style={homeStyles.scoreText}>95 - 103</Text>
-                <Text style={homeStyles.timeText}>Q4 2:07</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-
-          {/* Request a Game Card */}
-          <TouchableOpacity
-            style={homeStyles.eventCard}
-            onPress={() => alert("Feature coming soon!")}
-          >
-            <View style={homeStyles.eventCardContent}>
-              <Text style={homeStyles.eventTitle}>Request a Game</Text>
-              <Text style={homeStyles.eventDescription}>
-                Want us to add a game? We're constantly expanding the games we
-                support.
-              </Text>
-              <TouchableOpacity style={homeStyles.requestButton}>
-                <Text style={homeStyles.requestButtonText}>Request</Text>
-                <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
+          {featuredEvents.map((event) => (
+            <EventCard
+              key={event.id}
+              event={event}
+              onPress={() => alert("Coming soon!")}
+            />
+          ))}
         </ScrollView>
       </View>
     );
   };
 
   const renderGames = () => {
-    const games = [
-      { id: "trending", icon: "trending-up", title: "Trending" },
-      { id: "dota2", icon: "gamepad", title: "Dota 2" },
-      {
-        id: "tictactoe",
-        icon: "times",
-        title: "Noughts & Crosses",
-        functional: true,
-      },
-      { id: "csgo", icon: "gamepad", title: "CS:GO" },
-    ];
-
     return (
       <View style={homeStyles.sectionContainer}>
         <View style={homeStyles.sectionHeader}>
@@ -321,28 +301,17 @@ export default function HomeScreen() {
           style={homeStyles.gamesScrollView}
         >
           {games.map((game) => (
-            <TouchableOpacity
+            <GameButton
               key={game.id}
-              style={[
-                homeStyles.gameButton,
-                game.functional && homeStyles.functionalGame,
-              ]}
+              game={game}
               onPress={() => {
                 if (game.id === "tictactoe") {
-                  // For existing games, show the join game modal
                   setShowGameModal(true);
                 } else {
                   alert("Game coming soon!");
                 }
               }}
-            >
-              <FontAwesome5
-                name={game.icon}
-                size={24}
-                color={game.id === "trending" ? "#3366FF" : "#8F9BB3"}
-              />
-              <Text style={homeStyles.gameButtonText}>{game.title}</Text>
-            </TouchableOpacity>
+            />
           ))}
         </ScrollView>
       </View>
@@ -350,13 +319,6 @@ export default function HomeScreen() {
   };
 
   const renderTopCompetitions = () => {
-    const competitions = [
-      { id: "comp1", name: "DOTA", icon: "futbol", count: 26 },
-      { id: "comp2", name: "Fortnite", icon: "futbol", count: 12 },
-      { id: "comp3", name: "NBA 2K24", icon: "basketball-ball", count: 8 },
-      { id: "comp4", name: "Madden NFL 25", icon: "gamepad", count: 4 },
-    ];
-
     return (
       <View style={homeStyles.sectionContainer}>
         <View style={homeStyles.sectionHeader}>
@@ -367,25 +329,12 @@ export default function HomeScreen() {
         </View>
 
         <View style={homeStyles.competitionsContainer}>
-          {competitions.map((comp) => (
-            <TouchableOpacity
-              key={comp.id}
-              style={homeStyles.competitionCard}
+          {competitions.map((competition) => (
+            <CompetitionCard
+              key={competition.id}
+              competition={competition}
               onPress={() => alert("Competition details coming soon!")}
-            >
-              <View style={homeStyles.competitionContent}>
-                <FontAwesome5
-                  name={comp.icon}
-                  size={20}
-                  color="#3366FF"
-                  style={homeStyles.competitionIcon}
-                />
-                <Text style={homeStyles.competitionName}>{comp.name}</Text>
-              </View>
-              <View style={homeStyles.competitionCountBadge}>
-                <Text style={homeStyles.competitionCount}>{comp.count}</Text>
-              </View>
-            </TouchableOpacity>
+            />
           ))}
         </View>
       </View>
@@ -395,33 +344,7 @@ export default function HomeScreen() {
   const renderAllMatches = () => {
     // Calculate number of columns based on screen width
     const numColumns = windowWidth > 1200 ? 3 : windowWidth > 768 ? 2 : 1;
-
-    // Combined matches - live and upcoming
-    const allMatches = [
-      ...liveMatches,
-      {
-        id: "match5",
-        game: "FIFA 23",
-        type: "Weekly Tournament",
-        isLive: false,
-        startTime: "18:30",
-        teams: [
-          { name: "Rivals FC", score: null },
-          { name: "Gaming United", score: null },
-        ],
-      },
-      {
-        id: "match6",
-        game: "CS:GO",
-        type: "Major Qualifiers",
-        isLive: false,
-        startTime: "20:15",
-        teams: [
-          { name: "Natus Vincere", score: null },
-          { name: "Astralis", score: null },
-        ],
-      },
-    ];
+    const cardWidth = (windowWidth / numColumns) - 20; // Adjust 20 for padding/margin if needed
 
     return (
       <View style={homeStyles.sectionContainer}>
@@ -442,12 +365,10 @@ export default function HomeScreen() {
 
         <View style={homeStyles.matchesGrid}>
           {allMatches.map((match) => (
-            <TouchableOpacity
+            <MatchCard
               key={match.id}
-              style={[
-                homeStyles.matchCard,
-                { width: `${100 / numColumns - 2}%` },
-              ]}
+              match={match}
+              width={cardWidth}
               onPress={() => {
                 if (match.game === "Noughts & Crosses") {
                   setShowGameModal(true);
@@ -455,76 +376,7 @@ export default function HomeScreen() {
                   alert("Match view coming soon!");
                 }
               }}
-            >
-              <View style={homeStyles.matchHeader}>
-                <View style={homeStyles.gameInfo}>
-                  {match.game === "Dota 2" ? (
-                    <FontAwesome5
-                      name="steam"
-                      size={20}
-                      color="#8F9BB3"
-                      style={homeStyles.gameIcon}
-                    />
-                  ) : match.game === "FIFA 23" ? (
-                    <FontAwesome5
-                      name="futbol"
-                      size={20}
-                      color="#8F9BB3"
-                      style={homeStyles.gameIcon}
-                    />
-                  ) : match.game === "CS:GO" ? (
-                    <FontAwesome5
-                      name="crosshairs"
-                      size={20}
-                      color="#8F9BB3"
-                      style={homeStyles.gameIcon}
-                    />
-                  ) : (
-                    <FontAwesome5
-                      name="times"
-                      size={20}
-                      color="#8F9BB3"
-                      style={homeStyles.gameIcon}
-                    />
-                  )}
-                  <Text style={homeStyles.matchType}>{match.type}</Text>
-                </View>
-                {match.isLive !== false ? (
-                  <View style={homeStyles.liveBadge}>
-                    <Text style={homeStyles.liveIndicatorText}>LIVE</Text>
-                  </View>
-                ) : (
-                  <Text style={homeStyles.startTimeText}>
-                    {"startTime" in match && match.startTime}
-                  </Text>
-                )}
-              </View>
-
-              <View style={homeStyles.teamsContainer}>
-                {match.teams.map((team, index) => (
-                  <View key={index} style={homeStyles.teamRow}>
-                    <Text style={homeStyles.teamName}>{team.name}</Text>
-                    {team.score !== null && (
-                      <Text style={homeStyles.teamScore}>{team.score}</Text>
-                    )}
-                    {match.game === "Noughts & Crosses" && "symbol" in team && (
-                      <View style={homeStyles.noughtsContainer}>
-                        <Text style={homeStyles.noughtsSymbol}>
-                          {team.symbol}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                ))}
-              </View>
-
-              {"viewers" in match && match.viewers !== undefined && (
-                <View style={homeStyles.matchFooter}>
-                  <Text style={homeStyles.viewersCount}>{match.viewers}</Text>
-                  <Ionicons name="star-outline" size={20} color="#8F9BB3" />
-                </View>
-              )}
-            </TouchableOpacity>
+            />
           ))}
         </View>
 
@@ -564,75 +416,87 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={homeStyles.container}>
-      {/* Header */}
-      <View style={homeStyles.header}>
-        <View style={homeStyles.logoContainer}>
-          {/* Logo SVG image */}
-          <Image
-            source={require("@/assets/images/logo-original.svg")}
-            style={homeStyles.headerLogo}
-            resizeMode="contain"
-          />
+    <ImageBackground
+      source={require("@/assets/images/placeholders/background.png")}
+      style={homeStyles.backgroundImage}
+    >
+      <SafeAreaView style={homeStyles.container}>
+        {/* Header */}
+        <View style={homeStyles.header}>
+          <View style={homeStyles.logoContainer}>
+            {/* Logo SVG image */}
+            <Image
+              source={require("@/assets/images/logo-light.svg")}
+              style={homeStyles.headerLogo}
+              resizeMode="contain"
+            />
+          </View>
+
+          <View style={homeStyles.searchBar}>
+            <Ionicons
+              name="search"
+              size={20}
+              color="rgba(255, 255, 255, 0.6)"
+            />
+            <Text style={homeStyles.searchPlaceholder}>
+              Search by events, teams, and influencers
+            </Text>
+          </View>
+
+          {/* Create Game Button */}
+          <CreateGameButton onPress={handleCreateGamePress} />
+
+          <TouchableOpacity style={homeStyles.balanceButton}>
+            <Text style={homeStyles.balanceText}>{userBalance}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleLogout}
+            style={homeStyles.menuButton}
+          >
+            <Ionicons name="log-out-outline" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
         </View>
 
-        <View style={homeStyles.searchBar}>
-          <Ionicons name="search" size={20} color="#8F9BB3" />
-          <Text style={homeStyles.searchPlaceholder}>
-            Search by events, teams, and influencers
-          </Text>
+        {/* Navigation Tabs */}
+        <View style={homeStyles.tabContainer}>
+          <View style={homeStyles.liveIndicator}>
+            <View style={homeStyles.liveDot} />
+            <Text style={homeStyles.liveText}>LIVE</Text>
+          </View>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={homeStyles.tabsScrollView}
+          >
+            {renderTab("TRENDING")}
+            {renderTab("TEAMS")}
+            {renderTab("TOURNAMENTS")}
+            {renderTab("LEAGUES")}
+            {renderTab("INFLUENCERS")}
+            {renderTab("FRIENDS")}
+          </ScrollView>
         </View>
 
-        {/* Create Game Button */}
-        <CreateGameButton onPress={handleCreateGamePress} />
-
-        <TouchableOpacity style={homeStyles.balanceButton}>
-          <Text style={homeStyles.balanceText}>{userBalance}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={handleLogout} style={homeStyles.menuButton}>
-          <Ionicons name="log-out-outline" size={24} color="#1A1A2E" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Navigation Tabs */}
-      <View style={homeStyles.tabContainer}>
-        <View style={homeStyles.liveIndicator}>
-          <View style={homeStyles.liveDot} />
-          <Text style={homeStyles.liveText}>LIVE</Text>
+        {/* Main content with background */}
+        <View style={homeStyles.mainContentWrapper}>
+          {/* Render content based on active tab */}
+          {renderContent()}
         </View>
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={homeStyles.tabsScrollView}
-        >
-          {renderTab("TRENDING")}
-          {renderTab("TEAMS")}
-          {renderTab("TOURNAMENTS")}
-          {renderTab("LEAGUES")}
-          {renderTab("INFLUENCERS")}
-          {renderTab("FRIENDS")}
-        </ScrollView>
-      </View>
+        {/* Game Modal - for joining existing games */}
+        <JoinGameModal
+          visible={showGameModal}
+          onClose={() => setShowGameModal(false)}
+        />
 
-      {/* Main content with background */}
-      <View style={homeStyles.mainContentWrapper}>
-        {/* Render content based on active tab */}
-        {renderContent()}
-      </View>
-
-      {/* Game Modal - for joining existing games */}
-      <JoinGameModal
-        visible={showGameModal}
-        onClose={() => setShowGameModal(false)}
-      />
-
-      {/* Create Game Modal - for creating new games */}
-      <CreateGameModal
-        visible={showCreateGameModal}
-        onClose={() => setShowCreateGameModal(false)}
-      />
-    </SafeAreaView>
+        {/* Create Game Modal - for creating new games */}
+        <CreateGameModal
+          visible={showCreateGameModal}
+          onClose={() => setShowCreateGameModal(false)}
+        />
+      </SafeAreaView>
+    </ImageBackground>
   );
 }

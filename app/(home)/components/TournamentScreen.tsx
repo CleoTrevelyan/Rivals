@@ -9,8 +9,10 @@ import {
   FlatList,
   StyleSheet,
   Platform,
+  ImageBackground,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { stylesTournamentPage } from "@/styles/tournamentPage";
 import { useWindowDimensions } from "react-native";
 
 // Sample data for tournaments
@@ -45,15 +47,7 @@ const SAMPLE_TOURNAMENTS = [
 ];
 
 // Sample data for leaderboard
-const SAMPLE_LEADERBOARD: {
-  id: string;
-  rank: number;
-  username: string;
-  avatar: any;
-  totalPoints: number;
-  pointsGained: number;
-  movement: "up" | "down" | "neutral";
-}[] = [
+const SAMPLE_LEADERBOARD = [
   {
     id: "1",
     rank: 1,
@@ -134,39 +128,42 @@ export default function TournamentsScreen() {
   }) => (
     <TouchableOpacity
       style={[
-        styles.tournamentItem,
-        selectedTournament.id === item.id && styles.selectedTournamentItem,
+        stylesTournamentPage.tournamentItem,
+        selectedTournament.id === item.id &&
+          stylesTournamentPage.selectedTournamentItem,
       ]}
       onPress={() => setSelectedTournament(item)}
     >
-      <Text style={styles.tournamentName}>{item.name}</Text>
-      <View style={styles.tournamentMetaContainer}>
-        <Text style={styles.tournamentMeta}>
+      <Text style={stylesTournamentPage.tournamentName}>{item.name}</Text>
+      <View style={stylesTournamentPage.tournamentMetaContainer}>
+        <Text style={stylesTournamentPage.tournamentMeta}>
           {item.playersRegistered}/{item.maxPlayers} Players
         </Text>
         <View
           style={[
-            styles.statusBadge,
+            stylesTournamentPage.statusBadge,
             item.status === "Open"
-              ? styles.statusOpen
+              ? stylesTournamentPage.statusOpen
               : item.status === "Ongoing"
-              ? styles.statusOngoing
-              : styles.statusUpcoming,
+              ? stylesTournamentPage.statusOngoing
+              : stylesTournamentPage.statusUpcoming,
           ]}
         >
-          <Text style={styles.statusText}>{item.status}</Text>
+          <Text style={stylesTournamentPage.statusText}>{item.status}</Text>
         </View>
       </View>
     </TouchableOpacity>
   );
 
-  const renderMovementIcon = (movement: "up" | "down" | "neutral") => {
+  const renderMovementIcon = (movement: string) => {
     if (movement === "up") {
-      return <Feather name="chevron-up" size={20} color="#4CAF50" />;
+      return <Feather name="chevron-up" size={20} color="#00E096" />;
     } else if (movement === "down") {
-      return <Feather name="chevron-down" size={20} color="#F44336" />;
+      return <Feather name="chevron-down" size={20} color="#FF3D71" />;
     } else {
-      return <Feather name="minus" size={20} color="#9E9E9E" />;
+      return (
+        <Feather name="minus" size={20} color="rgba(255, 255, 255, 0.6)" />
+      );
     }
   };
 
@@ -174,15 +171,17 @@ export default function TournamentsScreen() {
     return (
       <TouchableOpacity
         style={[
-          styles.detailTabButton,
-          activeDetailTab === tabName && styles.activeDetailTabButton,
+          stylesTournamentPage.detailTabButton,
+          activeDetailTab === tabName &&
+            stylesTournamentPage.activeDetailTabButton,
         ]}
         onPress={() => setActiveDetailTab(tabName)}
       >
         <Text
           style={[
-            styles.detailTabText,
-            activeDetailTab === tabName && styles.activeDetailTabText,
+            stylesTournamentPage.detailTabText,
+            activeDetailTab === tabName &&
+              stylesTournamentPage.activeDetailTabText,
           ]}
         >
           {tabName}
@@ -192,452 +191,161 @@ export default function TournamentsScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.logoAndSearch}>
-          <Image
-            source={require("@/assets/images/logo-original.svg")}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <View style={styles.searchContainer}>
-            <Feather
-              name="search"
-              size={20}
-              color="#8F9BB3"
-              style={styles.searchIcon}
-            />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search by events, teams, and influencers"
-              placeholderTextColor="#8F9BB3"
-            />
-          </View>
-        </View>
-        <View style={styles.profileContainer}>
-          <Text style={styles.balanceText}>$14,230</Text>
-          <Feather name="user" size={24} color="#333" />
-          <Feather name="menu" size={24} color="#333" style={styles.menuIcon} />
-        </View>
-      </View>
-
-      {/* Main Content */}
-      <View style={styles.mainContent}>
-        {isDesktop ? (
-          <View style={styles.desktopLayout}>
-            {/* Left Panel - Tournament List */}
-            <View style={styles.leftPanel}>
-              <Text style={styles.sectionTitle}>Tournaments</Text>
-              <FlatList
-                data={SAMPLE_TOURNAMENTS}
-                renderItem={renderTournamentItem}
-                keyExtractor={(item) => item.id}
-                style={styles.tournamentList}
-              />
-            </View>
-
-            {/* Right Panel - Tournament Details */}
-            <View style={styles.rightPanel}>
-              <View style={styles.tournamentDetails}>
-                <View style={styles.tournamentHeader}>
-                  <View>
-                    <Text style={styles.tournamentBreadcrumb}>
-                      RIVALS {">"} Tournaments
-                    </Text>
-                    <Text style={styles.tournamentTitle}>
-                      {selectedTournament.name}
-                    </Text>
-                    <Text style={styles.tournamentTime}>
-                      In about 25 minutes - {selectedTournament.startTime}
-                    </Text>
-                    {selectedTournament.status === "Open" && (
-                      <View style={styles.statusBadgeSmall}>
-                        <Text style={styles.statusTextSmall}>Open</Text>
-                      </View>
-                    )}
-                  </View>
-                  <View style={styles.tournamentActions}>
-                    <Text style={styles.timerText}>
-                      Starts in {selectedTournament.timeRemaining}
-                    </Text>
-                    <TouchableOpacity style={styles.joinButton}>
-                      <Text style={styles.joinButtonText}>Join Tournament</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                <Text style={styles.playersRegistered}>
-                  {selectedTournament.playersRegistered}/
-                  {selectedTournament.maxPlayers} Players Registered
+    <ImageBackground
+      source={require("@/assets/images/placeholders/background.png")}
+      style={{ width: "100%", height: "100%" }}
+    >
+      <View style={stylesTournamentPage.container}>
+        {/* Main Content */}
+        <View style={stylesTournamentPage.mainContent}>
+          {isDesktop ? (
+            <View style={stylesTournamentPage.desktopLayout}>
+              {/* Left Panel - Tournament List */}
+              <View style={stylesTournamentPage.leftPanel}>
+                <Text style={stylesTournamentPage.sectionTitle}>
+                  Tournaments
                 </Text>
+                <FlatList
+                  data={SAMPLE_TOURNAMENTS}
+                  renderItem={renderTournamentItem}
+                  keyExtractor={(item) => item.id}
+                  style={stylesTournamentPage.tournamentList}
+                />
+              </View>
 
-                {/* Tournament Detail Tabs */}
-                <View style={styles.detailTabs}>
-                  {renderDetailTab("Overview")}
-                  {renderDetailTab("Table")}
-                  {renderDetailTab("Matches")}
-                  {renderDetailTab("Players")}
-                  {renderDetailTab("Prizes")}
-                </View>
-
-                {/* Leaderboard */}
-                <View style={styles.leaderboardContainer}>
-                  <View style={styles.leaderboardHeader}>
-                    <Text style={styles.leaderboardColumnHeader}>#</Text>
-                    <Text
-                      style={[
-                        styles.leaderboardColumnHeader,
-                        styles.usernameHeader,
-                      ]}
-                    >
-                      Username
-                    </Text>
-                    <Text
-                      style={[
-                        styles.leaderboardColumnHeader,
-                        styles.pointsHeader,
-                      ]}
-                    >
-                      Total Points
-                    </Text>
-                    <Text
-                      style={[
-                        styles.leaderboardColumnHeader,
-                        styles.gainedHeader,
-                      ]}
-                    >
-                      Points Gained
-                    </Text>
+              {/* Right Panel - Tournament Details */}
+              <View style={stylesTournamentPage.rightPanel}>
+                <View style={stylesTournamentPage.tournamentDetails}>
+                  <View style={stylesTournamentPage.tournamentHeader}>
+                    <View>
+                      <Text style={stylesTournamentPage.tournamentBreadcrumb}>
+                        RIVALS {">"} Tournaments
+                      </Text>
+                      <Text style={stylesTournamentPage.tournamentTitle}>
+                        {selectedTournament.name}
+                      </Text>
+                      <Text style={stylesTournamentPage.tournamentTime}>
+                        In about 25 minutes - {selectedTournament.startTime}
+                      </Text>
+                      {selectedTournament.status === "Open" && (
+                        <View style={stylesTournamentPage.statusBadgeSmall}>
+                          <Text style={stylesTournamentPage.statusTextSmall}>
+                            Open
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                    <View style={stylesTournamentPage.tournamentActions}>
+                      <Text style={stylesTournamentPage.timerText}>
+                        Starts in {selectedTournament.timeRemaining}
+                      </Text>
+                      <TouchableOpacity style={stylesTournamentPage.joinButton}>
+                        <Text style={stylesTournamentPage.joinButtonText}>
+                          Join Tournament
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
 
-                  {SAMPLE_LEADERBOARD.map((player) => (
-                    <View key={player.id} style={styles.leaderboardRow}>
-                      <View style={styles.rankContainer}>
-                        {renderMovementIcon(player.movement)}
-                        <Image
-                          source={player.avatar}
-                          style={styles.playerAvatar}
-                        />
-                        <Text style={styles.rankText}>{player.rank}</Text>
-                      </View>
-                      <Text style={styles.usernameText}>{player.username}</Text>
-                      <Text style={styles.pointsText}>
-                        {player.totalPoints} Pts
+                  <Text style={stylesTournamentPage.playersRegistered}>
+                    {selectedTournament.playersRegistered}/
+                    {selectedTournament.maxPlayers} Players Registered
+                  </Text>
+
+                  {/* Tournament Detail Tabs */}
+                  <View style={stylesTournamentPage.detailTabs}>
+                    {renderDetailTab("Overview")}
+                    {renderDetailTab("Table")}
+                    {renderDetailTab("Matches")}
+                    {renderDetailTab("Players")}
+                    {renderDetailTab("Prizes")}
+                  </View>
+
+                  {/* Leaderboard */}
+                  <View style={stylesTournamentPage.leaderboardContainer}>
+                    <View style={stylesTournamentPage.leaderboardHeader}>
+                      <Text
+                        style={stylesTournamentPage.leaderboardColumnHeader}
+                      >
+                        #
                       </Text>
                       <Text
                         style={[
-                          styles.gainedText,
-                          player.pointsGained > 0 && styles.gainedPositive,
-                          player.pointsGained === 0 && styles.gainedNeutral,
+                          stylesTournamentPage.leaderboardColumnHeader,
+                          stylesTournamentPage.usernameHeader,
                         ]}
                       >
-                        {player.pointsGained > 0 ? "+" : ""}
-                        {player.pointsGained} Pts
+                        Username
+                      </Text>
+                      <Text
+                        style={[
+                          stylesTournamentPage.leaderboardColumnHeader,
+                          stylesTournamentPage.pointsHeader,
+                        ]}
+                      >
+                        Total Points
+                      </Text>
+                      <Text
+                        style={[
+                          stylesTournamentPage.leaderboardColumnHeader,
+                          stylesTournamentPage.gainedHeader,
+                        ]}
+                      >
+                        Points Gained
                       </Text>
                     </View>
-                  ))}
+
+                    {SAMPLE_LEADERBOARD.map((player) => (
+                      <View
+                        key={player.id}
+                        style={stylesTournamentPage.leaderboardRow}
+                      >
+                        <View style={stylesTournamentPage.rankContainer}>
+                          {renderMovementIcon(player.movement)}
+                          <Image
+                            source={player.avatar}
+                            style={stylesTournamentPage.playerAvatar}
+                          />
+                          <Text style={stylesTournamentPage.rankText}>
+                            {player.rank}
+                          </Text>
+                        </View>
+                        <Text style={stylesTournamentPage.usernameText}>
+                          {player.username}
+                        </Text>
+                        <Text style={stylesTournamentPage.pointsText}>
+                          {player.totalPoints} Pts
+                        </Text>
+                        <Text
+                          style={[
+                            stylesTournamentPage.gainedText,
+                            player.pointsGained > 0 &&
+                              stylesTournamentPage.gainedPositive,
+                            player.pointsGained === 0 &&
+                              stylesTournamentPage.gainedNeutral,
+                          ]}
+                        >
+                          {player.pointsGained > 0 ? "+" : ""}
+                          {player.pointsGained} Pts
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
                 </View>
               </View>
             </View>
-          </View>
-        ) : (
-          // Mobile layout - Can be implemented based on your needs
-          <ScrollView>
-            <Text style={styles.mobileMessage}>
-              Please view in desktop mode for the complete tournament
-              experience.
-            </Text>
-            {/* You would add mobile-specific components here */}
-          </ScrollView>
-        )}
+          ) : (
+            // Mobile layout - Can be implemented based on your needs
+            <ScrollView>
+              <Text style={stylesTournamentPage.mobileMessage}>
+                Please view in desktop mode for the complete tournament
+                experience.
+              </Text>
+              {/* You would add mobile-specific components here */}
+            </ScrollView>
+          )}
+        </View>
       </View>
-    </View>
+    </ImageBackground>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
-  },
-  logoAndSearch: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  logo: {
-    width: 80,
-    height: 40,
-  },
-  searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#EDF1F7",
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    marginLeft: 20,
-    flex: 1,
-    maxWidth: 400,
-  },
-  searchIcon: {
-    marginRight: 10,
-  },
-  searchInput: {
-    height: 40,
-    flex: 1,
-    fontSize: 14,
-  },
-  profileContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  balanceText: {
-    marginRight: 20,
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  menuIcon: {
-    marginLeft: 20,
-  },
-  mainContent: {
-    flex: 1,
-  },
-  desktopLayout: {
-    flex: 1,
-    flexDirection: "row",
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-  },
-  leftPanel: {
-    width: 300,
-    paddingRight: 20,
-    borderRightWidth: 1,
-    borderRightColor: "#F0F0F0",
-  },
-  rightPanel: {
-    flex: 1,
-    paddingLeft: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 15,
-  },
-  tournamentList: {
-    flex: 1,
-  },
-  tournamentItem: {
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-    backgroundColor: "#F8F9FC",
-  },
-  selectedTournamentItem: {
-    backgroundColor: "#E8F0FE",
-    borderLeftWidth: 4,
-    borderLeftColor: "#4285F4",
-  },
-  tournamentName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  tournamentMetaContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  tournamentMeta: {
-    fontSize: 14,
-    color: "#666",
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-  },
-  statusBadgeSmall: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 4,
-    backgroundColor: "#4CAF50",
-    alignSelf: "flex-start",
-    marginTop: 8,
-  },
-  statusOpen: {
-    backgroundColor: "#E8F5E9",
-  },
-  statusOngoing: {
-    backgroundColor: "#E3F2FD",
-  },
-  statusUpcoming: {
-    backgroundColor: "#FFF8E1",
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  statusTextSmall: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "white",
-  },
-  tournamentDetails: {
-    flex: 1,
-  },
-  tournamentHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 20,
-  },
-  tournamentBreadcrumb: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 8,
-  },
-  tournamentTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  tournamentTime: {
-    fontSize: 14,
-    color: "#666",
-  },
-  tournamentActions: {
-    alignItems: "flex-end",
-  },
-  timerText: {
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: 10,
-  },
-  joinButton: {
-    backgroundColor: "#4285F4",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  joinButtonText: {
-    color: "white",
-    fontWeight: "600",
-  },
-  playersRegistered: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 20,
-  },
-  detailTabs: {
-    flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
-    marginBottom: 20,
-  },
-  detailTabButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    marginRight: 10,
-  },
-  activeDetailTabButton: {
-    borderBottomWidth: 2,
-    borderBottomColor: "#4285F4",
-  },
-  detailTabText: {
-    fontSize: 16,
-    color: "#666",
-  },
-  activeDetailTabText: {
-    color: "#4285F4",
-    fontWeight: "600",
-  },
-  leaderboardContainer: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-    borderRadius: 10,
-    overflow: "hidden",
-  },
-  leaderboardHeader: {
-    flexDirection: "row",
-    backgroundColor: "#F8F9FC",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
-  },
-  leaderboardColumnHeader: {
-    fontWeight: "600",
-    fontSize: 16,
-  },
-  usernameHeader: {
-    flex: 2,
-    paddingLeft: 60,
-  },
-  pointsHeader: {
-    flex: 1,
-    textAlign: "center",
-  },
-  gainedHeader: {
-    flex: 1,
-    textAlign: "right",
-  },
-  leaderboardRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
-  },
-  rankContainer: {
-    width: 80,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  playerAvatar: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    marginRight: 10,
-  },
-  rankText: {
-    fontWeight: "600",
-    fontSize: 16,
-  },
-  usernameText: {
-    flex: 2,
-    fontSize: 16,
-  },
-  pointsText: {
-    flex: 1,
-    fontSize: 16,
-    textAlign: "center",
-  },
-  gainedText: {
-    flex: 1,
-    fontSize: 16,
-    textAlign: "right",
-  },
-  gainedPositive: {
-    color: "#4CAF50",
-  },
-  gainedNeutral: {
-    color: "#9E9E9E",
-  },
-  mobileMessage: {
-    padding: 20,
-    fontSize: 18,
-    textAlign: "center",
-  },
-});

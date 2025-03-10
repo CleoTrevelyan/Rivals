@@ -1,23 +1,29 @@
 import { StyleSheet } from "react-native";
 
 export const homeStyles = StyleSheet.create({
+  // Main container styles
   container: {
     flex: 1,
-    backgroundColor: "#F5F6FA",
+    backgroundColor: "transparent", // Changed from #F5F6FA
+  },
+  backgroundImage: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: 20,
-    // backgroundColor: "#222B45",
-    backgroundColor: "#FFFFFF",
+    paddingVertical: 12,
+    backgroundColor: "rgba(26, 26, 46, 0.8)", // Darkened with transparency
     borderBottomWidth: 1,
-    borderBottomColor: "#EDF1F7",
+    borderBottomColor: "rgba(255, 255, 255, 0.2)", // Lighter border
   },
   headerLogo: {
-    height: 40,
-    width: 100,
+    height: 36,
+    width: 90,
     marginRight: 12,
   },
   logoContainer: {
@@ -25,32 +31,32 @@ export const homeStyles = StyleSheet.create({
     marginRight: 12,
   },
   logoText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
-    color: "#3366FF",
+    color: "#FFFFFF", // Changed from #3366FF
   },
   logoTextAlt: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
-    color: "#00E096",
+    color: "#00E096", // Kept green
   },
   searchBar: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#EDF1F7",
+    backgroundColor: "rgba(237, 241, 247, 0.2)", // Made translucent
     borderRadius: 20,
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 6,
     marginRight: 12,
   },
   searchPlaceholder: {
     fontSize: 14,
-    color: "#8F9BB3",
+    color: "rgba(255, 255, 255, 0.6)", // Lighter color
     marginLeft: 8,
   },
   balanceButton: {
-    backgroundColor: "#2E3A59",
+    backgroundColor: "rgba(46, 58, 89, 0.6)", // Made translucent
     borderRadius: 16,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -66,8 +72,8 @@ export const homeStyles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: "row",
-    backgroundColor: "#222B45",
-    paddingVertical: 12,
+    backgroundColor: "rgba(34, 43, 69, 0.8)", // Made translucent
+    paddingVertical: 8,
     paddingHorizontal: 8,
   },
   liveIndicator: {
@@ -77,31 +83,31 @@ export const homeStyles = StyleSheet.create({
     marginLeft: 8,
   },
   liveDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#FF3D71",
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#FF3D71", // Kept red for emphasis
     marginRight: 4,
   },
   liveText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "bold",
-    color: "#FF3D71",
+    color: "#FF3D71", // Kept red for emphasis
   },
   tabsScrollView: {
     flexGrow: 0,
   },
   tabButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
     marginHorizontal: 4,
     borderRadius: 20,
   },
   activeTabButton: {
-    backgroundColor: "#3366FF",
+    backgroundColor: "#00E096", // Changed from #3366FF to green
   },
   tabText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "600",
     color: "#FFFFFF",
   },
@@ -121,74 +127,98 @@ export const homeStyles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 0,
-    opacity: 0.8,
   },
   contentContainer: {
     flex: 1,
-    padding: 16,
+    padding: 12,
     position: "relative",
     zIndex: 1,
   },
 
   // Section styling (common for all sections)
   sectionContainer: {
-    marginBottom: 24,
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    borderRadius: 12,
-    padding: 16,
+    marginBottom: 16,
+    backgroundColor: "rgba(26, 26, 46, 0.6)", // Dark translucent
+    borderRadius: 10,
+    padding: 12,
     elevation: 2,
     borderWidth: 1,
-    borderColor: "#EDF1F7",
+    borderColor: "rgba(255, 255, 255, 0.2)", // Lighter border
   },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 10,
   },
   sectionTitleContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "bold",
-    color: "#222B45",
+    color: "#FFFFFF", // Changed from #222B45
   },
   seeAllText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "600",
-    color: "#3366FF",
+    color: "#00E096", // Changed from #3366FF to green
   },
 
   // Live matches horizontal section at the top
   liveMatchesSection: {
-    marginBottom: 24,
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    borderRadius: 12,
-    padding: 16,
+    marginBottom: 16,
+    backgroundColor: "rgba(26, 26, 46, 0.6)", // Dark translucent
+    borderRadius: 10,
+    padding: 12,
     elevation: 2,
     borderWidth: 1,
-    borderColor: "#EDF1F7",
+    borderColor: "rgba(255, 255, 255, 0.2)", // Lighter border
   },
   horizontalScrollView: {
     flexGrow: 0,
   },
+
+  // LiveMatchCard component styles
   liveMatchCard: {
-    width: 280,
+    backgroundColor: "rgba(26, 26, 46, 0.4)", // Dark translucent
     borderRadius: 8,
-    backgroundColor: "#FFFFFF",
-    marginRight: 12,
-    padding: 12,
+    padding: 10,
+    marginRight: 10,
+    marginBottom: 8,
+    width: 240,
+    elevation: 2,
     borderWidth: 1,
-    borderColor: "#EDF1F7",
-    elevation: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)", // Lighter border
   },
   liveMatchHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 8,
+  },
+  gameInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  gameIcon: {
+    marginRight: 6,
+  },
+  matchType: {
+    fontSize: 12,
+    color: "rgba(255, 255, 255, 0.6)", // Lighter color
+  },
+  liveBadge: {
+    backgroundColor: "rgba(255, 61, 113, 0.5)", // Translucent red
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 10,
+  },
+  liveIndicatorText: {
+    color: "#FFFFFF",
+    fontSize: 10,
+    fontWeight: "bold",
   },
   matchTeamsContainer: {
     marginBottom: 8,
@@ -197,157 +227,231 @@ export const homeStyles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 6,
+    marginBottom: 6,
+    paddingVertical: 4,
     borderBottomWidth: 1,
-    borderBottomColor: "#F5F6FA",
+    borderBottomColor: "rgba(255, 255, 255, 0.1)", // Darker border
   },
-  liveIndicatorText: {
+  teamName: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#FFFFFF", // Changed from #1A1A2E
+  },
+  teamScore: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#00E096", // Changed from #3366FF to green
+  },
+  noughtsContainer: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "rgba(237, 241, 247, 0.3)", // Translucent
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  noughtsSymbol: {
     fontSize: 12,
     fontWeight: "bold",
-    color: "#FF3D71",
+    color: "#FFFFFF", // Changed from #3366FF
+  },
+  matchFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingTop: 6,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255, 255, 255, 0.1)", // Darker border
+  },
+  viewersCount: {
+    fontSize: 12,
+    color: "rgba(255, 255, 255, 0.6)", // Lighter color
+    marginRight: 6,
+  },
+
+  // MatchCard component styles
+  matchCard: {
+    backgroundColor: "rgba(26, 26, 46, 0.4)", // Dark translucent
+    borderRadius: 8,
+    padding: 10,
+    margin: 6,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)", // Lighter border
+    minWidth: 260,
+  },
+  matchHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  startTimeText: {
+    fontSize: 12,
+    color: "rgba(255, 255, 255, 0.6)", // Lighter color
+    fontWeight: "500",
+  },
+  teamsContainer: {
+    marginBottom: 8,
+  },
+  teamRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
   },
 
   // Featured events section
   featuredScrollView: {
-    marginBottom: 8,
+    marginBottom: 6,
   },
+
+  // EventCard component styles
   eventCard: {
-    width: 280,
-    height: 180,
+    backgroundColor: "rgba(26, 26, 46, 0.4)", // Dark translucent
     borderRadius: 8,
-    marginRight: 16,
+    marginRight: 10,
+    marginBottom: 8,
+    width: 240,
     overflow: "hidden",
-    backgroundColor: "#FFFFFF",
-    elevation: 3,
+    elevation: 2,
     borderWidth: 1,
-    borderColor: "#EDF1F7",
+    borderColor: "rgba(255, 255, 255, 0.2)", // Lighter border
+    height: 150,
   },
   eventCardContent: {
+    padding: 12,
     flex: 1,
-    padding: 16,
     justifyContent: "space-between",
   },
   eventTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
-    color: "#222B45",
-    marginBottom: 8,
+    color: "#FFFFFF", // Changed from #1A1A2E
+    marginBottom: 6,
   },
   eventDescription: {
-    fontSize: 14,
-    color: "#8F9BB3",
-    marginBottom: 16,
+    fontSize: 12,
+    color: "rgba(255, 255, 255, 0.6)", // Lighter color
+    marginBottom: 12,
     flex: 1,
   },
   stakeButton: {
+    backgroundColor: "#00E096", // Changed from #3366FF to green
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#3366FF",
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    alignSelf: "flex-start",
+    justifyContent: "center",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
   },
   stakeButtonText: {
-    fontSize: 14,
-    fontWeight: "bold",
     color: "#FFFFFF",
-    marginRight: 8,
+    fontWeight: "600",
+    marginRight: 6,
+    fontSize: 12,
   },
   requestButton: {
+    backgroundColor: "#00E096", // Kept green
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#3366FF",
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    alignSelf: "flex-start",
+    justifyContent: "center",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
   },
   requestButtonText: {
-    fontSize: 14,
-    fontWeight: "bold",
     color: "#FFFFFF",
-    marginRight: 8,
+    fontWeight: "600",
+    marginRight: 6,
+    fontSize: 12,
   },
   scoreContainer: {
+    marginTop: 6,
     alignItems: "center",
   },
   scoreText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#222B45",
-    marginBottom: 4,
+    color: "#00E096", // Changed from #3366FF to green
+    marginBottom: 2,
   },
   timeText: {
-    fontSize: 14,
-    color: "#8F9BB3",
+    fontSize: 12,
+    color: "rgba(255, 255, 255, 0.6)", // Lighter color
   },
 
   // Games section
-  gamesContainer: {
-    marginBottom: 24,
-  },
   gamesScrollView: {
     flexGrow: 0,
   },
+
+  // GameButton component styles
   gameButton: {
+    backgroundColor: "rgba(26, 26, 46, 0.4)", // Dark translucent
+    borderRadius: 8,
+    padding: 12,
+    marginRight: 10,
     width: 80,
     height: 80,
-    borderRadius: 8,
-    backgroundColor: "#FFFFFF",
-    justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
+    justifyContent: "center",
     elevation: 2,
     borderWidth: 1,
-    borderColor: "#EDF1F7",
+    borderColor: "rgba(255, 255, 255, 0.2)", // Lighter border
   },
   functionalGame: {
     borderWidth: 2,
-    borderColor: "#00E096",
+    borderColor: "#00E096", // Changed from #3366FF to green
   },
   gameButtonText: {
-    fontSize: 12,
-    color: "#8F9BB3",
-    marginTop: 8,
-    textAlign: "center",
+    marginTop: 6,
+    fontSize: 10,
+    fontWeight: "600",
+    color: "#FFFFFF", // Changed from #1A1A2E
   },
 
-  // Competitions section
+  // Top competitions section
   competitionsContainer: {
-    marginTop: 8,
+    marginTop: 6,
   },
+
+  // CompetitionCard component styles
   competitionCard: {
+    backgroundColor: "rgba(26, 26, 46, 0.4)", // Dark translucent
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F5F6FA",
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)", // Lighter border
   },
   competitionContent: {
     flexDirection: "row",
     alignItems: "center",
   },
   competitionIcon: {
-    marginRight: 12,
+    marginRight: 10,
   },
   competitionName: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#222B45",
+    color: "#FFFFFF", // Changed from #1A1A2E
   },
   competitionCountBadge: {
-    backgroundColor: "#EDF1F7",
+    backgroundColor: "rgba(237, 241, 247, 0.2)", // Made translucent
+    width: 24,
+    height: 24,
     borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    justifyContent: "center",
+    alignItems: "center",
   },
   competitionCount: {
     fontSize: 12,
-    color: "#3366FF",
     fontWeight: "bold",
+    color: "#00E096", // Changed from #3366FF to green
   },
 
   // Filter options
@@ -356,137 +460,47 @@ export const homeStyles = StyleSheet.create({
     alignItems: "center",
   },
   filterOption: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    marginLeft: 8,
-    borderRadius: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    marginLeft: 6,
+    borderRadius: 14,
   },
   filterOptionActive: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    marginLeft: 8,
-    borderRadius: 16,
-    backgroundColor: "#EDF1F7",
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    marginLeft: 6,
+    borderRadius: 14,
+    backgroundColor: "rgba(237, 241, 247, 0.2)", // Made translucent
   },
   filterOptionText: {
-    fontSize: 12,
-    color: "#8F9BB3",
+    fontSize: 11,
+    color: "rgba(255, 255, 255, 0.6)", // Lighter color
   },
   filterOptionTextActive: {
-    fontSize: 12,
-    color: "#3366FF",
+    fontSize: 11,
+    color: "#00E096", // Changed from #3366FF to green
     fontWeight: "600",
   },
 
   // All matches grid
-  liveMatchesContainer: {
-    flex: 1,
-    marginBottom: 24,
-  },
   matchesGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
-  matchCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    elevation: 2,
-    minWidth: 300,
-    margin: "1%",
-    borderWidth: 1,
-    borderColor: "#EDF1F7",
-  },
-  matchHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  gameInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  gameIcon: {
-    marginRight: 8,
-  },
-  matchType: {
-    fontSize: 14,
-    color: "#8F9BB3",
-  },
-  liveBadge: {
-    backgroundColor: "rgba(255, 61, 113, 0.1)",
-    borderRadius: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  startTimeText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#8F9BB3",
-  },
-  teamsContainer: {
-    marginBottom: 12,
-  },
-  teamRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  teamName: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#222B45",
-    flex: 1,
-  },
-  teamScore: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#3366FF",
-    marginRight: 12,
-  },
-  noughtsContainer: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: "#EDF1F7",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  noughtsSymbol: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#222B45",
-  },
-  matchFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: "#EDF1F7",
-  },
-  viewersCount: {
-    fontSize: 12,
-    color: "#8F9BB3",
-  },
   showMoreButton: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 8,
-    paddingVertical: 12,
+    backgroundColor: "rgba(26, 26, 46, 0.6)", // Dark translucent
+    borderRadius: 6,
+    paddingVertical: 10,
     alignItems: "center",
-    marginTop: 8,
-
+    marginTop: 6,
     elevation: 1,
     borderWidth: 1,
-    borderColor: "#EDF1F7",
+    borderColor: "rgba(255, 255, 255, 0.2)", // Lighter border
   },
   showMoreText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "600",
-    color: "#3366FF",
+    color: "#00E096", // Changed from #3366FF to green
   },
 });
