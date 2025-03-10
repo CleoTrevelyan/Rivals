@@ -13,7 +13,7 @@ import { RivalsServer } from "@/components/constants";
 import { Feather } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import { authStyles } from "@/styles/authStyles";
-import PerlinNoiseBackground from "@/components/perlinHero";
+import PerlinNoiseBackground from "@/app/components/perlinHero";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Login() {

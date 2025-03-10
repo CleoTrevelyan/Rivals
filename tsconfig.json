@@ -5,6 +5,7 @@
     "paths": {
       "@/*": ["./*"],
       "@components/*": ["./components/*"],
+      "@homeComponents/*": ["./app/(home)/components/*"],
       "@assets/*": ["./assets/*"],
       "@styles/*": ["./styles/*"],
       "@hooks/*": ["./hooks/*"],
