@@ -51,7 +51,6 @@ export default function Signup() {
         console.log("Received token: ", data.authToken);
         await AsyncStorage.setItem("authToken", data.authToken);
         setMessage("Signup successful!");
-        router.replace("/(home)");
       } else if (data.type === "registerFailed") {
         setMessage(data.message);
       } else if (data.type === "authTokenVerified") {

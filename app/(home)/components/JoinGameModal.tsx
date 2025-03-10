@@ -403,6 +403,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
         console.log("Connected to the WebSocket server");
         setSocket(ws);
 
+        gameHook.isConnected = true;
         // Send stored JWT for authentication
         const authToken = await AsyncStorage.getItem("authToken");
         
@@ -410,19 +411,19 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
           setTimeout(() => {
             ws.send(
               JSON.stringify({
-          type: "authTokenVerification",
-          authToken: authToken,
+                type: "authTokenVerification",
+                authToken: authToken,
               })
             );
           }, 100);
         }
       };
-
+      
       ws.onmessage = async (event) => {
         try {
           const data = JSON.parse(event.data);
           console.log("Received message:", data);
-
+          
           switch (data.type) {
             case "matchFound":
               console.log("Opponent: ", data.opponentName);
@@ -436,6 +437,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
               break;
 
             case "enteringMatch":
+              console.log(gameHook.isConnected);
               setOpponent((prev) => ({ ...prev, isReady: true }));
               setStage("playing");
               console.log("Starting game");
@@ -454,12 +456,17 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
             case "error":
               console.log(data.error);
               break;
-
-            default:
-              // Other game-related messages are handled by useTicTacToeGame
+            case "gameState":
+              gameHook.board = data.board;
+              gameHook.currentTurn = data.currentTurn;
+              gameHook.winner = data.winner;
+              gameHook.isActive = !data.winner;
               break;
-          }
-        } catch (err) {
+              default:
+                // Other game-related messages are handled by useTicTacToeGame
+                break;
+              }
+            } catch (err) {
           console.error(
             "Error parsing message:",
             err,
@@ -468,12 +475,13 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
           );
         }
       };
-
+      
       ws.onerror = (error) => {
         console.error("WebSocket error:", error);
       };
-
+      
       ws.onclose = () => {
+        gameHook.isConnected = false;
         console.log("Disconnected from the WebSocket server");
       };
 
