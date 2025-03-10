@@ -6,20 +6,19 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Dimensions,
-  Image,
   ImageBackground,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import { homeStyles } from "@/styles/homeStyles";
 import JoinGameModal from "./components/JoinGameModal";
 import CreateGameModal from "./components/CreateGameModal";
 import TournamentsScreen from "./components/TournamentScreen";
-import CreateGameButton from "./components/CreateGameButton";
 import { RivalsServer } from "@/components/constants";
 
-// Import card components
+// Import components
+import Header from "../components/Navbar";
+import TabNavigation from "../components/TabNavigation";
 import LiveMatchCard from "./components/cards/LiveMatchCard";
 import MatchCard from "./components/cards/MatchCard";
 import EventCard from "./components/cards/EventCard";
@@ -36,28 +35,21 @@ export default function HomeScreen() {
   const [socket, setSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
-    if (!showGameModal) {
-      const ws = new WebSocket(RivalsServer);
+    const ws = new WebSocket(RivalsServer);
 
-      ws.onopen = () => {
-        console.log("Connected to the WebSocket server");
-        setSocket(ws);
-      };
+    ws.onopen = () => {
+      console.log("Connected to the WebSocket server");
+      setSocket(ws);
+    };
 
-      ws.onclose = () => {
-        console.log("Disconnected from the WebSocket server");
-      };
+    ws.onclose = () => {
+      console.log("Disconnected from the WebSocket server");
+    };
 
-      return () => {
-        ws.close();
-      };
-    } else {
-      if (socket) {
-        socket.close();
-        setSocket(null);
-      }
-    }
-  }, [showGameModal]);
+    return () => {
+      ws.close();
+    };
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -80,27 +72,6 @@ export default function HomeScreen() {
   // Function to handle Create Game button press
   const handleCreateGamePress = () => {
     setShowCreateGameModal(true);
-  };
-
-  const renderTab = (tabName: string) => {
-    return (
-      <TouchableOpacity
-        style={[
-          homeStyles.tabButton,
-          activeTab === tabName && homeStyles.activeTabButton,
-        ]}
-        onPress={() => setActiveTab(tabName)}
-      >
-        <Text
-          style={[
-            homeStyles.tabText,
-            activeTab === tabName && homeStyles.activeTabText,
-          ]}
-        >
-          {tabName}
-        </Text>
-      </TouchableOpacity>
-    );
   };
 
   // Live matches data
@@ -351,7 +322,7 @@ export default function HomeScreen() {
   const renderAllMatches = () => {
     // Calculate number of columns based on screen width
     const numColumns = windowWidth > 1200 ? 3 : windowWidth > 768 ? 2 : 1;
-    const cardWidth = (windowWidth / numColumns) - 20; // Adjust 20 for padding/margin if needed
+    const cardWidth = windowWidth / numColumns - 20; // Adjust 20 for padding/margin if needed
 
     return (
       <View style={homeStyles.sectionContainer}>
@@ -428,63 +399,26 @@ export default function HomeScreen() {
       style={homeStyles.backgroundImage}
     >
       <SafeAreaView style={homeStyles.container}>
-        {/* Header */}
-        <View style={homeStyles.header}>
-          <View style={homeStyles.logoContainer}>
-            {/* Logo SVG image */}
-            <Image
-              source={require("@/assets/images/logo-light.svg")}
-              style={homeStyles.headerLogo}
-              resizeMode="contain"
-            />
-          </View>
+        {/* Header Component */}
+        <Header
+          userBalance={userBalance}
+          onCreateGame={handleCreateGamePress}
+          onLogout={handleLogout}
+        />
 
-          <View style={homeStyles.searchBar}>
-            <Ionicons
-              name="search"
-              size={20}
-              color="rgba(255, 255, 255, 0.6)"
-            />
-            <Text style={homeStyles.searchPlaceholder}>
-              Search by events, teams, and influencers
-            </Text>
-          </View>
-
-          {/* Create Game Button */}
-          <CreateGameButton onPress={handleCreateGamePress} />
-
-          <TouchableOpacity style={homeStyles.balanceButton}>
-            <Text style={homeStyles.balanceText}>{userBalance}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={handleLogout}
-            style={homeStyles.menuButton}
-          >
-            <Ionicons name="log-out-outline" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Navigation Tabs */}
-        <View style={homeStyles.tabContainer}>
-          <View style={homeStyles.liveIndicator}>
-            <View style={homeStyles.liveDot} />
-            <Text style={homeStyles.liveText}>LIVE</Text>
-          </View>
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={homeStyles.tabsScrollView}
-          >
-            {renderTab("TRENDING")}
-            {renderTab("TEAMS")}
-            {renderTab("TOURNAMENTS")}
-            {renderTab("LEAGUES")}
-            {renderTab("INFLUENCERS")}
-            {renderTab("FRIENDS")}
-          </ScrollView>
-        </View>
+        {/* Tab Navigation Component */}
+        <TabNavigation
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          tabs={[
+            "TRENDING",
+            "TEAMS",
+            "TOURNAMENTS",
+            "LEAGUES",
+            "INFLUENCERS",
+            "FRIENDS",
+          ]}
+        />
 
         {/* Main content with background */}
         <View style={homeStyles.mainContentWrapper}>
