@@ -177,7 +177,6 @@ export const gameModalStyles = StyleSheet.create({
   },
   closeButton: {
     position: "absolute",
-    top: 16,
     right: 16,
     zIndex: 10,
     width: 36,

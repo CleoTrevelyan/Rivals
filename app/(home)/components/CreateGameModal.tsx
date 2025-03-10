@@ -11,51 +11,13 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { gameModalStyles } from "@/styles/gameModalStyles";
-
-// Define the steps in the game creation flow
-type GameCreationStep =
-  | "chooseGame"
-  | "enterStake"
-  | "inviteFriend"
-  | "waitingForAccept"
-  | "userNotReady"
-  | "joinGame"
-  | "postGame";
-
-// Game interface
-interface Game {
-  id: string;
-  name: string;
-  icon: React.ReactNode;
-}
-
-// Friend interface
-interface Friend {
-  id: string;
-  name: string;
-  avatar: string;
-  imageSource?: any; // Added for local images
-  online: boolean;
-  level?: number; // Added level
-  colors?: string[]; // Added for win/loss colors
-}
-
-// Player interface
-interface Player {
-  id: string;
-  name: string;
-  avatar: string;
-  imageSource?: any; // Added for local images
-  ready: boolean;
-  score?: number;
-  level?: number; // Added level
-  color?: string[];
-}
-
-interface CreateGameModalProps {
-  visible: boolean;
-  onClose: () => void;
-}
+import {
+  GameCreationStep,
+  Friend,
+  Game,
+  Player,
+  CreateGameModalProps,
+} from "@/interface/types";
 
 const CreateGameModal: React.FC<CreateGameModalProps> = ({
   visible,

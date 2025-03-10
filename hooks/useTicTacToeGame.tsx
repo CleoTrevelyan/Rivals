@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { GameState, UseTicTacToeGameProps } from "@/interface/types";
 
 // WebSocket message types | Can change (unless not needed at all)!
 export const GameMessageTypes = {
@@ -19,26 +20,6 @@ export const GameMessageTypes = {
   REMATCH_ACCEPTED: "rematchAccepted", // Rematch has been accepted
   ERROR: "error", // Error message
 };
-
-interface UseTicTacToeGameProps {
-  socket: WebSocket | null;
-  gameID?: string;
-  playerID?: string;
-  onGameEnd?: (result: "win" | "loss" | "draw") => void;
-  initialPlayerSymbol?: "X" | "O";
-  timeLimit?: number;
-}
-
-interface GameState {
-  board: Array<"X" | "O" | null>;
-  currentTurn: "X" | "O";
-  playerSymbol: "X" | "O";
-  winner: "X" | "O" | "draw" | null;
-  isActive: boolean;
-  lastMove: number | null;
-  opponentID?: string;
-  opponentName?: string;
-}
 
 /**
  * Custom hook for managing a Tic-Tac-Toe game with WebSocket integration

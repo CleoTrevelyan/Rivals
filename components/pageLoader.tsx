@@ -7,15 +7,7 @@ import {
   Text,
   Dimensions,
 } from "react-native";
-
-interface ProgressBarProps {
-  progress: number;
-}
-
-interface PageLoaderProps {
-  isLoading: boolean;
-  onLoadingComplete?: () => void;
-}
+import { PageLoaderProps, ProgressBarProps } from "@/interface/types";
 
 const ProgressBar = memo(({ progress }: ProgressBarProps) => {
   return (

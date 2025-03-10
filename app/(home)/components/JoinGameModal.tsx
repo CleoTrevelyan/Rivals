@@ -16,25 +16,7 @@ import { RivalsServer } from "@/components/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import TicTacToeGame from "../../(games)/TicTacToeGame";
 import useTicTacToeGame, { GameMessageTypes } from "@/hooks/useTicTacToeGame";
-
-type GameStage = "join" | "searching" | "ready" | "playing" | "results";
-
-interface Player {
-  id?: any; // Changed to optional
-  name: string;
-  avatar?: string;
-  imageSource?: any; // Added for local images
-  isReady: boolean;
-  symbol: "X" | "O";
-  score: number;
-  colors?: string[];
-  level?: number; // Added level property
-}
-
-interface GameModalProps {
-  visible: boolean;
-  onClose: () => void;
-}
+import { GamePlayer, GameStage, GameModalProps } from "@/interface/types";
 
 const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
   const [message, setMessage] = useState("");
@@ -44,7 +26,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
   const [playerID, setPlayerID] = useState<string | null>(null);
   const [gameID, setGameID] = useState<string | null>(null);
   const [isLocalPlay, setIsLocalPlay] = useState<boolean>(false);
-  const [currentPlayer, setCurrentPlayer] = useState<Player>({
+  const [currentPlayer, setCurrentPlayer] = useState<GamePlayer>({
     id: null,
     name: "VikingDestroyer",
     avatar: "V",
@@ -56,7 +38,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
     colors: ["#80ff80", "#ff8080", "#80ff80", "#ff8080", "#80ff80"], // W L W L W
   });
 
-  const [opponent, setOpponent] = useState<Player>({
+  const [opponent, setOpponent] = useState<GamePlayer>({
     id: "opponent-id",
     name: "Xx_KaiCenat_xX",
     avatar: "K",
@@ -149,7 +131,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
       return null;
     };
 
-    // Player move handler
+    // GamePlayer move handler
     const makePlayerMove = (position: number) => {
       if (
         !isActive ||
@@ -354,7 +336,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
     } else if (socket && gameID && playerID) {
       socket.send(
         JSON.stringify({
-          type: 'makeMove',
+          type: "makeMove",
           gameID,
           playerID,
           position,
@@ -935,7 +917,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
             </View>
           )}
         </View>
-        {/* Player information - more compact layout */}
+        {/* GamePlayer information - more compact layout */}
         <View
           style={[
             gameModalStyles.playersContainer,

@@ -2,27 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { ticTacToeStyles } from "@/styles/tictactoeStyles";
 import { Ionicons } from "@expo/vector-icons";
-
-interface TicTacToeGameProps {
-  // The current player's symbol (X or O)
-  playerSymbol: "X" | "O";
-  // Called when a player makes a move with position index (0-8)
-  onMove?: (position: number) => void;
-  // Called when the game is won, lost, or drawn
-  onGameEnd?: (result: "win" | "loss" | "draw") => void;
-  // Current game state from server - array of 9 cells with 'X', 'O' or null
-  gameState?: Array<"X" | "O" | null>;
-  // Whose turn is it?
-  currentTurn?: "X" | "O";
-  // Is this our turn?
-  isPlayerTurn?: boolean;
-  // Is the game active?
-  active?: boolean;
-  // Time limit for the current move (optional)
-  timeLimit?: number;
-  // Winner of the game (if any)
-  winner?: "X" | "O" | "draw" | null;
-}
+import { TicTacToeGameProps } from "@/interface/types";
 
 const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
   playerSymbol,

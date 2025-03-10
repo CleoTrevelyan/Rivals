@@ -8,6 +8,7 @@
       "@assets/*": ["./assets/*"],
       "@styles/*": ["./styles/*"],
       "@hooks/*": ["./hooks/*"],
+      "@types/*": ["./types/*"],
     },
     "jsx": "react"
   },
