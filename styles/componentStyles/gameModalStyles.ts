@@ -223,11 +223,62 @@ export const gameModalStyles = StyleSheet.create({
     fontSize: width > 768 ? 16 : 14,
     fontWeight: "500",
   },
+
+  // Updated/new styles for choose game step
   stepContainer: {
     alignItems: "center",
     width: "100%",
     paddingHorizontal: width > 768 ? 20 : 12,
+    paddingVertical: 20,
   },
+  chooseGameTitle: {
+    color: "#FFFFFF",
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 30,
+    textAlign: "center",
+  },
+  gameIconsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 20,
+    marginVertical: 20,
+    flexWrap: "wrap",
+  },
+  gameIconCard: {
+    width: 80,
+    height: 80,
+    backgroundColor: "rgba(26, 26, 46, 0.7)",
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.1)",
+  },
+  gameIconImage: {
+    width: 50,
+    height: 50,
+    resizeMode: "contain",
+  },
+  selectedGameCard: {
+    borderColor: "#00E096",
+    borderWidth: 2,
+  },
+  checkmarkContainer: {
+    position: "absolute",
+    bottom: -10,
+    right: -10,
+    backgroundColor: "#00E096",
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  // Original game cards section (kept for backward compatibility)
   stepTitle: {
     color: "#FFFFFF",
     fontSize: width > 768 ? 32 : 26,
@@ -252,10 +303,6 @@ export const gameModalStyles = StyleSheet.create({
     alignItems: "center",
     padding: 12,
   },
-  selectedGameCard: {
-    borderWidth: 3,
-    borderColor: "#00E096",
-  },
   gameIcon: {
     fontSize: width > 768 ? 56 : 48,
     marginBottom: 12,
@@ -266,6 +313,30 @@ export const gameModalStyles = StyleSheet.create({
     fontWeight: "500",
     textAlign: "center",
   },
+
+  // Next/Continue button
+  nextButton: {
+    backgroundColor: "#00E096",
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    borderRadius: 100,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "center",
+    minWidth: 120,
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  nextButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  disabledButton: {
+    backgroundColor: "rgba(0, 224, 150, 0.5)",
+  },
+
+  // Original styles for other steps
   stakeContainer: {
     width: "100%",
     marginBottom: 32,
@@ -588,16 +659,6 @@ export const gameModalStyles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "bold",
   },
-  playerAvatarFallback: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#2E2E5D",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "transparent",
-  },
   activePlayerAvatar: {
     borderColor: "#3366FF",
   },
@@ -787,6 +848,104 @@ export const gameModalStyles = StyleSheet.create({
   },
   symbolO: {
     color: "#FF3D71",
+  },
+
+  // Play Modal Specific Styles
+  playModalContainer: {
+    backgroundColor: "rgba(26, 26, 46, 0.95)",
+    borderRadius: 12,
+    padding: 0,
+    width: "90%",
+    maxWidth: 400,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+    overflow: "hidden",
+  },
+  playModalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "rgba(34, 43, 69, 0.8)",
+  },
+  playModalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+  },
+  playOptionsContainer: {
+    width: "100%",
+  },
+  playOption: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "rgba(26, 26, 46, 0.7)",
+  },
+  playOptionText: {
+    fontSize: 16,
+    color: "#FFFFFF",
+    fontWeight: "500",
+    textAlign: "center",
+  },
+
+  // Matchmaking specific styles
+  rulesContainer: {
+    width: "100%",
+    backgroundColor: "rgba(26, 26, 46, 0.7)",
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 20,
+  },
+  rulesSectionTitle: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  ruleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+    width: "100%",
+  },
+  ruleLabelContainer: {
+    flex: 1,
+  },
+  ruleLabel: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  ruleValueContainer: {
+    flex: 1,
+    alignItems: "flex-end",
+  },
+  ruleValue: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  searchingTitle: {
+    color: "#FFFFFF",
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  cancelSearchButton: {
+    backgroundColor: "#FF3D71",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 100,
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: 160,
   },
 });
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
-import { homeStyles } from "@/styles/homeStyles";
+import { homeStyles } from "@/styles/pageStyles/homeStyles";
 
 interface TabNavigationProps {
   activeTab: string;

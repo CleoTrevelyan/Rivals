@@ -10,7 +10,7 @@ import {
   Switch,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { gameModalStyles } from "@/styles/gameModalStyles";
+import { gameModalStyles } from "@/styles/componentStyles/gameModalStyles";
 import {
   GameCreationStep,
   Friend,
@@ -82,11 +82,26 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
   }, [visible]);
 
   // Sample games data
-  const games: Game[] = [
+  const games = [
+    {
+      id: "dota2",
+      name: "Dota 2",
+      icon: (
+        <Image
+          source={require("@/assets/images/game-icons/dota2.png")}
+          style={gameModalStyles.gameIconImage}
+        />
+      ),
+    },
     {
       id: "noughts-crosses",
       name: "Noughts & Crosses",
-      icon: <Text style={gameModalStyles.gameIcon}>⚔️</Text>,
+      icon: (
+        <Image
+          source={require("@/assets/images/game-icons/tic-tac-toe.png")}
+          style={gameModalStyles.gameIconImage}
+        />
+      ),
     },
   ];
 
@@ -123,7 +138,13 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
   // Handler for game selection
   const handleGameSelect = (game: Game) => {
     setSelectedGame(game);
-    setCurrentStep("enterStake");
+  };
+
+  // Handler for next button in game selection
+  const handleGameContinue = () => {
+    if (selectedGame) {
+      setCurrentStep("enterStake");
+    }
   };
 
   // Handler for stake submission
@@ -190,7 +211,11 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
         />
         <Text style={gameModalStyles.navBrand}>RIVALS</Text>
         <Text style={gameModalStyles.navSeparator}>{">"}</Text>
-        <Text style={gameModalStyles.navTitle}>Create Game</Text>
+        <Text style={gameModalStyles.navTitle}>
+          {currentStep === "chooseGame"
+            ? "Create Game"
+            : selectedGame?.name || "Create Game"}
+        </Text>
       </View>
     );
   };
@@ -199,30 +224,38 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
   const renderChooseGameStep = () => {
     return (
       <View style={gameModalStyles.stepContainer}>
-        <View style={gameModalStyles.gameHeaderContainer}>
-          <Text style={gameModalStyles.stepTitle}>CHOOSE A GAME</Text>
-        </View>
-        <View style={gameModalStyles.gamesContainer}>
+        <Text style={gameModalStyles.chooseGameTitle}>CHOOSE A GAME</Text>
+
+        <View style={gameModalStyles.gameIconsContainer}>
           {games.map((game) => (
             <TouchableOpacity
               key={game.id}
               style={[
-                gameModalStyles.gameCard,
+                gameModalStyles.gameIconCard,
                 selectedGame?.id === game.id &&
                   gameModalStyles.selectedGameCard,
               ]}
               onPress={() => handleGameSelect(game)}
             >
               {game.icon}
-              <Text style={gameModalStyles.gameName}>{game.name}</Text>
+              {selectedGame?.id === game.id && (
+                <View style={gameModalStyles.checkmarkContainer}>
+                  <Ionicons name="checkmark" size={20} color="#FFFFFF" />
+                </View>
+              )}
             </TouchableOpacity>
           ))}
         </View>
+
         <TouchableOpacity
-          style={gameModalStyles.actionButton}
-          onPress={() => selectedGame && handleGameSelect(selectedGame)}
+          style={[
+            gameModalStyles.nextButton,
+            !selectedGame && gameModalStyles.disabledButton,
+          ]}
+          onPress={handleGameContinue}
+          disabled={!selectedGame}
         >
-          <Text style={gameModalStyles.actionButtonText}>Continue</Text>
+          <Text style={gameModalStyles.nextButtonText}>Next</Text>
         </TouchableOpacity>
       </View>
     );
@@ -233,8 +266,12 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
     return (
       <View style={gameModalStyles.stepContainer}>
         <View style={gameModalStyles.gameHeaderContainer}>
-          <Text style={gameModalStyles.gameTitle}>NOUGHTS & CROSSES</Text>
-          <Text style={gameModalStyles.gameSymbol}>⚔️</Text>
+          <Text style={gameModalStyles.gameTitle}>
+            {selectedGame?.name?.toUpperCase() || "NOUGHTS & CROSSES"}
+          </Text>
+          {selectedGame?.icon || (
+            <Text style={gameModalStyles.gameSymbol}>⚔️</Text>
+          )}
         </View>
         <View style={gameModalStyles.stakeContainer}>
           <View style={gameModalStyles.stakeInputContainer}>
@@ -269,10 +306,10 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
           )}
         </View>
         <TouchableOpacity
-          style={gameModalStyles.actionButton}
+          style={gameModalStyles.nextButton}
           onPress={handleStakeSubmit}
         >
-          <Text style={gameModalStyles.actionButtonText}>Continue</Text>
+          <Text style={gameModalStyles.nextButtonText}>Continue</Text>
         </TouchableOpacity>
       </View>
     );
@@ -283,8 +320,12 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
     return (
       <View style={gameModalStyles.stepContainer}>
         <View style={gameModalStyles.gameHeaderContainer}>
-          <Text style={gameModalStyles.gameTitle}>NOUGHTS & CROSSES</Text>
-          <Text style={gameModalStyles.gameSymbol}>⚔️</Text>
+          <Text style={gameModalStyles.gameTitle}>
+            {selectedGame?.name?.toUpperCase() || "NOUGHTS & CROSSES"}
+          </Text>
+          {selectedGame?.icon || (
+            <Text style={gameModalStyles.gameSymbol}>⚔️</Text>
+          )}
         </View>
         <View style={gameModalStyles.friendsContainer}>
           <Text style={gameModalStyles.sectionLabel}>FRIENDS</Text>
@@ -346,8 +387,12 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
     return (
       <View style={gameModalStyles.stepContainer}>
         <View style={gameModalStyles.gameHeaderContainer}>
-          <Text style={gameModalStyles.gameTitle}>NOUGHTS & CROSSES</Text>
-          <Text style={gameModalStyles.gameSymbol}>⚔️</Text>
+          <Text style={gameModalStyles.gameTitle}>
+            {selectedGame?.name?.toUpperCase() || "NOUGHTS & CROSSES"}
+          </Text>
+          {selectedGame?.icon || (
+            <Text style={gameModalStyles.gameSymbol}>⚔️</Text>
+          )}
         </View>
         <View style={gameModalStyles.playersContainer}>
           <View style={gameModalStyles.playerContainer}>
@@ -421,10 +466,10 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
           </View>
         </View>
         <TouchableOpacity
-          style={gameModalStyles.actionButton}
+          style={gameModalStyles.cancelButton}
           onPress={() => setCurrentStep("userNotReady")} // For demo flow
         >
-          <Text style={gameModalStyles.actionButtonText}>Cancel</Text>
+          <Text style={gameModalStyles.cancelButtonText}>Cancel</Text>
         </TouchableOpacity>
       </View>
     );
@@ -437,8 +482,12 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
     return (
       <View style={gameModalStyles.stepContainer}>
         <View style={gameModalStyles.gameHeaderContainer}>
-          <Text style={gameModalStyles.gameTitle}>NOUGHTS & CROSSES</Text>
-          <Text style={gameModalStyles.gameSymbol}>⚔️</Text>
+          <Text style={gameModalStyles.gameTitle}>
+            {selectedGame?.name?.toUpperCase() || "NOUGHTS & CROSSES"}
+          </Text>
+          {selectedGame?.icon || (
+            <Text style={gameModalStyles.gameSymbol}>⚔️</Text>
+          )}
         </View>
         <View style={gameModalStyles.playersContainer}>
           <View style={gameModalStyles.playerContainer}>
@@ -521,10 +570,10 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
           </View>
         </View>
         <TouchableOpacity
-          style={gameModalStyles.actionButton}
+          style={gameModalStyles.nextButton}
           onPress={handlePlayerReady}
         >
-          <Text style={gameModalStyles.actionButtonText}>Ready</Text>
+          <Text style={gameModalStyles.nextButtonText}>Ready</Text>
         </TouchableOpacity>
       </View>
     );
@@ -537,8 +586,12 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
     return (
       <View style={gameModalStyles.stepContainer}>
         <View style={gameModalStyles.gameHeaderContainer}>
-          <Text style={gameModalStyles.gameTitle}>NOUGHTS & CROSSES</Text>
-          <Text style={gameModalStyles.gameSymbol}>⚔️</Text>
+          <Text style={gameModalStyles.gameTitle}>
+            {selectedGame?.name?.toUpperCase() || "NOUGHTS & CROSSES"}
+          </Text>
+          {selectedGame?.icon || (
+            <Text style={gameModalStyles.gameSymbol}>⚔️</Text>
+          )}
         </View>
         <View style={gameModalStyles.playersContainer}>
           <View style={gameModalStyles.playerContainer}>
@@ -618,10 +671,10 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
           </View>
         </View>
         <TouchableOpacity
-          style={gameModalStyles.actionButton}
+          style={gameModalStyles.nextButton}
           onPress={() => setCurrentStep("postGame")} // For demo flow
         >
-          <Text style={gameModalStyles.actionButtonText}>Start Game</Text>
+          <Text style={gameModalStyles.nextButtonText}>Start Game</Text>
         </TouchableOpacity>
       </View>
     );
@@ -634,8 +687,12 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
     return (
       <View style={gameModalStyles.stepContainer}>
         <View style={gameModalStyles.gameHeaderContainer}>
-          <Text style={gameModalStyles.gameTitle}>NOUGHTS & CROSSES</Text>
-          <Text style={gameModalStyles.gameSymbol}>⚔️</Text>
+          <Text style={gameModalStyles.gameTitle}>
+            {selectedGame?.name?.toUpperCase() || "NOUGHTS & CROSSES"}
+          </Text>
+          {selectedGame?.icon || (
+            <Text style={gameModalStyles.gameSymbol}>⚔️</Text>
+          )}
         </View>
         <View style={gameModalStyles.playersContainer}>
           <View style={gameModalStyles.playerContainer}>
@@ -705,10 +762,10 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
           </View>
         </View>
         <TouchableOpacity
-          style={gameModalStyles.actionButton}
+          style={gameModalStyles.nextButton}
           onPress={handlePlayAgain}
         >
-          <Text style={gameModalStyles.actionButtonText}>REMATCH?</Text>
+          <Text style={gameModalStyles.nextButtonText}>REMATCH?</Text>
         </TouchableOpacity>
       </View>
     );

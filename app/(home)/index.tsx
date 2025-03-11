@@ -10,10 +10,11 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import { homeStyles } from "@/styles/homeStyles";
-import JoinGameModal from "./components/JoinGameModal";
-import CreateGameModal from "./components/CreateGameModal";
-import TournamentsScreen from "./components/TournamentScreen";
+import { homeStyles } from "@/styles/pageStyles/homeStyles";
+import JoinGameModal from "./components/modals/JoinGameModal";
+import CreateGameModal from "./components/modals/CreateGameModal";
+import MatchmakingModal from "./components/modals/MatchmakingModal";
+import TournamentsScreen from "./components/tabs/TournamentsTab";
 import { RivalsServer } from "@/components/constants";
 
 // Import components
@@ -26,13 +27,39 @@ import CompetitionCard from "./components/cards/CompetitionCard";
 import GameButton from "./components/cards/GameButton";
 
 // Simulated user balance
-const userBalance = "$14,230";
+const userBalance = 14230;
 
 export default function HomeScreen() {
   const [activeTab, setActiveTab] = useState("TRENDING");
-  const windowWidth = Dimensions.get("window").width;
-  const [showGameModal, setShowGameModal] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(
+    Dimensions.get("window").width
+  );
+  const [showJoinGameModal, setShowJoinGameModal] = useState(false);
+  const [showMatchmakingModal, setShowMatchmakingModal] = useState(false);
+
   const [socket, setSocket] = useState<WebSocket | null>(null);
+
+  const [playModalVisible, setPlayModalVisible] = useState(false);
+  const [showTeamManagement, setShowTeamManagement] = useState(false);
+
+  const handleTeamPress = () => {
+    setShowTeamManagement(true);
+  };
+
+  // Update window dimensions when orientation changes
+  useEffect(() => {
+    const updateLayout = () => {
+      setWindowWidth(Dimensions.get("window").width);
+    };
+
+    Dimensions.addEventListener("change", updateLayout);
+    return () => {
+      // Cleanup for newer React Native versions
+    };
+  }, []);
+
+  // Check if mobile view
+  const isMobile = windowWidth < 768;
 
   useEffect(() => {
     const ws = new WebSocket(RivalsServer);
@@ -72,6 +99,16 @@ export default function HomeScreen() {
   // Function to handle Create Game button press
   const handleCreateGamePress = () => {
     setShowCreateGameModal(true);
+  };
+
+  // Function to handle Join Game button press
+  const handleJoinGamePress = () => {
+    setShowJoinGameModal(true);
+  };
+
+  // Function to handle Matchmaking button press
+  const handleMatchmaking = () => {
+    setShowMatchmakingModal(true);
   };
 
   // Live matches data
@@ -203,7 +240,12 @@ export default function HomeScreen() {
   const renderLiveMatchesHorizontal = () => {
     return (
       <View style={homeStyles.liveMatchesSection}>
-        <View style={homeStyles.sectionHeader}>
+        <View
+          style={[
+            homeStyles.sectionHeader,
+            isMobile && { flexDirection: "column", alignItems: "flex-start" },
+          ]}
+        >
           <View style={homeStyles.sectionTitleContainer}>
             <View style={homeStyles.liveDot} />
             <Text style={homeStyles.sectionTitle}>LIVE MATCHES</Text>
@@ -217,6 +259,7 @@ export default function HomeScreen() {
           horizontal
           showsHorizontalScrollIndicator={false}
           style={homeStyles.horizontalScrollView}
+          contentContainerStyle={isMobile ? { paddingRight: 8 } : null}
         >
           {liveMatches.map((match) => (
             <LiveMatchCard
@@ -224,7 +267,7 @@ export default function HomeScreen() {
               match={match}
               onPress={() => {
                 if (match.game === "Noughts & Crosses") {
-                  setShowGameModal(true);
+                  setShowJoinGameModal(true);
                 } else {
                   alert("Match view coming soon!");
                 }
@@ -239,7 +282,12 @@ export default function HomeScreen() {
   const renderFeaturedEvents = () => {
     return (
       <View style={homeStyles.sectionContainer}>
-        <View style={homeStyles.sectionHeader}>
+        <View
+          style={[
+            homeStyles.sectionHeader,
+            isMobile && { flexDirection: "column", alignItems: "flex-start" },
+          ]}
+        >
           <Text style={homeStyles.sectionTitle}>FEATURED EVENTS</Text>
           <TouchableOpacity>
             <Text style={homeStyles.seeAllText}>See All</Text>
@@ -250,6 +298,7 @@ export default function HomeScreen() {
           horizontal
           showsHorizontalScrollIndicator={false}
           style={homeStyles.featuredScrollView}
+          contentContainerStyle={isMobile ? { paddingRight: 8 } : null}
         >
           {featuredEvents.map((event) => (
             <EventCard
@@ -266,7 +315,12 @@ export default function HomeScreen() {
   const renderGames = () => {
     return (
       <View style={homeStyles.sectionContainer}>
-        <View style={homeStyles.sectionHeader}>
+        <View
+          style={[
+            homeStyles.sectionHeader,
+            isMobile && { flexDirection: "column", alignItems: "flex-start" },
+          ]}
+        >
           <Text style={homeStyles.sectionTitle}>GAMES</Text>
           <TouchableOpacity>
             <Text style={homeStyles.seeAllText}>See All</Text>
@@ -277,6 +331,7 @@ export default function HomeScreen() {
           horizontal
           showsHorizontalScrollIndicator={false}
           style={homeStyles.gamesScrollView}
+          contentContainerStyle={isMobile ? { paddingRight: 8 } : null}
         >
           {games.map((game) => (
             <GameButton
@@ -284,7 +339,7 @@ export default function HomeScreen() {
               game={game}
               onPress={() => {
                 if (game.id === "tictactoe") {
-                  setShowGameModal(true);
+                  setShowJoinGameModal(true);
                 } else {
                   alert("Game coming soon!");
                 }
@@ -299,7 +354,12 @@ export default function HomeScreen() {
   const renderTopCompetitions = () => {
     return (
       <View style={homeStyles.sectionContainer}>
-        <View style={homeStyles.sectionHeader}>
+        <View
+          style={[
+            homeStyles.sectionHeader,
+            isMobile && { flexDirection: "column", alignItems: "flex-start" },
+          ]}
+        >
           <Text style={homeStyles.sectionTitle}>TOP COMPETITIONS</Text>
           <TouchableOpacity>
             <Text style={homeStyles.seeAllText}>See All</Text>
@@ -322,13 +382,23 @@ export default function HomeScreen() {
   const renderAllMatches = () => {
     // Calculate number of columns based on screen width
     const numColumns = windowWidth > 1200 ? 3 : windowWidth > 768 ? 2 : 1;
-    const cardWidth = windowWidth / numColumns - 20; // Adjust 20 for padding/margin if needed
+    const cardWidth = windowWidth / numColumns - (isMobile ? 24 : 20);
 
     return (
       <View style={homeStyles.sectionContainer}>
-        <View style={homeStyles.sectionHeader}>
+        <View
+          style={[
+            homeStyles.sectionHeader,
+            isMobile && { flexDirection: "column", alignItems: "flex-start" },
+          ]}
+        >
           <Text style={homeStyles.sectionTitle}>ALL MATCHES</Text>
-          <View style={homeStyles.filterOptions}>
+          <View
+            style={[
+              homeStyles.filterOptions,
+              isMobile && homeStyles.mobileFilterOptions,
+            ]}
+          >
             <TouchableOpacity style={homeStyles.filterOptionActive}>
               <Text style={homeStyles.filterOptionTextActive}>All</Text>
             </TouchableOpacity>
@@ -341,22 +411,47 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <View style={homeStyles.matchesGrid}>
-          {allMatches.map((match) => (
-            <MatchCard
-              key={match.id}
-              match={match}
-              width={cardWidth}
-              onPress={() => {
-                if (match.game === "Noughts & Crosses") {
-                  setShowGameModal(true);
-                } else {
-                  alert("Match view coming soon!");
-                }
-              }}
-            />
-          ))}
-        </View>
+        {isMobile ? (
+          // Horizontal scrolling for mobile
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={homeStyles.mobileMatchesScroll}
+          >
+            {allMatches.map((match) => (
+              <MatchCard
+                key={match.id}
+                match={match}
+                width={cardWidth}
+                onPress={() => {
+                  if (match.game === "Noughts & Crosses") {
+                    setShowJoinGameModal(true);
+                  } else {
+                    alert("Match view coming soon!");
+                  }
+                }}
+              />
+            ))}
+          </ScrollView>
+        ) : (
+          // Grid layout for tablet/desktop
+          <View style={homeStyles.matchesGrid}>
+            {allMatches.map((match) => (
+              <MatchCard
+                key={match.id}
+                match={match}
+                width={cardWidth}
+                onPress={() => {
+                  if (match.game === "Noughts & Crosses") {
+                    setShowJoinGameModal(true);
+                  } else {
+                    alert("Match view coming soon!");
+                  }
+                }}
+              />
+            ))}
+          </View>
+        )}
 
         <TouchableOpacity style={homeStyles.showMoreButton}>
           <Text style={homeStyles.showMoreText}>Show More</Text>
@@ -403,7 +498,12 @@ export default function HomeScreen() {
         <Header
           userBalance={userBalance}
           onCreateGame={handleCreateGamePress}
+          onJoinGame={handleJoinGamePress}
           onLogout={handleLogout}
+          handleMatchmaking={handleMatchmaking}
+          playModalVisible={playModalVisible}
+          setPlayModalVisible={setPlayModalVisible}
+          handleTeamPress={handleTeamPress}
         />
 
         {/* Tab Navigation Component */}
@@ -428,14 +528,20 @@ export default function HomeScreen() {
 
         {/* Game Modal - for joining existing games */}
         <JoinGameModal
-          visible={showGameModal}
-          onClose={() => setShowGameModal(false)}
+          visible={showJoinGameModal}
+          onClose={() => setShowJoinGameModal(false)}
         />
 
         {/* Create Game Modal - for creating new games */}
         <CreateGameModal
           visible={showCreateGameModal}
           onClose={() => setShowCreateGameModal(false)}
+        />
+
+        {/* Matchmaking Modal - for random matchmaking */}
+        <MatchmakingModal
+          visible={showMatchmakingModal}
+          onClose={() => setShowMatchmakingModal(false)}
         />
       </SafeAreaView>
     </ImageBackground>

@@ -9,12 +9,12 @@ import {
   StyleSheet,
   ScrollView,
 } from "react-native";
-import { gameModalStyles } from "@/styles/gameModalStyles";
-import { ticTacToeStyles } from "@/styles/tictactoeStyles";
+import { gameModalStyles } from "@/styles/componentStyles/gameModalStyles";
+import { ticTacToeStyles } from "@/styles/componentStyles/tictactoeStyles";
 import { Ionicons } from "@expo/vector-icons";
 import { RivalsServer } from "@/components/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import TicTacToeGame from "../../(games)/TicTacToeGame";
+import TicTacToeGame from "../../../(games)/TicTacToeGame";
 import useTicTacToeGame, { GameMessageTypes } from "@/hooks/useTicTacToeGame";
 import { GamePlayer, GameStage, GameModalProps } from "@/interface/types";
 

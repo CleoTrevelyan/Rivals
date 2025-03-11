@@ -1,7 +1,7 @@
 import React from "react";
 import { Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { homeStyles } from "@/styles/homeStyles";
+import { homeStyles } from "@/styles/pageStyles/homeStyles";
 
 interface SearchBarProps {
   placeholder?: string;
