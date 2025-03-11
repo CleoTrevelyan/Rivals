@@ -503,7 +503,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
       JSON.stringify({
         type: "matchmake",
         playerID: playerID,
-        game: "NnC",
+        game: "TTT",
       })
     );
     if (socket) {
