@@ -55,7 +55,7 @@ export const authStyles = StyleSheet.create({
   featureCardFullPage: {
     flex: 1,
     height: 240,
-    maxWidth: 300,
+    maxWidth: 250,
     borderRadius: 12,
     overflow: "hidden",
     position: "relative",
@@ -71,7 +71,11 @@ export const authStyles = StyleSheet.create({
   // New style for the middle feature card
   featureCardMiddle: {
     height: 280, // Taller than the other cards
-    marginTop: -40, // To make the card start higher
+    marginTop: -10, // To make the card start higher
+  },
+  featureCardMiddleMobile: {
+    height: 240,
+    marginVertical: 16,
   },
 
   // Form container styles for full page - GLASSY STYLE
@@ -146,7 +150,7 @@ export const authStyles = StyleSheet.create({
   },
   titleContainer: {
     marginTop: 4,
-    marginBottom: 20,
+    marginBottom: 10,
     alignItems: "center",
     width: "100%",
   },
@@ -165,7 +169,7 @@ export const authStyles = StyleSheet.create({
     fontSize: 32,
   },
   subHeaderText: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#FFFFFF",
     marginBottom: 4,
     lineHeight: 20,
@@ -184,10 +188,10 @@ export const authStyles = StyleSheet.create({
     marginBottom: 15,
   },
   featuresContainerMobile: {
-    flexDirection: "column",
-    marginTop: 24,
+    flexDirection: "row",
+    marginTop: 12,
     marginBottom: 20,
-    alignItems: "center",
+    alignItems: "flex-end",
   },
   featureCard: {
     width: "24%",

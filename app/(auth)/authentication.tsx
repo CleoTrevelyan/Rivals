@@ -15,6 +15,7 @@ import { authStyles } from "./styles/authStyles";
 import PerlinNoiseBackground from "@/components/perlinHero";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AuthForm from "./components/AuthForm";
+import FeatureCards from "./components/FeatureCards";
 import { useAuthSocket } from "./hooks/useAuthSocket";
 
 export default function Auth() {
@@ -164,82 +165,8 @@ export default function Auth() {
             </Text>
           </View>
 
-          {/* Feature cards in horizontal row (stack on mobile) */}
-          <View
-            style={[
-              authStyles.featuresContainerFullPage,
-              isMobileView && authStyles.featuresContainerMobile,
-            ]}
-          >
-            {/* Feature card: Play as a team */}
-            <View
-              style={[
-                authStyles.featureCardFullPage,
-                isMobileView && authStyles.featureCardMobile,
-              ]}
-            >
-              <Image
-                source={require("@/assets/images/placeholders/placeholder2.png")}
-                style={authStyles.featureCardBackground}
-                resizeMode="cover"
-              />
-              <View style={authStyles.featureCardContent}>
-                <Text style={authStyles.featureTitle}>
-                  Play as a team and earn together
-                </Text>
-                <Text style={authStyles.featureDescription}>
-                  Manage your crew, splitting buy-ins and payouts
-                </Text>
-              </View>
-            </View>
-
-            {/* Feature card: Find matches and earn */}
-            <View
-              style={[
-                authStyles.featureCardFullPage,
-                isMobileView && authStyles.featureCardMobile,
-              ]}
-            >
-              <Image
-                source={require("@/assets/images/placeholders/placeholder1.png")}
-                style={authStyles.featureCardBackground}
-                resizeMode="cover"
-              />
-              <View style={authStyles.featureCardContent}>
-                <Text style={authStyles.featureTitle}>
-                  Find matches and{" "}
-                  <Text style={{ fontWeight: "bold", color: "#02F199" }}>
-                    earn
-                  </Text>{" "}
-                </Text>
-                <Text style={authStyles.featureDescription}>
-                  Stake on every match, or compete for free to rank up
-                </Text>
-              </View>
-            </View>
-
-            {/* Feature card: Compete in matches */}
-            <View
-              style={[
-                authStyles.featureCardFullPage,
-                isMobileView && authStyles.featureCardMobile,
-              ]}
-            >
-              <Image
-                source={require("@/assets/images/placeholders/placeholder3.png")}
-                style={authStyles.featureCardBackground}
-                resizeMode="cover"
-              />
-              <View style={authStyles.featureCardContent}>
-                <Text style={authStyles.featureTitle}>
-                  Compete in matches, leagues and tournaments
-                </Text>
-                <Text style={authStyles.featureDescription}>
-                  Create your own rules or join existing competitions
-                </Text>
-              </View>
-            </View>
-          </View>
+          {/* Feature Cards Component */}
+          <FeatureCards isMobileView={isMobileView} />
 
           {/* Auth Form Card */}
           <View
