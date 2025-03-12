@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   Modal,
   Image,
   ScrollView,
+  Alert,
 } from "react-native";
 import { gameModalStyles } from "@/styles/gameModalStyles";
 import { RivalsServer } from "@/components/constants";
@@ -33,6 +34,8 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLocalPlay, setIsLocalPlay] = useState<boolean>(false);
   const [message, setMessage] = useState("");
+  const [isConnected, setIsConnected] = useState(false);
+  const [connectionAttempts, setConnectionAttempts] = useState(0);
 
   // Player and opponent information
   const [playerID, setPlayerID] = useState<string | null>(null);
@@ -90,6 +93,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
     onGameEnd: (result) => {
       console.log(`Game ended: ${result}`);
       // Game end will be handled by UI buttons instead of automatic transition
+      setStage("results");
     },
     initialPlayerSymbol: currentPlayer.symbol,
     timeLimit: gameOptions.timeLimit === "5 MIN" ? 300 : undefined,
@@ -107,6 +111,9 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
         setOpponent((prev) => ({ ...prev, isReady: false }));
       }
       setIsLocalPlay(false);
+      setIsConnected(false);
+      setConnectionAttempts(0);
+      setMessage("");
     }
   }, [visible]);
 
@@ -115,117 +122,249 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
     const loadPlayerID = async () => {
       try {
         const id = await AsyncStorage.getItem("playerID");
-        setPlayerID(id || "user-123"); // Fallback for demo
-        setCurrentPlayer((prev) => ({ ...prev, id: id || "user-123" }));
+        console.log("Loaded playerID:", id);
+
+        if (!id) {
+          // Generate a new player ID if none exists
+          const newId = `user-${Date.now()}-${Math.floor(
+            Math.random() * 1000
+          )}`;
+          await AsyncStorage.setItem("playerID", newId);
+          setPlayerID(newId);
+          setCurrentPlayer((prev) => ({ ...prev, id: newId }));
+          console.log("Generated new playerID:", newId);
+        } else {
+          setPlayerID(id);
+          setCurrentPlayer((prev) => ({ ...prev, id: id }));
+        }
       } catch (error) {
         console.error("Error loading playerID:", error);
         // Set fallback for demo
-        setPlayerID("user-123");
-        setCurrentPlayer((prev) => ({ ...prev, id: "user-123" }));
+        const fallbackId = `user-${Date.now()}-${Math.floor(
+          Math.random() * 1000
+        )}`;
+        setPlayerID(fallbackId);
+        setCurrentPlayer((prev) => ({ ...prev, id: fallbackId }));
       }
     };
     loadPlayerID();
-    const loadPlayerName = async () => {
-      try {
-        const name = await AsyncStorage.getItem("username");
-        setCurrentPlayer((prev) => ({ ...prev, name: name || "Player" }));
-      } catch (error) {
-        console.error("Error loading playerName:", error);
-      }
-    };
-    loadPlayerName();
   }, [isLocalPlay]);
+
+  // Connection error handler
+  const handleConnectionError = useCallback(() => {
+    if (connectionAttempts < 3) {
+      setConnectionAttempts((prev) => prev + 1);
+      setMessage(
+        `Connection failed. Retrying... (${connectionAttempts + 1}/3)`
+      );
+
+      // Retry connection after a delay
+      setTimeout(() => {
+        if (visible && !isLocalPlay) {
+          console.log("Retrying connection...");
+          connectSocket();
+        }
+      }, 2000);
+    } else {
+      setMessage(
+        "Connection failed after multiple attempts. Please try again later."
+      );
+
+      // Offer local play as a fallback
+      Alert.alert(
+        "Connection Failed",
+        "Unable to connect to the game server. Would you like to play locally against AI instead?",
+        [
+          {
+            text: "Play Locally",
+            onPress: setupLocalGame,
+          },
+          {
+            text: "Cancel",
+            onPress: () => setStage("join"),
+            style: "cancel",
+          },
+        ]
+      );
+    }
+  }, [connectionAttempts, visible, isLocalPlay]);
+
+  // Socket connection function
+  const connectSocket = useCallback(async () => {
+    try {
+      console.log("Connecting to socket...");
+      const connected = await gameSocket.connect(
+        gameID || undefined,
+        playerID || undefined
+      ).then(() => true).catch(() => false);
+
+      if (!connected) {
+        console.error("Failed to connect to socket");
+        handleConnectionError();
+        return false;
+      }
+
+      setIsConnected(true);
+      console.log("Connected to socket successfully");
+      setMessage("");
+
+      // Register handlers for game events
+      gameSocket.registerHandler("matchFound", (data) => {
+        console.log("Opponent found:", data);
+        setOpponent((prev) => ({
+          ...prev,
+          name: data.opponentName,
+          id: data.opponentId || "opponent-id",
+        }));
+        setStage("ready");
+        setIsLoading(false);
+      });
+
+      gameSocket.registerHandler("searchingForMatch", () => {
+        console.log("Searching for match...");
+        setStage("searching");
+        setIsLoading(true);
+      });
+
+      gameSocket.registerHandler("enteringMatch", (data) => {
+        console.log("Entering match with data:", data);
+
+        // Update opponent ready status
+        setOpponent((prev) => ({ ...prev, isReady: true }));
+
+        // Update symbol assignment from server
+        if (data.playerSymbol) {
+          console.log("Server assigned symbol:", data.playerSymbol);
+
+          setCurrentPlayer((prev) => ({
+            ...prev,
+            symbol: data.playerSymbol,
+            isReady: true,
+          }));
+
+          // Set opponent to the opposite symbol
+          setOpponent((prev) => ({
+            ...prev,
+            symbol: data.playerSymbol === "X" ? "O" : "X",
+            isReady: true,
+          }));
+
+          // Update the game hook's player symbol
+          if (gameHook.setPlayerSymbol) {
+            gameHook.setPlayerSymbol(data.playerSymbol);
+          }
+        }
+
+        // Set game ID when match starts
+        if (data.gameID) {
+          setGameID(data.gameID);
+        }
+
+        // Start the game
+        setStage("playing");
+      });
+
+      gameSocket.registerHandler("waitingForOpponent", () => {
+        console.log("Waiting for opponent...");
+        setOpponent((prev) => ({ ...prev, isReady: false }));
+      });
+
+      gameSocket.registerHandler("gameUpdate", (data) => {
+        console.log("Game update received:", data);
+        // This should be handled by the useTicTacToeGame hook
+      });
+
+      gameSocket.registerHandler("gameMove", (data) => {
+        console.log("Move received from opponent:", data);
+        // Should be handled by the game hook, but we can log it here
+      });
+
+      gameSocket.registerHandler("gameStarted", (data) => {
+        console.log("Game started event received:", data);
+        // Update initial game state if provided
+        if (data.initialState && gameHook.setBoard) {
+          gameHook.setBoard(data.initialState.board);
+        }
+
+        if (data.currentTurn) {
+          // Set whether it's the player's turn
+          const isPlayerTurn = data.currentTurn === currentPlayer.symbol;
+          if (gameHook.setIsPlayerTurn) {
+            gameHook.setIsPlayerTurn(isPlayerTurn);
+          }
+        }
+      });
+
+      gameSocket.registerHandler("connectionStatus", (data) => {
+        console.log("Connection status:", data);
+        setIsConnected(data.connected);
+        if (!data.connected && stage === "playing") {
+          setMessage("Connection to server lost. Attempting to reconnect...");
+        }
+      });
+
+      gameSocket.registerHandler("error", (data) => {
+        console.log("Error from server:", data.error);
+        setMessage(data.error || "Unknown error occurred");
+      });
+
+      return true;
+    } catch (error) {
+      console.error("Exception while connecting to game server:", error);
+      setIsConnected(false);
+      handleConnectionError();
+      return false;
+    }
+  }, [
+    gameID,
+    playerID,
+    handleConnectionError,
+    currentPlayer.symbol,
+    gameHook,
+    stage,
+  ]);
 
   // Setup WebSocket connection
   useEffect(() => {
     if (visible && !isLocalPlay) {
-      const connectSocket = async () => {
-        try {
-          await gameSocket.connect(gameID || undefined, playerID || undefined);
-
-          // Register handlers for game events
-          gameSocket.registerHandler("matchFound", (data) => {
-            console.log("Opponent: ", data.opponentName);
-            setGameID(data.gameID);
-            setOpponent((prev) => ({
-              ...prev,
-              name: data.opponentName,
-              id: data.opponentId || "opponent-id",
-            }));
-            setStage("ready");
-          });
-
-          gameSocket.registerHandler("searchingForMatch", () => {
-            setStage("searching");
-            setIsLoading(true);
-          });
-
-          gameSocket.registerHandler("enteringMatch", (data) => {
-            console.log("Entering match with data:", data);
-
-            // Update opponent ready status
-            setOpponent((prev) => ({ ...prev, isReady: true }));
-
-            // Update symbol assignment from server
-            if (data.playerSymbol) {
-              console.log("Server assigned symbol:", data.playerSymbol);
-
-              setCurrentPlayer((prev) => ({
-                ...prev,
-                symbol: data.playerSymbol,
-                isReady: true,
-              }));
-
-              // Set opponent to the opposite symbol
-              setOpponent((prev) => ({
-                ...prev,
-                symbol: data.playerSymbol === "X" ? "O" : "X",
-                isReady: true,
-              }));
-            }
-
-            // Move to playing stage
-            setStage("playing");
-
-            // Set game ID when match starts
-            if (data.gameID) {
-              setGameID(data.gameID);
-            }
-          });
-
-          gameSocket.registerHandler("waitingForOpponent", () => {
-            setOpponent((prev) => ({ ...prev, isReady: false }));
-            console.log("waiting for opponent");
-          });
-
-          gameSocket.registerHandler("gameUpdate", (data) => {
-            console.log("Game update received:", data);
-            // This should be handled by the useTicTacToeGame hook
-            // But we can add additional logic here if needed
-          });
-
-          gameSocket.registerHandler("gameStarted", (data) => {
-            console.log("Game started event received:", data);
-            // This is just for debugging - the hook should handle this
-          });
-
-          gameSocket.registerHandler("error", (data) => {
-            console.log("Error from server:", data.error);
-            setMessage(data.error || "Unknown error occurred");
-          });
-        } catch (error) {
-          console.error("Failed to connect to game server:", error);
-        }
+      console.log("Setting up socket connection");
+      const setupConnection = async () => {
+        const success = await connectSocket();
+        console.log("Connection setup result:", success);
       };
 
-      connectSocket();
+      setupConnection();
 
       return () => {
+        console.log("Cleaning up socket connection...");
         gameSocket.clearHandlers();
         gameSocket.disconnect();
+        setIsConnected(false);
       };
     }
-  }, [visible, gameID, playerID, isLocalPlay]);
+  }, [visible, isLocalPlay, connectSocket]);
+
+  // Keep WebSocket alive with ping
+  useEffect(() => {
+    let pingInterval: NodeJS.Timeout;
+
+    if (isConnected && !isLocalPlay) {
+      pingInterval = setInterval(() => {
+        console.log("Sending ping to keep connection alive");
+        if (gameSocket.ping) {
+          gameSocket.ping();
+        } else {
+          console.warn("gameSocket.ping method is not available");
+        }
+      }, 30000); // Send ping every 30 seconds
+    }
+
+    return () => {
+      if (pingInterval) {
+        clearInterval(pingInterval);
+      }
+    };
+  }, [isConnected, isLocalPlay]);
 
   // Debug log when game starts
   useEffect(() => {
@@ -238,6 +377,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
         playerID: playerID,
         opponentID: opponent.id,
         gameID: gameID,
+        isConnected: isConnected,
       });
     }
   }, [
@@ -248,12 +388,15 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
     playerID,
     opponent.id,
     gameID,
+    isConnected,
   ]);
 
   // Setup local game
   const setupLocalGame = () => {
     // Set local play mode
     setIsLocalPlay(true);
+    setIsConnected(true); // Local play is always "connected"
+    setMessage("");
 
     // Generate a local game ID
     const localGameID = "local-" + Date.now();
@@ -274,25 +417,53 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
       symbol: "O",
     }));
 
+    // Update the game hook's player symbol
+    if (gameHook.setPlayerSymbol) {
+      gameHook.setPlayerSymbol("X");
+    }
+
+    // Initialize game state for local play
+    if (gameHook.setBoard) {
+      gameHook.setBoard(Array(9).fill(null));
+    }
+
+    if (gameHook.setIsPlayerTurn) {
+      // Local player always goes first
+      gameHook.setIsPlayerTurn(true);
+    }
+
     // Move directly to playing stage
     setStage("playing");
   };
 
   // Game flow control functions
   const startSearch = async () => {
-    if (isLocalPlay) {
+    if (gameOptions.format === "LOCAL") {
       setupLocalGame();
       return;
     }
 
-    const playerID = await AsyncStorage.getItem("playerID");
+    // Reset connection attempts
+    setConnectionAttempts(0);
+
+    if (!isConnected) {
+      setMessage("Connecting to server...");
+      const success = await connectSocket();
+      if (!success) {
+        return; // Don't proceed if connection failed
+      }
+    }
+
+    console.log("Starting matchmaking with player ID:", playerID);
+    setIsLoading(true);
     gameSocket.startMatchmaking("TTT");
   };
 
   const cancelSearch = () => {
-    if (!isLocalPlay) {
+    if (!isLocalPlay && isConnected) {
       gameSocket.cancelMatchmaking();
     }
+    setIsLoading(false);
     setStage("join");
   };
 
@@ -301,7 +472,12 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
 
     // For online play, send ready signal
     if (!isLocalPlay) {
-      gameSocket.playerReady();
+      if (isConnected) {
+        gameSocket.playerReady();
+      } else {
+        setMessage("Connection to server lost. Please try again.");
+        setStage("join");
+      }
     } else {
       // For local play, immediately start the game
       setStage("playing");
@@ -324,9 +500,18 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
         // Return to join stage
         setStage("join");
         setIsLocalPlay(false);
+
+        // Reset game state
+        if (gameHook.resetGame) {
+          gameHook.resetGame();
+        }
         break;
       case "makeMove":
         // This will be handled by the game hook
+        break;
+      case "reconnect":
+        // Attempt to reconnect to the server
+        connectSocket();
         break;
     }
   };
@@ -334,6 +519,13 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
   // Handle option changes
   const handleOptionChange = (option: string, value: string) => {
     setGameOptions((prev) => ({ ...prev, [option]: value }));
+
+    // If format is changed to LOCAL, update isLocalPlay
+    if (option === "format" && value === "LOCAL") {
+      setIsLocalPlay(true);
+    } else if (option === "format" && value !== "LOCAL") {
+      setIsLocalPlay(false);
+    }
   };
 
   // Render breadcrumb navigation
@@ -390,6 +582,8 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
             matchInfo={matchInfo}
             onAction={handleGameAction}
             timeLimit={gameOptions.timeLimit === "5 MIN" ? 300 : undefined}
+            isConnected={isConnected}
+            onReconnect={() => handleGameAction("reconnect")}
           />
         );
       case "results":
@@ -454,6 +648,18 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
               ]}
             >
               {renderContent()}
+
+              {/* Display error message if any */}
+              {message ? (
+                <View
+                  style={[
+                    gameModalStyles.errorBanner,
+                    { marginTop: 10, width: "80%" },
+                  ]}
+                >
+                  <Text style={gameModalStyles.errorText}>{message}</Text>
+                </View>
+              ) : null}
             </View>
           </ScrollView>
         </View>

@@ -63,7 +63,7 @@ const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
         }
       }
       // Update local state to match external
-      setLocalGameState(externalGameState);
+      setLocalGameState([...externalGameState]);
     }
   }, [externalGameState]);
 
@@ -237,6 +237,15 @@ const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
               : winner === playerSymbol
               ? "You Win!"
               : "You Lose!"}
+          </Text>
+        </View>
+      )}
+
+      {/* Not active message */}
+      {!active && !winner && (
+        <View style={ticTacToeStyles.inactiveBanner}>
+          <Text style={ticTacToeStyles.inactiveText}>
+            Waiting for connection...
           </Text>
         </View>
       )}

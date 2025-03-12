@@ -353,6 +353,65 @@ export const useTicTacToeGame = ({
     }
   }, [isConnected, rematchOffered, socket, gameID, playerID]);
 
+  // Direct setters for outside control (needed by JoinGameModal)
+  const setPlayerSymbol = useCallback((symbol: "X" | "O") => {
+    console.log("Setting player symbol in hook:", symbol);
+    setGameState((prev) => ({
+      ...prev,
+      playerSymbol: symbol,
+    }));
+  }, []);
+
+  const setBoard = useCallback((newBoard: Array<"X" | "O" | null>) => {
+    console.log("Setting board in hook:", newBoard);
+    setGameState((prev) => ({
+      ...prev,
+      board: newBoard,
+    }));
+  }, []);
+
+  const setIsPlayerTurn = useCallback(
+    (isPlayerTurn: boolean) => {
+      console.log("Setting isPlayerTurn in hook:", isPlayerTurn);
+      const newTurn = isPlayerTurn
+        ? gameState.playerSymbol
+        : gameState.playerSymbol === "X"
+        ? "O"
+        : "X";
+      setGameState((prev) => ({
+        ...prev,
+        currentTurn: newTurn,
+      }));
+    },
+    [gameState.playerSymbol]
+  );
+
+  // Reset the entire game
+  const resetGame = useCallback(() => {
+    console.log("Resetting game in hook");
+    setGameState({
+      board: Array(9).fill(null),
+      currentTurn: "X",
+      playerSymbol: gameState.playerSymbol,
+      winner: null,
+      isActive: true,
+      lastMove: null,
+      opponentID: gameState.opponentID,
+      opponentName: gameState.opponentName,
+    });
+    setRematchOffered(false);
+    setError(null);
+  }, [gameState.playerSymbol, gameState.opponentID, gameState.opponentName]);
+
+  // Function to send ping to keep connection alive
+  const ping = useCallback(() => {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ type: "ping" }));
+      return true;
+    }
+    return false;
+  }, [socket]);
+
   return {
     // Game state
     board: gameState.board,
@@ -377,6 +436,13 @@ export const useTicTacToeGame = ({
     forfeitGame,
     requestRematch,
     acceptRematch,
+
+    // Added methods needed by JoinGameModal
+    setPlayerSymbol,
+    setBoard,
+    setIsPlayerTurn,
+    resetGame,
+    ping,
   };
 };
 

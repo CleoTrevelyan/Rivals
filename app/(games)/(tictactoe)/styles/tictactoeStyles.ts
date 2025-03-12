@@ -3,6 +3,20 @@ import { StyleSheet, Dimensions } from "react-native";
 const { width } = Dimensions.get("window");
 
 export const ticTacToeStyles = StyleSheet.create({
+  inactiveBanner: {
+    backgroundColor: 'rgba(46, 58, 89, 0.8)',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 15,
+    alignSelf: 'center',
+  },
+  inactiveText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
   // Game board container
   container: {
     padding: 10,
