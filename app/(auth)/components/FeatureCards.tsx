@@ -9,7 +9,7 @@ import {
   ImageSourcePropType,
   LayoutChangeEvent,
 } from "react-native";
-import { authStyles } from "../styles/authStyles";
+import authStyles from "../styles/authStyles";
 
 // Define card type
 type FeatureCard = {

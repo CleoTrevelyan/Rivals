@@ -1,34 +1,24 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Stack } from "expo-router";
-import { useEffect, useState } from "react";
-import { Text, View } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Redirect } from "expo-router";
+import { View, Text, ActivityIndicator } from "react-native";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistor } from "@/store";
+import { useAuth } from "@/store/hooks/useAuth";
 
-export default function RootLayout() {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+// Inner layout component that has access to Redux state
+function InnerLayout() {
+  const { isAuthenticated, isLoading, verifyToken } = useAuth();
 
   useEffect(() => {
-    const checkLoginStatus = async () => {
-      try {
-        const token = await AsyncStorage.getItem("userToken");
-        setIsLoggedIn(!!token);
-      } catch (error) {
-        console.error("Error checking login status:", error);
-        setIsLoggedIn(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkLoginStatus();
-  }, []);
+    // Verify token when app loads
+    verifyToken();
+  }, [verifyToken]);
 
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Loading...</Text>
+        <ActivityIndicator size="large" color="#00ff00" />
       </View>
     );
   }
@@ -40,11 +30,31 @@ export default function RootLayout() {
       }}
     >
       {/* Redirect based on auth status */}
-      {isLoggedIn ? (
+      {isAuthenticated ? (
         <Stack.Screen name="(home)" options={{ headerShown: false }} />
       ) : (
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       )}
     </Stack>
+  );
+}
+
+// Root layout component that provides Redux
+export default function RootLayout() {
+  return (
+    <Provider store={store}>
+      <PersistGate
+        loading={
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <ActivityIndicator size="large" color="#00ff00" />
+          </View>
+        }
+        persistor={persistor}
+      >
+        <InnerLayout />
+      </PersistGate>
+    </Provider>
   );
 }

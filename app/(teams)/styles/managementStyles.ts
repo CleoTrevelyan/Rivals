@@ -2,7 +2,7 @@ import { StyleSheet, Dimensions } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
-export const teamManagementStyles = StyleSheet.create({
+const teamManagementStyles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.7)",
@@ -277,3 +277,5 @@ export const teamManagementStyles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
+
+export default teamManagementStyles;

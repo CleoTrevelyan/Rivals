@@ -8,7 +8,7 @@ import {
   Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { homeStyles } from "../app/(home)/styles/homeStyles";
+import homeStyles from "../app/(home)/styles/homeStyles";
 import { HeaderProps } from "@/interface/types";
 import SearchBar from "./SearchBar";
 import PlayButton from "../app/(home)/components/buttons/PlayButton";

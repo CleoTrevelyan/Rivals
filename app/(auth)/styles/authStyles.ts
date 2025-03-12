@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 
-export const authStyles = StyleSheet.create({
+const authStyles = StyleSheet.create({
   // Full page container styles
   fullContainer: {
     flex: 1,
@@ -474,3 +474,5 @@ export const authStyles = StyleSheet.create({
     fontWeight: "400",
   },
 });
+
+export default authStyles;

@@ -2,7 +2,7 @@ import React from "react";
 import { Text, TouchableOpacity, StyleSheet } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { GameButtonProps } from "@/interface/types";
-import { homeStyles } from "../../styles/homeStyles";
+import homeStyles from "../../styles/homeStyles";
 
 const GameButton: React.FC<GameButtonProps> = ({ game, onPress }) => {
   return (

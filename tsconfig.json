@@ -6,11 +6,10 @@
     "paths": {
       "@/*": ["./*"],
       "@components/*": ["./components/*"],
-      "@homeComponents/*": ["./app/(home)/components/*"],
       "@assets/*": ["./assets/*"],
       "@styles/*": ["./styles/*"],
-      "@gameHooks/*": ["app/(games)/(tictactoe)/hooks/*"],
-      "@types/*": ["./types/*"]
+      "@types/*": ["./types/*"],
+      "@store/*": ["./store/*"]
     },
     "jsx": "react"
   },

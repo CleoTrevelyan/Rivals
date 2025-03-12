@@ -4,7 +4,7 @@ import { StyleSheet, Dimensions } from "react-native";
 const windowWidth = Dimensions.get("window").width;
 const isMobile = windowWidth < 768;
 
-export const homeStyles = StyleSheet.create({
+const homeStyles = StyleSheet.create({
   // Main container styles
   container: {
     flex: 1,
@@ -674,3 +674,5 @@ export const homeStyles = StyleSheet.create({
     paddingHorizontal: 12,
   },
 });
+
+export default homeStyles;

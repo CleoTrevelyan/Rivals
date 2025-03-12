@@ -1,7 +1,7 @@
 import React from "react";
 import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
-import { homeStyles } from "../../styles/homeStyles";
+import homeStyles from "../../styles/homeStyles";
 import { LiveMatchCardProps } from "@/interface/types";
 
 const LiveMatchCard: React.FC<LiveMatchCardProps> = ({ match, onPress }) => {

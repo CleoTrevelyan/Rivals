@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import { homeStyles } from "./styles/homeStyles";
+import homeStyles from "./styles/homeStyles";
 import JoinGameModal from "./components/modals/JoinGameModal";
 import CreateGameModal from "./components/modals/CreateGameModal";
 import MatchmakingModal from "./components/modals/MatchmakingModal";

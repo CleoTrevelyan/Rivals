@@ -1,12 +1,22 @@
+// app/(auth)/components/AuthForm.tsx
+
 import React, { useState } from "react";
-import { Text, View, TouchableOpacity, TextInput, Image } from "react-native";
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  TextInput,
+  Image,
+  ActivityIndicator,
+} from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { authStyles } from "../styles/authStyles";
+import authStyles from "../styles/authStyles";
 
 interface AuthFormProps {
   onLogin: (username: string, password: string) => void;
   onSignup: (email: string, username: string, password: string) => void;
   message: string;
+  isLoading?: boolean;
   isMobileView?: boolean;
   devModeEnabled?: boolean;
   onDevModeNavigate?: () => void;
@@ -16,6 +26,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
   onLogin,
   onSignup,
   message,
+  isLoading = false,
   isMobileView = false,
   devModeEnabled = false,
   onDevModeNavigate,
@@ -44,6 +55,9 @@ const AuthForm: React.FC<AuthFormProps> = ({
   };
 
   const handleSubmit = () => {
+    // Don't submit if already loading
+    if (isLoading) return;
+
     // Reset validation message
     setValidationMessage("");
 
@@ -230,10 +244,15 @@ const AuthForm: React.FC<AuthFormProps> = ({
       <TouchableOpacity
         style={getSubmitButtonStyle(false)}
         onPress={handleSubmit}
+        disabled={isLoading}
       >
-        <Text style={authStyles.submitButtonText}>
-          {isLoginMode ? "Log In" : "Sign Up"}
-        </Text>
+        {isLoading ? (
+          <ActivityIndicator color="#FFFFFF" size="small" />
+        ) : (
+          <Text style={authStyles.submitButtonText}>
+            {isLoginMode ? "Log In" : "Sign Up"}
+          </Text>
+        )}
       </TouchableOpacity>
 
       {/* Error messages */}

@@ -1,5 +1,4 @@
-// Import React hooks
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import {
   View,
   Image,
@@ -10,18 +9,21 @@ import {
   Dimensions,
   SafeAreaView,
 } from "react-native";
-import { RivalsServer } from "@/components/constants";
 import { router } from "expo-router";
-import { authStyles } from "./styles/authStyles";
+import authStyles from "./styles/authStyles";
 import PerlinNoiseBackground from "@/components/perlinHero";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AuthForm from "./components/AuthForm";
 import FeatureCards from "./components/FeatureCards";
-import { useAuthSocket } from "./hooks/useAuthSocket";
+import { useAuth } from "@/store/hooks/useAuth";
+import { AnyAction } from "redux";
+import { socketConnect } from "@/store/middleware/gameSocketMiddleware";
+import { useAppDispatch } from "@/store/hooks";
 
 export default function Auth() {
-  // State
-  const [message, setMessage] = useState("");
+  const dispatch = useAppDispatch();
+  const { isAuthenticated, isLoading, error, login, register, resetError } =
+    useAuth();
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get("window").width
   );
@@ -29,61 +31,17 @@ export default function Auth() {
   // Calculate isMobileView once per render
   const isMobileView = windowWidth < 768;
 
-  // Define socket message handler with useCallback to maintain reference stability
-  const handleSocketMessage = useCallback(async (data: any) => {
-    console.log("Received message:", data.type);
+  // Ensure we have a connection
+  useEffect(() => {
+    dispatch(socketConnect() as AnyAction);
+  }, [dispatch]);
 
-    if (data.type === "loginSuccess" || data.type === "registerSuccess") {
-      console.log("Authentication successful");
-
-      try {
-        // Handle auth token
-        if (data.authToken) {
-          await AsyncStorage.setItem("authToken", data.authToken);
-        }
-
-        // Handle user data
-        if (data.userID) {
-          await AsyncStorage.setItem("playerID", data.userID);
-        }
-
-        if (data.username) {
-          await AsyncStorage.setItem("username", data.username);
-        }
-
-        // Update UI message
-        setMessage(
-          data.type === "loginSuccess"
-            ? "Login successful!"
-            : "Signup successful!"
-        );
-
-        // Navigate to home
-        router.replace("/(home)");
-      } catch (error) {
-        console.error("Error saving auth data:", error);
-        setMessage("Error saving authentication data. Please try again.");
-      }
-    } else if (data.type === "loginFailed" || data.type === "registerFailed") {
-      setMessage(data.message || "Authentication failed");
-    } else if (data.type === "authTokenVerified") {
+  // Redirect if authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
       router.replace("/(home)");
-    } else if (data.type === "authTokenInvalid") {
-      // Clear invalid token
-      try {
-        await AsyncStorage.removeItem("authToken");
-      } catch (error) {
-        console.error("Error removing invalid token:", error);
-      }
-
-      setMessage("Session expired. Please log in again.");
     }
-  }, []); // Empty dependency array as we want this callback to be stable
-
-  // Hook up to the auth socket
-  const { isConnected, sendMessage } = useAuthSocket({
-    onMessage: handleSocketMessage,
-  });
+  }, [isAuthenticated]);
 
   // Update dimensions when window size changes
   useEffect(() => {
@@ -96,54 +54,25 @@ export default function Auth() {
   // Login handler
   const handleLogin = useCallback(
     (username: string, password: string) => {
-      // Reset any previous messages
-      setMessage("");
+      // Reset any previous errors
+      resetError();
 
-      // Basic validation
-      if (!username || !password) {
-        setMessage("Please fill in all fields");
-        return;
-      }
-
-      if (isConnected) {
-        sendMessage({
-          type: "login",
-          username: username,
-          password: password,
-        });
-        console.log("Login request sent");
-      } else {
-        setMessage("Not connected to server. Please try again.");
-      }
+      // Call Redux login action
+      login(username, password);
     },
-    [isConnected, sendMessage]
+    [login, resetError]
   );
 
   // Signup handler
   const handleSignup = useCallback(
     (email: string, username: string, password: string) => {
-      // Reset any previous messages
-      setMessage("");
+      // Reset any previous errors
+      resetError();
 
-      // Basic validation
-      if (!email || !username || !password) {
-        setMessage("Please fill in all fields");
-        return;
-      }
-
-      if (isConnected) {
-        sendMessage({
-          type: "register",
-          email: email,
-          username: username,
-          password: password,
-        });
-        console.log("Signup request sent");
-      } else {
-        setMessage("Not connected to server. Please try again.");
-      }
+      // Call Redux register action
+      register(username, email, password);
     },
-    [isConnected, sendMessage]
+    [register, resetError]
   );
 
   // Dev mode bypass
@@ -244,7 +173,8 @@ export default function Auth() {
             <AuthForm
               onLogin={handleLogin}
               onSignup={handleSignup}
-              message={message}
+              message={error || ""}
+              isLoading={isLoading}
               isMobileView={isMobileView}
               devModeEnabled={true}
               onDevModeNavigate={goDirectlyToHome}

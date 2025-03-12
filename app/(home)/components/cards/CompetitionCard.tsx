@@ -2,7 +2,7 @@ import React from "react";
 import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { CompetitionCardProps } from "@/interface/types";
-import { homeStyles } from "../../styles/homeStyles";
+import homeStyles from "../../styles/homeStyles";
 
 const CompetitionCard: React.FC<CompetitionCardProps> = ({
   competition,

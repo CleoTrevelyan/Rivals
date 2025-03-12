@@ -2,7 +2,7 @@ import { StyleSheet, Dimensions } from "react-native";
 
 const { width } = Dimensions.get("window");
 
-export const ticTacToeStyles = StyleSheet.create({
+const ticTacToeStyles = StyleSheet.create({
   inactiveBanner: {
     backgroundColor: 'rgba(46, 58, 89, 0.8)',
     paddingVertical: 10,
