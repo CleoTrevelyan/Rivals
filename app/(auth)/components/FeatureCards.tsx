@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   View,
   Image,
@@ -6,212 +6,194 @@ import {
   ScrollView,
   StyleSheet,
   Dimensions,
+  ImageSourcePropType,
+  LayoutChangeEvent,
 } from "react-native";
 import { authStyles } from "../styles/authStyles";
 
-type FeatureCardsProps = {
-  isMobileView: boolean;
+// Define card type
+type FeatureCard = {
+  id: string;
+  title: string;
+  description: string;
+  image: ImageSourcePropType;
+  highlight?: string; // Optional highlighted text within title
+  isMain?: boolean; // Flag for the main/middle card
 };
 
-// Set fixed dimensions for cards in mobile view
-const additionalStyles = StyleSheet.create({
-  mobileContainer: {
-    width: "100%",
-    marginBottom: 40,
-    marginTop: 20,
-    height: 280, // Ensure container has enough height
-  },
-  card: {
-    width: 250, // Fixed width for mobile
-    marginHorizontal: 8,
-  },
-  middleCard: {
-    width: 250, // Fixed width for mobile
-    height: 280, // Taller height for middle card
-    marginHorizontal: 8,
-  },
-  scrollView: {
-    width: "100%",
-  },
-  scrollContent: {
-    paddingHorizontal: 10,
-  },
-});
+type FeatureCardsProps = {
+  isMobileView: boolean;
+  cards: FeatureCard[];
+};
 
-const FeatureCards: React.FC<FeatureCardsProps> = ({ isMobileView }) => {
-  // Get the current window width for debugging
+const FeatureCards: React.FC<FeatureCardsProps> = ({ isMobileView, cards }) => {
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
   const windowWidth = Dimensions.get("window").width;
 
-  if (isMobileView) {
-    // Mobile view with manually set dimensions and horizontal scroll
+  // Find the index of the main card (or default to middle card)
+  const mainCardIndex = cards.findIndex((card) => card.isMain);
+  const centerIndex =
+    mainCardIndex !== -1 ? mainCardIndex : Math.floor(cards.length / 2);
+
+  // Handle container layout to get width
+  const onContainerLayout = (event: LayoutChangeEvent) => {
+    const { width } = event.nativeEvent.layout;
+    setContainerWidth(width);
+  };
+
+  // Card dimensions
+  const CARD_WIDTH = 250;
+  const CARD_MARGIN = 8;
+  const CARD_SPACING = CARD_WIDTH + CARD_MARGIN * 2;
+
+  // Calculate initial scroll position - centers the main card
+  const getInitialScrollPosition = () => {
+    // Calculate offsets
+    const totalOffset = centerIndex * CARD_SPACING;
+    const centeringOffset = (windowWidth - CARD_WIDTH) / 2;
+    return Math.max(0, totalOffset - centeringOffset);
+  };
+
+  // Effect to scroll to initial position
+  useEffect(() => {
+    if (isMobileView && scrollViewRef.current && containerWidth > 0) {
+      const scrollPosition = getInitialScrollPosition();
+      // Delay scrolling until after render
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({
+          x: scrollPosition,
+          animated: false,
+        });
+      }, 50);
+    }
+  }, [isMobileView, containerWidth, centerIndex]);
+
+  // Style for cards
+  const styles = StyleSheet.create({
+    mobileContainer: {
+      width: "100%",
+      marginBottom: 40,
+      marginTop: 20,
+      height: 280,
+    },
+    scrollView: {
+      width: "100%",
+    },
+    scrollContent: {
+      // Add extra padding to allow first and last cards to be centered
+      paddingHorizontal: (windowWidth - CARD_WIDTH) / 2,
+    },
+    card: {
+      width: CARD_WIDTH,
+      height: 240,
+      marginHorizontal: CARD_MARGIN,
+      borderRadius: 12,
+      overflow: "hidden",
+      position: "relative",
+      borderWidth: 1,
+      borderColor: "rgba(255, 255, 255, 0.1)",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+    },
+    middleCard: {
+      width: CARD_WIDTH,
+      height: 280,
+      marginHorizontal: CARD_MARGIN,
+      borderRadius: 12,
+      overflow: "hidden",
+      position: "relative",
+      borderWidth: 1,
+      borderColor: "rgba(255, 255, 255, 0.1)",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+    },
+    highlightedText: {
+      fontWeight: "bold",
+      color: "#02F199",
+    },
+  });
+
+  const renderTitle = (card: FeatureCard) => {
+    if (!card.highlight) {
+      return <Text style={authStyles.featureTitle}>{card.title}</Text>;
+    }
+
+    // Split the title to insert the highlighted part
+    const parts = card.title.split(card.highlight);
     return (
-      <View style={additionalStyles.mobileContainer}>
+      <Text style={authStyles.featureTitle}>
+        {parts[0]}
+        <Text style={styles.highlightedText}>{card.highlight}</Text>
+        {parts[1]}
+      </Text>
+    );
+  };
+
+  if (isMobileView) {
+    // Mobile view with scrolling
+    return (
+      <View style={styles.mobileContainer} onLayout={onContainerLayout}>
         <ScrollView
+          ref={scrollViewRef}
           horizontal={true}
           showsHorizontalScrollIndicator={false}
-          style={additionalStyles.scrollView}
-          contentContainerStyle={additionalStyles.scrollContent}
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          snapToInterval={CARD_SPACING}
+          decelerationRate="fast"
+          snapToAlignment="center"
         >
-          {/* Feature card: Play as a team */}
-          <View
-            style={[
-              additionalStyles.card,
-              {
-                borderRadius: 12,
-                overflow: "hidden",
-                position: "relative",
-                height: 240,
-                borderWidth: 1,
-                borderColor: "rgba(255, 255, 255, 0.1)",
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.2,
-                shadowRadius: 8,
-              },
-            ]}
-          >
-            <Image
-              source={require("@/assets/images/placeholders/placeholder2.png")}
-              style={authStyles.featureCardBackground}
-              resizeMode="cover"
-            />
-            <View style={authStyles.featureCardContent}>
-              <Text style={authStyles.featureTitle}>
-                Play as a team and earn together
-              </Text>
-              <Text style={authStyles.featureDescription}>
-                Manage your crew, splitting buy-ins and payouts
-              </Text>
+          {cards.map((card, index) => (
+            <View
+              key={card.id}
+              style={card.isMain ? styles.middleCard : styles.card}
+            >
+              <Image
+                source={card.image}
+                style={authStyles.featureCardBackground}
+                resizeMode="cover"
+              />
+              <View style={authStyles.featureCardContent}>
+                {renderTitle(card)}
+                <Text style={authStyles.featureDescription}>
+                  {card.description}
+                </Text>
+              </View>
             </View>
-          </View>
-
-          {/* Feature card: Find matches and earn (MIDDLE CARD) */}
-          <View
-            style={[
-              additionalStyles.middleCard,
-              {
-                borderRadius: 12,
-                overflow: "hidden",
-                position: "relative",
-                borderWidth: 1,
-                borderColor: "rgba(255, 255, 255, 0.1)",
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.2,
-                shadowRadius: 8,
-              },
-            ]}
-          >
-            <Image
-              source={require("@/assets/images/placeholders/placeholder1.png")}
-              style={authStyles.featureCardBackground}
-              resizeMode="cover"
-            />
-            <View style={authStyles.featureCardContent}>
-              <Text style={authStyles.featureTitle}>
-                Find matches and{" "}
-                <Text style={{ fontWeight: "bold", color: "#02F199" }}>
-                  earn
-                </Text>{" "}
-              </Text>
-              <Text style={authStyles.featureDescription}>
-                Stake on every match, or compete for free to rank up
-              </Text>
-            </View>
-          </View>
-
-          {/* Feature card: Compete in matches */}
-          <View
-            style={[
-              additionalStyles.card,
-              {
-                borderRadius: 12,
-                overflow: "hidden",
-                position: "relative",
-                height: 240,
-                borderWidth: 1,
-                borderColor: "rgba(255, 255, 255, 0.1)",
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.2,
-                shadowRadius: 8,
-              },
-            ]}
-          >
-            <Image
-              source={require("@/assets/images/placeholders/placeholder3.png")}
-              style={authStyles.featureCardBackground}
-              resizeMode="cover"
-            />
-            <View style={authStyles.featureCardContent}>
-              <Text style={authStyles.featureTitle}>
-                Compete in matches, leagues and tournaments
-              </Text>
-              <Text style={authStyles.featureDescription}>
-                Create your own rules or join existing competitions
-              </Text>
-            </View>
-          </View>
+          ))}
         </ScrollView>
       </View>
     );
   } else {
-    // Desktop view (unchanged)
+    // Desktop view
     return (
       <View style={authStyles.featuresContainerFullPage}>
-        {/* Feature card: Play as a team */}
-        <View style={authStyles.featureCardFullPage}>
-          <Image
-            source={require("@/assets/images/placeholders/placeholder2.png")}
-            style={authStyles.featureCardBackground}
-            resizeMode="cover"
-          />
-          <View style={authStyles.featureCardContent}>
-            <Text style={authStyles.featureTitle}>
-              Play as a team and earn together
-            </Text>
-            <Text style={authStyles.featureDescription}>
-              Manage your crew, splitting buy-ins and payouts
-            </Text>
+        {cards.map((card) => (
+          <View
+            key={card.id}
+            style={[
+              authStyles.featureCardFullPage,
+              card.isMain && authStyles.featureCardMiddle,
+            ]}
+          >
+            <Image
+              source={card.image}
+              style={authStyles.featureCardBackground}
+              resizeMode="cover"
+            />
+            <View style={authStyles.featureCardContent}>
+              {renderTitle(card)}
+              <Text style={authStyles.featureDescription}>
+                {card.description}
+              </Text>
+            </View>
           </View>
-        </View>
-
-        {/* Feature card: Find matches and earn (MIDDLE CARD) */}
-        <View
-          style={[authStyles.featureCardFullPage, authStyles.featureCardMiddle]}
-        >
-          <Image
-            source={require("@/assets/images/placeholders/placeholder1.png")}
-            style={authStyles.featureCardBackground}
-            resizeMode="cover"
-          />
-          <View style={authStyles.featureCardContent}>
-            <Text style={authStyles.featureTitle}>
-              Find matches and{" "}
-              <Text style={{ fontWeight: "bold", color: "#02F199" }}>earn</Text>{" "}
-            </Text>
-            <Text style={authStyles.featureDescription}>
-              Stake on every match, or compete for free to rank up
-            </Text>
-          </View>
-        </View>
-
-        {/* Feature card: Compete in matches */}
-        <View style={authStyles.featureCardFullPage}>
-          <Image
-            source={require("@/assets/images/placeholders/placeholder3.png")}
-            style={authStyles.featureCardBackground}
-            resizeMode="cover"
-          />
-          <View style={authStyles.featureCardContent}>
-            <Text style={authStyles.featureTitle}>
-              Compete in matches, leagues and tournaments
-            </Text>
-            <Text style={authStyles.featureDescription}>
-              Create your own rules or join existing competitions
-            </Text>
-          </View>
-        </View>
+        ))}
       </View>
     );
   }

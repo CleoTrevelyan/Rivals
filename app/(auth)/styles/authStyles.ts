@@ -55,7 +55,7 @@ export const authStyles = StyleSheet.create({
   featureCardFullPage: {
     flex: 1,
     height: 240,
-    maxWidth: 250,
+    maxWidth: 200,
     borderRadius: 12,
     overflow: "hidden",
     position: "relative",
@@ -74,7 +74,7 @@ export const authStyles = StyleSheet.create({
     marginTop: -10, // To make the card start higher
   },
   featureCardMiddleMobile: {
-    height: 240,
+    height: 280,
     marginVertical: 16,
   },
 
