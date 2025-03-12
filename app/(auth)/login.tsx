@@ -21,10 +21,12 @@ export default function Login() {
     onMessage: handleSocketMessage,
   });
 
-  function handleSocketMessage(data: any) {
+  async function handleSocketMessage(data: any) {
     if (data.type === "loginSuccess") {
       console.log("Received token: ", data.authToken);
       saveAuthToken(data.authToken);
+      await AsyncStorage.setItem("playerID", data.userID);
+      await AsyncStorage.setItem("username", data.username);
       setMessage("Login successful!");
       router.replace("/(home)");
     } else if (data.type === "loginFailed") {

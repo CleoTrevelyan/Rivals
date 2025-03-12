@@ -125,6 +125,15 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
       }
     };
     loadPlayerID();
+    const loadPlayerName = async () => {
+      try {
+        const name = await AsyncStorage.getItem("username");
+        setCurrentPlayer((prev) => ({ ...prev, name: name || "Player" }));
+      } catch (error) {
+        console.error("Error loading playerName:", error);
+      }
+    };
+    loadPlayerName();
   }, [isLocalPlay]);
 
   // Setup WebSocket connection
@@ -137,6 +146,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
           // Register handlers for game events
           gameSocket.registerHandler("matchFound", (data) => {
             console.log("Opponent: ", data.opponentName);
+            setGameID(data.gameID);
             setOpponent((prev) => ({
               ...prev,
               name: data.opponentName,
