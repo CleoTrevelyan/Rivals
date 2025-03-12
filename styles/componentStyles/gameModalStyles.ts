@@ -947,6 +947,124 @@ export const gameModalStyles = StyleSheet.create({
     justifyContent: "center",
     minWidth: 160,
   },
+
+  // Player avatar fallback for gameplay screen
+  playerAvatarFallback: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#2A3356",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+
+  // Game state and result styles
+  gameState: {
+    textAlign: "center",
+    color: "#FFFFFF",
+    fontSize: 16,
+    marginBottom: 10,
+  },
+
+  // Local play indicator
+  localPlayBadge: {
+    backgroundColor: "#4AE9A0",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    marginLeft: 10,
+  },
+
+  localPlayText: {
+    color: "#FFFFFF",
+    fontSize: 10,
+    fontWeight: "bold",
+  },
+
+  // For AI opponent display
+  aiOpponentContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  aiOpponentAvatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#3366FF",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+
+  aiOpponentText: {
+    color: "#FFFFFF",
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+
+  // Result screen specific styles
+  resultContainer: {
+    alignItems: "center",
+    width: "100%",
+    padding: 16,
+  },
+
+  resultBanner: {
+    paddingVertical: 5,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginVertical: 10,
+    width: "80%",
+    alignItems: "center",
+  },
+
+  winResult: {
+    backgroundColor: "#4AE9A0",
+  },
+
+  drawResult: {
+    backgroundColor: "#FFA500",
+  },
+
+  lossResult: {
+    backgroundColor: "#FF3D71",
+  },
+
+  resultText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+
+  // Action buttons container for results
+  resultActionsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "70%",
+    marginTop: 20,
+  },
+
+  resultActionButton: {
+    flex: 1,
+    marginHorizontal: 5,
+    alignItems: "center",
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+
+  rematchActionButton: {
+    backgroundColor: "#4AE9A0",
+  },
+
+  exitActionButton: {
+    backgroundColor: "#8F9BB3",
+  },
 });
 
 export default gameModalStyles;

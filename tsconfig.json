@@ -2,14 +2,15 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "strict": true,
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
       "@components/*": ["./components/*"],
       "@homeComponents/*": ["./app/(home)/components/*"],
       "@assets/*": ["./assets/*"],
       "@styles/*": ["./styles/*"],
-      "@hooks/*": ["./hooks/*"],
-      "@types/*": ["./types/*"],
+      "@gameHooks/*": ["./app/(tictactoe)/hooks/*"],
+      "@types/*": ["./types/*"]
     },
     "jsx": "react"
   },
