@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -36,6 +36,10 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
   const [message, setMessage] = useState("");
   const [isConnected, setIsConnected] = useState(false);
   const [connectionAttempts, setConnectionAttempts] = useState(0);
+  const maxConnectionAttempts = 3; // Maximum connection attempts
+
+  // Ref to track if the modal is visible to prevent state updates when hidden
+  const visibleRef = useRef(visible);
 
   // Player and opponent information
   const [playerID, setPlayerID] = useState<string | null>(null);
@@ -78,22 +82,21 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
     firstMove: "RANDOM",
   });
 
-  // Socket instance for online play
-  const [socket, setSocket] = useState<WebSocket | null>(null);
-
-  // Game socket service
-  const gameSocket = getGameSocket(RivalsServer);
+  // Keep a reference to the gameSocket
+  const gameSocketRef = useRef(getGameSocket(RivalsServer));
 
   // Always initialize both hooks but only use the one needed
   const localGameHook = useLocalTicTacToeGame();
   const onlineGameHook = useTicTacToeGame({
-    socket,
+    socket: null, // Socket will be passed via handlers instead
     gameID: gameID || undefined,
     playerID: playerID || undefined,
     onGameEnd: (result) => {
       console.log(`Game ended: ${result}`);
       // Game end will be handled by UI buttons instead of automatic transition
-      setStage("results");
+      if (visibleRef.current) {
+        setStage("results");
+      }
     },
     initialPlayerSymbol: currentPlayer.symbol,
     timeLimit: gameOptions.timeLimit === "5 MIN" ? 300 : undefined,
@@ -101,6 +104,11 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
 
   // Choose which hook to use based on local play mode
   const gameHook = isLocalPlay ? localGameHook : onlineGameHook;
+
+  // Update visibleRef when visible prop changes
+  useEffect(() => {
+    visibleRef.current = visible;
+  }, [visible]);
 
   // Reset to initial stage when modal is opened
   useEffect(() => {
@@ -114,11 +122,18 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
       setIsConnected(false);
       setConnectionAttempts(0);
       setMessage("");
+
+      // Reset game state
+      if (gameHook.resetGame) {
+        gameHook.resetGame();
+      }
     }
   }, [visible]);
 
   // Load playerID from AsyncStorage
   useEffect(() => {
+    if (!visible) return;
+
     const loadPlayerID = async () => {
       try {
         const id = await AsyncStorage.getItem("playerID");
@@ -148,23 +163,31 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
       }
     };
     loadPlayerID();
-  }, [isLocalPlay]);
+  }, [visible, isLocalPlay]);
 
-  // Connection error handler
+  // Connection error handler - improved with more robust recovery
   const handleConnectionError = useCallback(() => {
-    if (connectionAttempts < 3) {
-      setConnectionAttempts((prev) => prev + 1);
+    if (!visibleRef.current) return; // Don't handle if modal is not visible
+
+    if (connectionAttempts < maxConnectionAttempts) {
+      const newAttemptCount = connectionAttempts + 1;
+      setConnectionAttempts(newAttemptCount);
       setMessage(
-        `Connection failed. Retrying... (${connectionAttempts + 1}/3)`
+        `Connection failed. Retrying... (${newAttemptCount}/${maxConnectionAttempts})`
       );
 
-      // Retry connection after a delay
+      // Retry connection after a delay - exponential backoff
+      const backoffDelay = Math.min(
+        1000 * Math.pow(1.5, newAttemptCount),
+        5000
+      );
+
       setTimeout(() => {
-        if (visible && !isLocalPlay) {
+        if (visibleRef.current && !isLocalPlay) {
           console.log("Retrying connection...");
           connectSocket();
         }
-      }, 2000);
+      }, backoffDelay);
     } else {
       setMessage(
         "Connection failed after multiple attempts. Please try again later."
@@ -187,16 +210,41 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
         ]
       );
     }
-  }, [connectionAttempts, visible, isLocalPlay]);
+  }, [connectionAttempts, isLocalPlay]);
 
-  // Socket connection function
+  // Socket connection function - improved with better error handling
   const connectSocket = useCallback(async () => {
     try {
+      // Reset the gameSocket instance if we've had trouble connecting
+      if (connectionAttempts > 0) {
+        try {
+          gameSocketRef.current.disconnect();
+        } catch (e) {
+          console.log("Error disconnecting previous socket:", e);
+        }
+
+        // Get a fresh instance to avoid potential issues with previous connection
+        gameSocketRef.current = getGameSocket(RivalsServer);
+      }
+
       console.log("Connecting to socket...");
-      const connected = await gameSocket.connect(
-        gameID || undefined,
-        playerID || undefined
-      ).then(() => true).catch(() => false);
+
+      // Improve connection timeout handling
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("Connection timeout")), 5000);
+      });
+
+      // Race the connection against a timeout
+      const connected = await Promise.race([
+        gameSocketRef.current
+          .connect(gameID || undefined, playerID || undefined)
+          .then(() => true)
+          .catch((err) => {
+            console.error("Connection error:", err);
+            return false;
+          }),
+        timeoutPromise.then(() => false).catch(() => false),
+      ]);
 
       if (!connected) {
         console.error("Failed to connect to socket");
@@ -206,107 +254,11 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
 
       setIsConnected(true);
       console.log("Connected to socket successfully");
+      setConnectionAttempts(0);
       setMessage("");
 
       // Register handlers for game events
-      gameSocket.registerHandler("matchFound", (data) => {
-        console.log("Opponent found:", data);
-        setOpponent((prev) => ({
-          ...prev,
-          name: data.opponentName,
-          id: data.opponentId || "opponent-id",
-        }));
-        setStage("ready");
-        setIsLoading(false);
-      });
-
-      gameSocket.registerHandler("searchingForMatch", () => {
-        console.log("Searching for match...");
-        setStage("searching");
-        setIsLoading(true);
-      });
-
-      gameSocket.registerHandler("enteringMatch", (data) => {
-        console.log("Entering match with data:", data);
-
-        // Update opponent ready status
-        setOpponent((prev) => ({ ...prev, isReady: true }));
-
-        // Update symbol assignment from server
-        if (data.playerSymbol) {
-          console.log("Server assigned symbol:", data.playerSymbol);
-
-          setCurrentPlayer((prev) => ({
-            ...prev,
-            symbol: data.playerSymbol,
-            isReady: true,
-          }));
-
-          // Set opponent to the opposite symbol
-          setOpponent((prev) => ({
-            ...prev,
-            symbol: data.playerSymbol === "X" ? "O" : "X",
-            isReady: true,
-          }));
-
-          // Update the game hook's player symbol
-          if (gameHook.setPlayerSymbol) {
-            gameHook.setPlayerSymbol(data.playerSymbol);
-          }
-        }
-
-        // Set game ID when match starts
-        if (data.gameID) {
-          setGameID(data.gameID);
-        }
-
-        // Start the game
-        setStage("playing");
-      });
-
-      gameSocket.registerHandler("waitingForOpponent", () => {
-        console.log("Waiting for opponent...");
-        setOpponent((prev) => ({ ...prev, isReady: false }));
-      });
-
-      gameSocket.registerHandler("gameUpdate", (data) => {
-        console.log("Game update received:", data);
-        // This should be handled by the useTicTacToeGame hook
-      });
-
-      gameSocket.registerHandler("gameMove", (data) => {
-        console.log("Move received from opponent:", data);
-        // Should be handled by the game hook, but we can log it here
-      });
-
-      gameSocket.registerHandler("gameStarted", (data) => {
-        console.log("Game started event received:", data);
-        // Update initial game state if provided
-        if (data.initialState && gameHook.setBoard) {
-          gameHook.setBoard(data.initialState.board);
-        }
-
-        if (data.currentTurn) {
-          // Set whether it's the player's turn
-          const isPlayerTurn = data.currentTurn === currentPlayer.symbol;
-          if (gameHook.setIsPlayerTurn) {
-            gameHook.setIsPlayerTurn(isPlayerTurn);
-          }
-        }
-      });
-
-      gameSocket.registerHandler("connectionStatus", (data) => {
-        console.log("Connection status:", data);
-        setIsConnected(data.connected);
-        if (!data.connected && stage === "playing") {
-          setMessage("Connection to server lost. Attempting to reconnect...");
-        }
-      });
-
-      gameSocket.registerHandler("error", (data) => {
-        console.log("Error from server:", data.error);
-        setMessage(data.error || "Unknown error occurred");
-      });
+      setupSocketHandlers();
 
       return true;
     } catch (error) {
@@ -315,48 +267,177 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
       handleConnectionError();
       return false;
     }
-  }, [
-    gameID,
-    playerID,
-    handleConnectionError,
-    currentPlayer.symbol,
-    gameHook,
-    stage,
-  ]);
+  }, [gameID, playerID, handleConnectionError, connectionAttempts]);
 
-  // Setup WebSocket connection
-  useEffect(() => {
-    if (visible && !isLocalPlay) {
-      console.log("Setting up socket connection");
-      const setupConnection = async () => {
-        const success = await connectSocket();
-        console.log("Connection setup result:", success);
-      };
+  // Setup socket handlers in a separate function for cleaner code
+  const setupSocketHandlers = useCallback(() => {
+    const gameSocket = gameSocketRef.current;
 
-      setupConnection();
+    // Register handlers for game events
+    gameSocket.registerHandler("matchFound", (data) => {
+      console.log("Opponent found:", data);
+      if (!visibleRef.current) return;
 
-      return () => {
-        console.log("Cleaning up socket connection...");
-        gameSocket.clearHandlers();
-        gameSocket.disconnect();
-        setIsConnected(false);
-      };
-    }
-  }, [visible, isLocalPlay, connectSocket]);
+      setOpponent((prev) => ({
+        ...prev,
+        name: data.opponentName || "Opponent",
+        id: data.opponentId || "opponent-id",
+      }));
+      setStage("ready");
+      setIsLoading(false);
+    });
 
-  // Keep WebSocket alive with ping
+    gameSocket.registerHandler("searchingForMatch", () => {
+      console.log("Searching for match...");
+      if (!visibleRef.current) return;
+
+      setStage("searching");
+      setIsLoading(true);
+    });
+
+    gameSocket.registerHandler("enteringMatch", (data) => {
+      console.log("Entering match with data:", data);
+      if (!visibleRef.current) return;
+
+      // Update opponent ready status
+      setOpponent((prev) => ({ ...prev, isReady: true }));
+
+      // Update symbol assignment from server
+      if (data.playerSymbol) {
+        console.log("Server assigned symbol:", data.playerSymbol);
+
+        setCurrentPlayer((prev) => ({
+          ...prev,
+          symbol: data.playerSymbol,
+          isReady: true,
+        }));
+
+        // Set opponent to the opposite symbol
+        setOpponent((prev) => ({
+          ...prev,
+          symbol: data.playerSymbol === "X" ? "O" : "X",
+          isReady: true,
+        }));
+
+        // Update the game hook's player symbol
+        if (gameHook.setPlayerSymbol) {
+          gameHook.setPlayerSymbol(data.playerSymbol);
+        }
+      }
+
+      // Set game ID when match starts
+      if (data.gameID) {
+        setGameID(data.gameID);
+      }
+
+      // Start the game
+      setStage("playing");
+    });
+
+    gameSocket.registerHandler("waitingForOpponent", () => {
+      console.log("Waiting for opponent...");
+      if (!visibleRef.current) return;
+
+      setOpponent((prev) => ({ ...prev, isReady: false }));
+    });
+
+    gameSocket.registerHandler("gameUpdate", (data) => {
+      console.log("Game update received:", data);
+      // This should be handled by the useTicTacToeGame hook
+    });
+
+    gameSocket.registerHandler("gameMove", (data) => {
+      console.log("Move received from opponent:", data);
+      // Should be handled by the game hook, but we can log it here
+    });
+
+    gameSocket.registerHandler("gameStarted", (data) => {
+      console.log("Game started event received:", data);
+      if (!visibleRef.current) return;
+
+      // Update initial game state if provided
+      if (data.initialState && gameHook.setBoard) {
+        gameHook.setBoard(data.initialState.board);
+      }
+
+      if (data.currentTurn) {
+        // Set whether it's the player's turn
+        const isPlayerTurn = data.currentTurn === currentPlayer.symbol;
+        if (gameHook.setIsPlayerTurn) {
+          gameHook.setIsPlayerTurn(isPlayerTurn);
+        }
+      }
+    });
+
+    gameSocket.registerHandler("connectionStatus", (data) => {
+      console.log("Connection status:", data);
+      if (!visibleRef.current) return;
+
+      setIsConnected(data.connected);
+      if (!data.connected && stage === "playing") {
+        setMessage("Connection to server lost. Attempting to reconnect...");
+
+        // Attempt to reconnect automatically
+        setTimeout(() => {
+          if (visibleRef.current && !isLocalPlay) {
+            connectSocket();
+          }
+        }, 2000);
+      }
+    });
+
+    gameSocket.registerHandler("error", (data) => {
+      console.log("Error from server:", data.error);
+      if (!visibleRef.current) return;
+
+      setMessage(data.error || "Unknown error occurred");
+
+      // If we get a critical error, we might want to offer local play
+      if (data.critical) {
+        Alert.alert(
+          "Server Error",
+          "There was a problem with the game server. Would you like to play locally instead?",
+          [
+            {
+              text: "Play Locally",
+              onPress: setupLocalGame,
+            },
+            {
+              text: "Cancel",
+              onPress: () => setStage("join"),
+              style: "cancel",
+            },
+          ]
+        );
+      }
+    });
+  }, [currentPlayer.symbol, gameHook, stage]);
+
+  // Keep WebSocket alive with ping - improved reliability
   useEffect(() => {
     let pingInterval: NodeJS.Timeout;
 
-    if (isConnected && !isLocalPlay) {
+    if (isConnected && !isLocalPlay && visible) {
+      // Send ping more frequently to prevent timeouts
       pingInterval = setInterval(() => {
         console.log("Sending ping to keep connection alive");
-        if (gameSocket.ping) {
-          gameSocket.ping();
-        } else {
-          console.warn("gameSocket.ping method is not available");
+        try {
+          if (gameSocketRef.current && gameSocketRef.current.ping) {
+            const pingSuccess = gameSocketRef.current.ping();
+
+            // If ping fails, try to reconnect
+            if (!pingSuccess && visibleRef.current) {
+              console.warn("Ping failed, attempting to reconnect");
+              setIsConnected(false);
+              connectSocket();
+            }
+          } else {
+            console.warn("gameSocket.ping method is not available");
+          }
+        } catch (e) {
+          console.error("Error during ping:", e);
         }
-      }, 30000); // Send ping every 30 seconds
+      }, 15000); // Send ping every 15 seconds (reduced from 30s)
     }
 
     return () => {
@@ -364,7 +445,34 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
         clearInterval(pingInterval);
       }
     };
-  }, [isConnected, isLocalPlay]);
+  }, [isConnected, isLocalPlay, visible, connectSocket]);
+
+  // Clean up socket connection when component unmounts or modal closes
+  useEffect(() => {
+    if (!visible && gameSocketRef.current) {
+      console.log("Cleaning up socket connection due to modal close");
+      try {
+        gameSocketRef.current.clearHandlers();
+        gameSocketRef.current.disconnect();
+      } catch (e) {
+        console.error("Error cleaning up socket:", e);
+      }
+      setIsConnected(false);
+    }
+
+    return () => {
+      // This runs when component unmounts
+      if (gameSocketRef.current) {
+        console.log("Cleaning up socket connection on unmount");
+        try {
+          gameSocketRef.current.clearHandlers();
+          gameSocketRef.current.disconnect();
+        } catch (e) {
+          console.error("Error cleaning up socket on unmount:", e);
+        }
+      }
+    };
+  }, [visible]);
 
   // Debug log when game starts
   useEffect(() => {
@@ -392,7 +500,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
   ]);
 
   // Setup local game
-  const setupLocalGame = () => {
+  const setupLocalGame = useCallback(() => {
     // Set local play mode
     setIsLocalPlay(true);
     setIsConnected(true); // Local play is always "connected"
@@ -434,10 +542,11 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
 
     // Move directly to playing stage
     setStage("playing");
-  };
+  }, [gameHook]);
 
   // Game flow control functions
-  const startSearch = async () => {
+  const startSearch = useCallback(async () => {
+    // Handle local game option separately
     if (gameOptions.format === "LOCAL") {
       setupLocalGame();
       return;
@@ -445,7 +554,9 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
 
     // Reset connection attempts
     setConnectionAttempts(0);
+    setMessage("");
 
+    // Attempt to connect if not already connected
     if (!isConnected) {
       setMessage("Connecting to server...");
       const success = await connectSocket();
@@ -456,24 +567,45 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
 
     console.log("Starting matchmaking with player ID:", playerID);
     setIsLoading(true);
-    gameSocket.startMatchmaking("TTT");
-  };
+    try {
+      gameSocketRef.current.startMatchmaking("TTT");
+    } catch (error) {
+      console.error("Error starting matchmaking:", error);
+      setMessage("Failed to start matchmaking. Please try again.");
+      setIsLoading(false);
+    }
+  }, [
+    gameOptions.format,
+    setupLocalGame,
+    isConnected,
+    connectSocket,
+    playerID,
+  ]);
 
-  const cancelSearch = () => {
+  const cancelSearch = useCallback(() => {
     if (!isLocalPlay && isConnected) {
-      gameSocket.cancelMatchmaking();
+      try {
+        gameSocketRef.current.cancelMatchmaking();
+      } catch (error) {
+        console.error("Error canceling matchmaking:", error);
+      }
     }
     setIsLoading(false);
     setStage("join");
-  };
+  }, [isLocalPlay, isConnected]);
 
-  const playerReady = () => {
+  const playerReady = useCallback(() => {
     setCurrentPlayer((prev) => ({ ...prev, isReady: true }));
 
     // For online play, send ready signal
     if (!isLocalPlay) {
       if (isConnected) {
-        gameSocket.playerReady();
+        try {
+          gameSocketRef.current.playerReady();
+        } catch (error) {
+          console.error("Error sending ready signal:", error);
+          setMessage("Failed to send ready signal. Please try again.");
+        }
       } else {
         setMessage("Connection to server lost. Please try again.");
         setStage("join");
@@ -482,42 +614,45 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
       // For local play, immediately start the game
       setStage("playing");
     }
-  };
+  }, [isLocalPlay, isConnected]);
 
-  const handleGameAction = (action: string) => {
-    switch (action) {
-      case "endGame":
-        setStage("results");
-        break;
-      case "playAgain":
-        setStage("ready");
-        setCurrentPlayer((prev) => ({ ...prev, isReady: false }));
-        if (opponent) {
-          setOpponent((prev) => ({ ...prev, isReady: false }));
-        }
-        break;
-      case "exitGame":
-        // Return to join stage
-        setStage("join");
-        setIsLocalPlay(false);
+  const handleGameAction = useCallback(
+    (action: string) => {
+      switch (action) {
+        case "endGame":
+          setStage("results");
+          break;
+        case "playAgain":
+          setStage("ready");
+          setCurrentPlayer((prev) => ({ ...prev, isReady: false }));
+          if (opponent) {
+            setOpponent((prev) => ({ ...prev, isReady: false }));
+          }
+          break;
+        case "exitGame":
+          // Return to join stage
+          setStage("join");
+          setIsLocalPlay(false);
 
-        // Reset game state
-        if (gameHook.resetGame) {
-          gameHook.resetGame();
-        }
-        break;
-      case "makeMove":
-        // This will be handled by the game hook
-        break;
-      case "reconnect":
-        // Attempt to reconnect to the server
-        connectSocket();
-        break;
-    }
-  };
+          // Reset game state
+          if (gameHook.resetGame) {
+            gameHook.resetGame();
+          }
+          break;
+        case "makeMove":
+          // This will be handled by the game hook
+          break;
+        case "reconnect":
+          // Attempt to reconnect to the server
+          connectSocket();
+          break;
+      }
+    },
+    [opponent, gameHook, connectSocket]
+  );
 
   // Handle option changes
-  const handleOptionChange = (option: string, value: string) => {
+  const handleOptionChange = useCallback((option: string, value: string) => {
     setGameOptions((prev) => ({ ...prev, [option]: value }));
 
     // If format is changed to LOCAL, update isLocalPlay
@@ -526,7 +661,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
     } else if (option === "format" && value !== "LOCAL") {
       setIsLocalPlay(false);
     }
-  };
+  }, []);
 
   // Render breadcrumb navigation
   const renderBreadcrumb = () => {
