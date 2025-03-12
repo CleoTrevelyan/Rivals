@@ -27,6 +27,8 @@ export default function Login() {
       saveAuthToken(data.authToken);
       await AsyncStorage.setItem("playerID", data.userID);
       await AsyncStorage.setItem("username", data.username);
+        await AsyncStorage.setItem("playerID", data.userID);
+        await AsyncStorage.setItem("username", data.username);
       setMessage("Login successful!");
       router.replace("/(home)");
     } else if (data.type === "loginFailed") {
