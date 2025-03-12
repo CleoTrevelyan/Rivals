@@ -10,7 +10,7 @@ import {
 import { RivalsServer } from "@/components/constants";
 import { router } from "expo-router";
 import { authStyles } from "./styles/authStyles";
-import PerlinNoiseBackground from "@/app/(home)/components/perlinHero";
+import PerlinNoiseBackground from "@/components/perlinHero";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoginForm from "./components/LoginForm";
 import { useAuthSocket } from "./hooks/useAuthSocket";

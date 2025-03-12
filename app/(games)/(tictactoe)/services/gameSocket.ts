@@ -41,6 +41,23 @@ export class GameSocket {
   }
 
   /**
+   * Send a ping message to keep the connection alive
+   * @returns true if ping was sent successfully, false otherwise
+   */
+  ping(): boolean {
+    try {
+      if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+        this.socket.send(JSON.stringify({ type: "ping" }));
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Failed to send ping:", error);
+      return false;
+    }
+  }
+
+  /**
    * Connect to the WebSocket server
    * @param gameID Optional game ID to join
    * @param playerID Optional player ID

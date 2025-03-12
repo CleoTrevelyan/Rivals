@@ -18,8 +18,8 @@ import TournamentsScreen from "./components/tabs/TournamentsTab";
 import { RivalsServer } from "@/components/constants";
 
 // Import components
-import Header from "./components/Navbar";
-import TabNavigation from "./components/TabNavigation";
+import Header from "../../components/Navbar";
+import TabNavigation from "../../components/TabNavigation";
 import LiveMatchCard from "./components/cards/LiveMatchCard";
 import MatchCard from "./components/cards/MatchCard";
 import EventCard from "./components/cards/EventCard";

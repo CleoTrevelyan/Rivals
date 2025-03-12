@@ -15,6 +15,8 @@ interface GameplayScreenProps {
   };
   onAction: (action: string) => void;
   timeLimit?: number;
+  isConnected?: boolean;
+  onReconnect?: () => void;
 }
 
 /**
@@ -28,6 +30,8 @@ const GameplayScreen: React.FC<GameplayScreenProps> = ({
   matchInfo,
   onAction,
   timeLimit,
+  isConnected = true, // Default to true for backward compatibility
+  onReconnect,
 }) => {
   // Destructure the game hook variables
   const {
@@ -39,7 +43,6 @@ const GameplayScreen: React.FC<GameplayScreenProps> = ({
     isActive,
     lastMove,
     opponentName,
-    isConnected,
     error,
     rematchOffered,
     makeMove,
@@ -49,6 +52,7 @@ const GameplayScreen: React.FC<GameplayScreenProps> = ({
     setPlayerSymbol,
   } = gameHook;
 
+  // Update the player symbol in the game hook when it changes in props
   useEffect(() => {
     if (currentPlayer.symbol && setPlayerSymbol) {
       setPlayerSymbol(currentPlayer.symbol);
@@ -67,6 +71,7 @@ const GameplayScreen: React.FC<GameplayScreenProps> = ({
       board,
       winner,
       isActive,
+      isConnected,
     });
   }, [
     playerSymbol,
@@ -77,10 +82,12 @@ const GameplayScreen: React.FC<GameplayScreenProps> = ({
     board,
     winner,
     isActive,
+    isConnected,
   ]);
 
   // Handle player move
   const handlePlayerMove = (position: number) => {
+    console.log(`Player attempting move at position ${position}`);
     makeMove(position);
   };
 
@@ -242,7 +249,7 @@ const GameplayScreen: React.FC<GameplayScreenProps> = ({
           currentTurn={currentTurn}
           isPlayerTurn={isPlayerTurn}
           onMove={handlePlayerMove}
-          active={isActive}
+          active={isActive && isConnected}
           timeLimit={timeLimit}
           winner={winner}
         />
@@ -254,6 +261,21 @@ const GameplayScreen: React.FC<GameplayScreenProps> = ({
           <Text style={gameModalStyles.errorText}>
             Reconnecting to server...
           </Text>
+          {onReconnect && (
+            <TouchableOpacity
+              style={{
+                padding: 6,
+                backgroundColor: "#2E3A59",
+                borderRadius: 4,
+                marginTop: 5,
+              }}
+              onPress={onReconnect}
+            >
+              <Text style={{ color: "white", fontSize: 12 }}>
+                Reconnect Manually
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
 
@@ -309,6 +331,7 @@ const GameplayScreen: React.FC<GameplayScreenProps> = ({
               { paddingVertical: 8, width: "40%", minWidth: 120 },
             ]}
             onPress={forfeitGame}
+            disabled={!isConnected && !isLocalPlay}
           >
             <Text style={[gameModalStyles.actionButtonText, { fontSize: 14 }]}>
               Forfeit
