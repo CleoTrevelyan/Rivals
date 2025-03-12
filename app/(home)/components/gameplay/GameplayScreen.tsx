@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { gameModalStyles } from "@/styles/gameModalStyles";
 import { GamePlayer } from "@/interface/types";
-import TicTacToeGame from "../../../(tictactoe)/TicTacToeGame";
+import TicTacToeGame from "../../../(games)/(tictactoe)/TicTacToeGame";
 
 interface GameplayScreenProps {
   currentPlayer: GamePlayer;

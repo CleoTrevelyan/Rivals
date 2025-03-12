@@ -9,7 +9,7 @@
       "@homeComponents/*": ["./app/(home)/components/*"],
       "@assets/*": ["./assets/*"],
       "@styles/*": ["./styles/*"],
-      "@gameHooks/*": ["./app/(tictactoe)/hooks/*"],
+      "@gameHooks/*": ["app/(games)/(tictactoe)/hooks/*"],
       "@types/*": ["./types/*"]
     },
     "jsx": "react"

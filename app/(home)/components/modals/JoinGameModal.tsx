@@ -10,10 +10,10 @@ import {
 import { gameModalStyles } from "@/styles/gameModalStyles";
 import { RivalsServer } from "@/components/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import useTicTacToeGame from "../../../(tictactoe)/hooks/useTicTacToeGame";
-import useLocalTicTacToeGame from "../../../(tictactoe)/hooks/useLocalTicTacToeGame";
+import useTicTacToeGame from "../../../(games)/(tictactoe)/hooks/useTicTacToeGame";
+import useLocalTicTacToeGame from "../../../(games)/(tictactoe)/hooks/useLocalTicTacToeGame";
 import { GamePlayer, GameStage, GameModalProps } from "@/interface/types";
-import { getGameSocket } from "../../../(tictactoe)/services/gameSocket";
+import { getGameSocket } from "../../../(games)/(tictactoe)/services/gameSocket";
 
 // Import the modular components
 import GameOptionsSelector from "../gameplay/GameOptionsSelector";
