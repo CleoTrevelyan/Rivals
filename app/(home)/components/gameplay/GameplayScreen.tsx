@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { gameModalStyles } from "@/styles/gameModalStyles";
 import { GamePlayer } from "@/interface/types";
@@ -46,7 +46,38 @@ const GameplayScreen: React.FC<GameplayScreenProps> = ({
     forfeitGame,
     requestRematch,
     acceptRematch,
+    setPlayerSymbol,
   } = gameHook;
+
+  useEffect(() => {
+    if (currentPlayer.symbol && setPlayerSymbol) {
+      setPlayerSymbol(currentPlayer.symbol);
+      console.log("Setting player symbol in game hook:", currentPlayer.symbol);
+    }
+  }, [currentPlayer.symbol, setPlayerSymbol]);
+
+  // Debug logging
+  useEffect(() => {
+    console.log("GameplayScreen state:", {
+      playerSymbol,
+      currentPlayerSymbol: currentPlayer.symbol,
+      opponentSymbol: opponent.symbol,
+      isPlayerTurn,
+      currentTurn,
+      board,
+      winner,
+      isActive,
+    });
+  }, [
+    playerSymbol,
+    currentPlayer.symbol,
+    opponent.symbol,
+    isPlayerTurn,
+    currentTurn,
+    board,
+    winner,
+    isActive,
+  ]);
 
   // Handle player move
   const handlePlayerMove = (position: number) => {
@@ -133,7 +164,9 @@ const GameplayScreen: React.FC<GameplayScreenProps> = ({
           >
             {currentPlayer.name}
           </Text>
-          <Text style={gameModalStyles.playerSymbolText}>{playerSymbol}</Text>
+          <Text style={gameModalStyles.playerSymbolText}>
+            {currentPlayer.symbol}
+          </Text>
         </View>
 
         {/* VS */}
@@ -183,17 +216,28 @@ const GameplayScreen: React.FC<GameplayScreenProps> = ({
             {isLocalPlay ? "AI Opponent" : opponentName || opponent.name}
           </Text>
           <Text style={gameModalStyles.playerSymbolText}>
-            {playerSymbol === "X" ? "O" : "X"}
+            {opponent.symbol}
           </Text>
         </View>
       </View>
+
+      {/* Connection status indicator for online play */}
+      {!isLocalPlay && (
+        <View style={{ marginVertical: 5 }}>
+          <Text
+            style={{ color: isConnected ? "#4AE9A0" : "#ff8080", fontSize: 12 }}
+          >
+            {isConnected ? "Connected" : "Reconnecting..."}
+          </Text>
+        </View>
+      )}
 
       {/* Game board */}
       <View
         style={[gameModalStyles.gameboardContainer, { marginVertical: 10 }]}
       >
         <TicTacToeGame
-          playerSymbol={playerSymbol as "X" | "O"}
+          playerSymbol={currentPlayer.symbol as "X" | "O"}
           gameState={board}
           currentTurn={currentTurn}
           isPlayerTurn={isPlayerTurn}

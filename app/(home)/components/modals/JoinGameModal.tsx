@@ -137,7 +137,11 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
           // Register handlers for game events
           gameSocket.registerHandler("matchFound", (data) => {
             console.log("Opponent: ", data.opponentName);
-            setOpponent((prev) => ({ ...prev, name: data.opponentName }));
+            setOpponent((prev) => ({
+              ...prev,
+              name: data.opponentName,
+              id: data.opponentId || "opponent-id",
+            }));
             setStage("ready");
           });
 
@@ -147,9 +151,31 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
           });
 
           gameSocket.registerHandler("enteringMatch", (data) => {
+            console.log("Entering match with data:", data);
+
+            // Update opponent ready status
             setOpponent((prev) => ({ ...prev, isReady: true }));
+
+            // Update symbol assignment from server
+            if (data.playerSymbol) {
+              console.log("Server assigned symbol:", data.playerSymbol);
+
+              setCurrentPlayer((prev) => ({
+                ...prev,
+                symbol: data.playerSymbol,
+                isReady: true,
+              }));
+
+              // Set opponent to the opposite symbol
+              setOpponent((prev) => ({
+                ...prev,
+                symbol: data.playerSymbol === "X" ? "O" : "X",
+                isReady: true,
+              }));
+            }
+
+            // Move to playing stage
             setStage("playing");
-            console.log("Starting game");
 
             // Set game ID when match starts
             if (data.gameID) {
@@ -162,8 +188,19 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
             console.log("waiting for opponent");
           });
 
+          gameSocket.registerHandler("gameUpdate", (data) => {
+            console.log("Game update received:", data);
+            // This should be handled by the useTicTacToeGame hook
+            // But we can add additional logic here if needed
+          });
+
+          gameSocket.registerHandler("gameStarted", (data) => {
+            console.log("Game started event received:", data);
+            // This is just for debugging - the hook should handle this
+          });
+
           gameSocket.registerHandler("error", (data) => {
-            console.log(data.error);
+            console.log("Error from server:", data.error);
             setMessage(data.error || "Unknown error occurred");
           });
         } catch (error) {
@@ -179,6 +216,29 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
       };
     }
   }, [visible, gameID, playerID, isLocalPlay]);
+
+  // Debug log when game starts
+  useEffect(() => {
+    if (stage === "playing") {
+      console.log("Game started with:", {
+        playerSymbol: currentPlayer.symbol,
+        opponentSymbol: opponent.symbol,
+        isPlayerTurn: gameHook.isPlayerTurn,
+        board: gameHook.board,
+        playerID: playerID,
+        opponentID: opponent.id,
+        gameID: gameID,
+      });
+    }
+  }, [
+    stage,
+    currentPlayer.symbol,
+    opponent.symbol,
+    gameHook,
+    playerID,
+    opponent.id,
+    gameID,
+  ]);
 
   // Setup local game
   const setupLocalGame = () => {
@@ -328,7 +388,7 @@ const JoinGameModal: React.FC<GameModalProps> = ({ visible, onClose }) => {
             currentPlayer={currentPlayer}
             opponent={opponent}
             winner={gameHook.winner}
-            playerSymbol={gameHook.playerSymbol as "X" | "O"}
+            playerSymbol={currentPlayer.symbol as "X" | "O"}
             matchInfo={matchInfo}
             isLocalPlay={isLocalPlay}
             onRematch={() =>

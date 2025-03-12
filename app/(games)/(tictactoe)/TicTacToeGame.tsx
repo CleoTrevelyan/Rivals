@@ -31,6 +31,27 @@ const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
   // Last move highlight
   const [lastMove, setLastMove] = useState<number | null>(null);
 
+  // Debug log for props
+  useEffect(() => {
+    console.log("TicTacToeGame props:", {
+      playerSymbol,
+      currentTurn,
+      isPlayerTurn,
+      active,
+      winner,
+      gameStateLength: gameState?.length || 0,
+      hasExternalState: !!externalGameState,
+    });
+  }, [
+    playerSymbol,
+    currentTurn,
+    isPlayerTurn,
+    active,
+    winner,
+    gameState,
+    externalGameState,
+  ]);
+
   // Reset last move highlight when game state changes
   useEffect(() => {
     if (externalGameState) {
@@ -66,6 +87,15 @@ const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
 
   // Handle a cell click
   const handleCellPress = (index: number) => {
+    console.log(`Cell pressed at index ${index}`, {
+      active,
+      cellValue: gameState[index],
+      isPlayerTurn,
+      timeRemaining,
+      winner,
+      playerSymbol,
+    });
+
     // Don't allow moves if:
     // - Game is not active
     // - Cell is already filled
@@ -79,6 +109,7 @@ const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
       (timeRemaining !== null && timeRemaining <= 0) ||
       winner
     ) {
+      console.log("Move rejected");
       return;
     }
 
@@ -93,6 +124,7 @@ const TicTacToeGame: React.FC<TicTacToeGameProps> = ({
     }
 
     // Notify parent component about the move
+    console.log(`Making move at ${index} with symbol ${playerSymbol}`);
     onMove?.(index);
   };
 
