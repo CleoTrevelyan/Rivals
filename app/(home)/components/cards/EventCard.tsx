@@ -2,7 +2,7 @@ import React from "react";
 import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { EventCardProps } from "@/interface/types";
-import { homeStyles } from "@/styles/pageStyles/homeStyles";
+import { homeStyles } from "../../styles/homeStyles";
 
 const EventCard: React.FC<EventCardProps> = ({ event, onPress }) => {
   return (

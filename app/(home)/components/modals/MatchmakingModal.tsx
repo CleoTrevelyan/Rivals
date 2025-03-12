@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, Modal, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { gameModalStyles } from "@/styles/componentStyles/gameModalStyles";
+import { gameModalStyles } from "@/styles/gameModalStyles";
 import { GameModalProps, Player } from "@/interface/types";
 import Loader from "../loaders/Loader";
 

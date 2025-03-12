@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
-import { gameModalStyles } from "@/styles/componentStyles/gameModalStyles";
+import { gameModalStyles } from "@/styles/gameModalStyles";
 
 interface SearchingScreenProps {
   onCancel: () => void;

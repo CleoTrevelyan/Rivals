@@ -12,7 +12,7 @@ import {
   ImageBackground,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { stylesTournamentPage } from "@/styles/componentStyles/tabStyles";
+import { stylesTournamentPage } from "@/styles/tabStyles";
 import { useWindowDimensions } from "react-native";
 
 // Sample data for tournaments

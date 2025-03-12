@@ -8,13 +8,13 @@ import {
   Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { homeStyles } from "@/styles/pageStyles/homeStyles";
+import { homeStyles } from "../styles/homeStyles";
 import { HeaderProps } from "@/interface/types";
 import SearchBar from "./SearchBar";
-import PlayButton from "../(home)/components/buttons/PlayButton";
-import TeamButton from "../(home)/components/buttons/TeamButton";
-import PlayModal from "../(home)/components/modals/PlayModal";
-import TeamManagement from "../(teams)/index";
+import PlayButton from "./buttons/PlayButton";
+import TeamButton from "./buttons/TeamButton";
+import PlayModal from "./modals/PlayModal";
+import TeamManagement from "../../(teams)/index";
 
 const Header: React.FC<HeaderProps> = ({
   userBalance,

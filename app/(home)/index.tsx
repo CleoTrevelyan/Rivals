@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import { homeStyles } from "@/styles/pageStyles/homeStyles";
+import { homeStyles } from "./styles/homeStyles";
 import JoinGameModal from "./components/modals/JoinGameModal";
 import CreateGameModal from "./components/modals/CreateGameModal";
 import MatchmakingModal from "./components/modals/MatchmakingModal";
@@ -18,8 +18,8 @@ import TournamentsScreen from "./components/tabs/TournamentsTab";
 import { RivalsServer } from "@/components/constants";
 
 // Import components
-import Header from "../components/Navbar";
-import TabNavigation from "../components/TabNavigation";
+import Header from "./components/Navbar";
+import TabNavigation from "./components/TabNavigation";
 import LiveMatchCard from "./components/cards/LiveMatchCard";
 import MatchCard from "./components/cards/MatchCard";
 import EventCard from "./components/cards/EventCard";

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import { ticTacToeStyles } from "@/styles/componentStyles/tictactoeStyles";
+import { ticTacToeStyles } from "./styles/tictactoeStyles";
 import { Ionicons } from "@expo/vector-icons";
 import { TicTacToeGameProps } from "@/interface/types";
 

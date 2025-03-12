@@ -10,7 +10,7 @@ import {
   Image,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { teamManagementStyles } from "@/styles/pageStyles/managementStyles";
+import { teamManagementStyles } from "./styles/managementStyles";
 import { TeamData, teamsData } from "./teams.data"; 
 
 interface TeamManagementProps {

@@ -2,7 +2,7 @@ import React from "react";
 import { Text, View, TouchableOpacity, Dimensions } from "react-native";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { MatchCardProps } from "@/interface/types";
-import { homeStyles } from "@/styles/pageStyles/homeStyles";
+import { homeStyles } from "../../styles/homeStyles";
 
 const MatchCard = ({
   match,

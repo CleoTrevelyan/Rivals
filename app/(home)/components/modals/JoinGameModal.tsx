@@ -7,7 +7,7 @@ import {
   Image,
   ScrollView,
 } from "react-native";
-import { gameModalStyles } from "@/styles/componentStyles/gameModalStyles";
+import { gameModalStyles } from "@/styles/gameModalStyles";
 import { RivalsServer } from "@/components/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useTicTacToeGame from "../../../(tictactoe)/hooks/useTicTacToeGame";

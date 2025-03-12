@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
-import { gameModalStyles } from "@/styles/componentStyles/gameModalStyles";
+import { gameModalStyles } from "@/styles/gameModalStyles";
 import { GamePlayer } from "@/interface/types";
 
 interface ReadyScreenProps {

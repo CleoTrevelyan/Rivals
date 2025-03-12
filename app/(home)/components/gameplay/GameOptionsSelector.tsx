@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import { gameModalStyles } from "@/styles/componentStyles/gameModalStyles";
+import { gameModalStyles } from "@/styles/gameModalStyles";
 
 interface GameOptionsProps {
   options: {

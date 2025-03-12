@@ -1,97 +1,65 @@
 import React, { useEffect, useState } from "react";
 import {
-  Text,
   View,
-  TouchableOpacity,
-  TextInput,
   Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Text,
 } from "react-native";
 import { RivalsServer } from "@/components/constants";
-import { Feather } from "@expo/vector-icons";
-import { Link, router } from "expo-router";
-import { authStyles } from "@/styles/pageStyles/authStyles";
-import PerlinNoiseBackground from "@/app/components/perlinHero";
+import { router } from "expo-router";
+import { authStyles } from "./styles/authStyles";
+import PerlinNoiseBackground from "@/app/(home)/components/perlinHero";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import LoginForm from "./components/LoginForm";
+import { useAuthSocket } from "./hooks/useAuthSocket";
 
 export default function Login() {
   const [message, setMessage] = useState("");
-  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const { socket, isConnected } = useAuthSocket({
+    onMessage: handleSocketMessage,
+  });
 
-  // Login form states
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-
-  useEffect(() => {
-    const ws = new WebSocket(RivalsServer);
-
-    ws.onopen = async () => {
-      console.log("Connected to the WebSocket server");
-      setSocket(ws);
-
-      // Send stored JWT for authentication
-      const authToken = await AsyncStorage.getItem("authToken");
-      if (authToken) {
-        ws.send(
-          JSON.stringify({
-            type: "authTokenVerification",
-            authToken: authToken,
-          })
-        );
-      }
-    };
-
-    ws.onmessage = async (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === "loginSuccess") {
-        console.log("Received token: ", data.authToken);
-        await AsyncStorage.setItem("authToken", data.authToken);
-        setMessage("Login successful!");
-        router.replace("/(home)");
-      } else if (data.type === "loginFailed") {
-        setMessage(data.message);
-      } else if (data.type === "authTokenVerified") {
-        router.replace("/(home)");
-      } else if (data.type === "authTokenInvalid") {
-        setMessage("Session expired. Please log in again.");
-      }
-    };
-
-    ws.onclose = () => {
-      console.log("Disconnected from the WebSocket server");
-    };
-
-    return () => {
-      ws.close();
-    };
-  }, []);
-
-  const getAuthToken = async (): Promise<string | null> => {
-    try {
-      return await AsyncStorage.getItem("authToken");
-    } catch (error) {
-      console.error("Error getting auth token:", error);
-      return null;
+  function handleSocketMessage(data: any) {
+    if (data.type === "loginSuccess") {
+      console.log("Received token: ", data.authToken);
+      saveAuthToken(data.authToken);
+      setMessage("Login successful!");
+      router.replace("/(home)");
+    } else if (data.type === "loginFailed") {
+      setMessage(data.message);
+    } else if (data.type === "authTokenVerified") {
+      router.replace("/(home)");
+    } else if (data.type === "authTokenInvalid") {
+      setMessage("Session expired. Please log in again.");
     }
-  };
+  }
 
-  const handleLogin = async () => {
+  async function saveAuthToken(token: string) {
+    try {
+      await AsyncStorage.setItem("authToken", token);
+    } catch (error) {
+      console.error("Error saving auth token:", error);
+    }
+  }
+
+  const handleLogin = (username: string, password: string) => {
     // Basic validation
     if (!username || !password) {
       setMessage("Please fill in all fields");
       return;
     }
 
-    if (socket) {
+    if (socket && isConnected) {
       const message = {
         type: "login",
         username: username,
         password: password,
       };
       socket.send(JSON.stringify(message));
+    } else {
+      setMessage("Not connected to server. Please try again.");
     }
   };
 
@@ -184,96 +152,8 @@ export default function Login() {
             </View>
           </View>
 
-          {/* Right Panel - Authentication form */}
-          <View style={authStyles.rightPanel}>
-            <Text style={authStyles.authTitle}>SIGN IN</Text>
-
-            <View style={authStyles.inputContainer}>
-              <TextInput
-                style={authStyles.input}
-                placeholder="Email or Username"
-                placeholderTextColor="#8F9BB3"
-                value={username}
-                onChangeText={(text) => {
-                  setUsername(text);
-                  setMessage("");
-                }}
-                autoCapitalize="none"
-              />
-            </View>
-
-            <View style={authStyles.inputContainer}>
-              <TextInput
-                style={authStyles.input}
-                placeholder="Password"
-                placeholderTextColor="#8F9BB3"
-                value={password}
-                onChangeText={(text) => {
-                  setPassword(text);
-                  setMessage("");
-                }}
-                secureTextEntry={!showPassword}
-              />
-              <TouchableOpacity
-                style={authStyles.eyeIcon}
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                <Feather
-                  name={showPassword ? "eye" : "eye-off"}
-                  size={20}
-                  color="#8F9BB3"
-                />
-              </TouchableOpacity>
-            </View>
-
-            <Link href="/(auth)/signup" asChild>
-              <TouchableOpacity style={authStyles.createAccountLink}>
-                <Text style={authStyles.createAccountText}>Create Account</Text>
-              </TouchableOpacity>
-            </Link>
-
-            <TouchableOpacity
-              style={authStyles.submitButton}
-              onPress={handleLogin}
-            >
-              <Text style={authStyles.submitButtonText}>Log In</Text>
-            </TouchableOpacity>
-
-            {message && <Text style={authStyles.messageText}>{message}</Text>}
-
-            <View style={authStyles.dividerContainer}>
-              <View style={authStyles.divider} />
-              <Text style={authStyles.dividerText}>or continue with</Text>
-              <View style={authStyles.divider} />
-            </View>
-
-            <View style={authStyles.socialButtonsContainer}>
-              <TouchableOpacity style={authStyles.socialButton}>
-                <Image
-                  source={require("@/assets/images/steam-icon.svg")}
-                  style={authStyles.socialIcon}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity style={authStyles.socialButton}>
-                <Image
-                  source={require("@/assets/images/discord-icon.svg")}
-                  style={authStyles.socialIcon}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity style={authStyles.socialButton}>
-                <Image
-                  source={require("@/assets/images/apple-icon.svg")}
-                  style={authStyles.socialIcon}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity style={authStyles.socialButton}>
-                <Image
-                  source={require("@/assets/images/google-icon.svg")}
-                  style={authStyles.socialIcon}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
+          {/* Right Panel - Login Form */}
+          <LoginForm onLogin={handleLogin} message={message} />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
