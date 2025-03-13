@@ -133,6 +133,8 @@ export const createSocketMiddleware = (): Middleware => {
   let isConnecting = false;
 
   return (store) => (next) => (action: unknown) => {
+    console.log("Middleware received action:", action); // Add this line
+
     // Handle regular Redux actions normally
     if (
       typeof action !== "object" ||
@@ -151,6 +153,7 @@ export const createSocketMiddleware = (): Middleware => {
 
     switch (socketAction.type) {
       case SOCKET_CONNECT:
+        console.log("Handling SOCKET_CONNECT action"); // Add this line
         // Skip if already connecting
         if (isConnecting) {
           return next(action);
@@ -223,20 +226,7 @@ export const createSocketMiddleware = (): Middleware => {
                   if (data.token || data.authToken) {
                     // Get the token (handle different field names from server)
                     const token = data.token || data.authToken;
-
-                    // Store token
-                    AsyncStorage.setItem("authToken", token);
-
-                    // Store player ID and username if provided
-                    if (data.userID || (data.user && data.user.id)) {
-                      const userId = data.userID || data.user.id;
-                      AsyncStorage.setItem("playerID", userId);
-                    }
-
-                    if (data.username || (data.user && data.user.username)) {
-                      const username = data.username || data.user.username;
-                      AsyncStorage.setItem("username", username);
-                    }
+                    
                     //debug
                     console.log("Dispatching login success with data:", {
                       token: data.token || data.authToken,

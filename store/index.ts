@@ -15,11 +15,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import gameReducer from "./slices/gameSlice";
 import authReducer from "./slices/authSlice";
 import { createSocketMiddleware } from "./middleware/gameSocketMiddleware";
+import { useDispatch, useSelector } from "react-redux";
 
 // Configure persistence
 const persistConfig = {
   key: "root",
   storage: AsyncStorage,
+  //whitelist: ["auth"],
   // Blacklist any state you don't want to persist
   blacklist: ["message", "isLoading"],
 };
@@ -55,3 +57,6 @@ export const persistor = persistStore(store);
 // Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+
+export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
+export const useAppSelector = useSelector.withTypes<RootState>();

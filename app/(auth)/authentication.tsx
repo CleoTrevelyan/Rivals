@@ -15,18 +15,15 @@ import PerlinNoiseBackground from "@/components/perlinHero";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AuthForm from "./components/AuthForm";
 import FeatureCards from "./components/FeatureCards";
-// import { useAuth } from "@/store/hooks/useAuth";
-// import { AnyAction } from "redux";
+import { useAuth } from "@/store/hooks/useAuth";
 import { socketConnect } from "@/store/middleware/gameSocketMiddleware";
-import { useAppDispatch } from "@/store/store";
-import { useGetFakeApiDataQuery } from "@/store/slices/test/testApiSlice";
+import { useAppDispatch } from "@/store/index";
+import { AnyAction, UnknownAction } from "@reduxjs/toolkit";
 
 export default function Auth() {
-  const { data, isLoading } = useGetFakeApiDataQuery("");
   const dispatch = useAppDispatch();
-  console.log(data, "testData");
-  //   const { isAuthenticated, isLoading, error, login, register, resetError } =
-  //     useAuth();
+  const { isAuthenticated, isLoading, error, login, register, resetError } =
+  useAuth();
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get("window").width
   );
@@ -36,20 +33,15 @@ export default function Auth() {
 
   // Ensure we have a connection
   useEffect(() => {
-    dispatch(socketConnect() as AnyAction);
+    dispatch(socketConnect() as UnknownAction);
   }, [dispatch]);
 
-  // Redirect if authenticated
-  //   useEffect(() => {
-  //     if (isAuthenticated) {
-  //       router.replace("/(home)");
-  //     }
-  //   }, [isAuthenticated]);
+  //Redirect if authenticated
   useEffect(() => {
-    if (false) {
+    if (isAuthenticated) {
       router.replace("/(home)");
     }
-  }, [false]);
+  }, [isAuthenticated]);
 
   // Update dimensions when window size changes
   useEffect(() => {
@@ -59,29 +51,29 @@ export default function Auth() {
     return () => subscription.remove();
   }, []);
 
-  // Login handler
-  //   const handleLogin = useCallback(
-  //     (username: string, password: string) => {
-  //       // Reset any previous errors
-  //       resetError();
+  //Login handler
+    const handleLogin = useCallback(
+      (username: string, password: string) => {
+        // Reset any previous errors
+        resetError();
 
-  //       // Call Redux login action
-  //       login(username, password);
-  //     },
-  //     [login, resetError]
-  //   );
+        // Call Redux login action
+        login(username, password);
+      },
+      [login, resetError]
+    );
 
   // Signup handler
-  //   const handleSignup = useCallback(
-  //     (email: string, username: string, password: string) => {
-  //       // Reset any previous errors
-  //       resetError();
+    const handleSignup = useCallback(
+      (email: string, username: string, password: string) => {
+        // Reset any previous errors
+        resetError();
 
-  //       // Call Redux register action
-  //       register(username, email, password);
-  //     },
-  //     [register, resetError]
-  //   );
+        // Call Redux register action
+        register(username, email, password);
+      },
+      [register, resetError]
+    );
 
   // Dev mode bypass
   const goDirectlyToHome = useCallback(() => {
@@ -178,7 +170,7 @@ export default function Auth() {
               isMobileView && authStyles.formCardContainerMobile,
             ]}
           >
-            {/* <AuthForm
+            {<AuthForm
               onLogin={handleLogin}
               onSignup={handleSignup}
               message={error || ""}
@@ -186,23 +178,18 @@ export default function Auth() {
               isMobileView={isMobileView}
               devModeEnabled={true}
               onDevModeNavigate={goDirectlyToHome}
-            /> */}
+            /> }
 
             <AuthForm
               onLogin={() => {}}
               onSignup={() => {}}
-              message=""
-              //   message={error || ""}
-              //   isLoading={isLoading}
-              isLoading={false}
+              message={error || ""}
+              isLoading={isLoading}
               isMobileView={isMobileView}
               devModeEnabled={true}
               onDevModeNavigate={goDirectlyToHome}
             />
           </View>
-          <Text style={authStyles.subHeaderText}>
-            {JSON.stringify(data, null, 2)} {/* Show formatted JSON */}
-          </Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
