@@ -1,27 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { authApiSlice } from "./testApiSlice";
+import { testApiSlice } from "./testApiSlice";
 
-export const authSlice = createSlice({
+export const testSlice = createSlice({
   name: "test",
   initialState: {
-    isAuthenticated: false,
-    authToken: null,
-    user: null,
-    isLoading: false,
-    error: null,
-
     testData: null,
   },
   reducers: {
     //reducers function goes here
-    logout: (state, action) => {
-      state.isAuthenticated = false;
-      state.authToken = null;
-    },
   },
   extraReducers: (builder) => {
     builder.addMatcher(
-      authApiSlice.endpoints.getFakeApiData.matchFulfilled,
+      testApiSlice.endpoints.getFakeApiData.matchFulfilled,
       (state, action) => {
         state.testData = action.payload;
       }
@@ -30,5 +20,5 @@ export const authSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { logout } = authSlice.actions;
-export default authSlice.reducer;
+// export const { logout } = testSlice.actions;
+export default testSlice.reducer;

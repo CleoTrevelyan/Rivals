@@ -1,11 +1,11 @@
 import { apiSlice } from "../../api/apiSlice";
 
-export const authApiSlice = apiSlice.injectEndpoints({
+export const testApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getFakeApiData: builder.query({
-      query: () => `/todos`,
+      query: () => `/users`,
     }),
   }),
 });
 
-export const { useGetFakeApiDataQuery } = authApiSlice;
+export const { useGetFakeApiDataQuery } = testApiSlice;

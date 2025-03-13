@@ -2,6 +2,7 @@
 import { RivalsServer } from "@/components/constants";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../store";
+
 const baseUrl = "https://jsonplaceholder.typicode.com";
 // const baseUrl = "https://jsonplaceholder.typicode.com" || RivalsServer;
 
@@ -9,6 +10,7 @@ const baseQuery = fetchBaseQuery({
   baseUrl,
   prepareHeaders: (headers, { getState }) => {
     headers.set("content-type", "application/json");
+    //for handling authentication
     const token = (getState() as RootState).test;
 
     if (token) {

@@ -22,6 +22,7 @@ const persistConfig = {
 
 const allReducers = combineReducers({
   test: testReducer,
+  //other reducers goes here
   [apiSlice.reducerPath]: apiSlice.reducer,
 });
 

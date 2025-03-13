@@ -187,6 +187,7 @@ export default function Auth() {
               devModeEnabled={true}
               onDevModeNavigate={goDirectlyToHome}
             /> */}
+
             <AuthForm
               onLogin={() => {}}
               onSignup={() => {}}
@@ -199,6 +200,9 @@ export default function Auth() {
               onDevModeNavigate={goDirectlyToHome}
             />
           </View>
+          <Text style={authStyles.subHeaderText}>
+            {JSON.stringify(data, null, 2)} {/* Show formatted JSON */}
+          </Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
