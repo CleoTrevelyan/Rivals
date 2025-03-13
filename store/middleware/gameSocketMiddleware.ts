@@ -133,6 +133,8 @@ export const createSocketMiddleware = (): Middleware => {
   let isConnecting = false;
 
   return (store) => (next) => (action: unknown) => {
+    console.log("Middleware received action:", action); // Add this line
+
     // Handle regular Redux actions normally
     if (
       typeof action !== "object" ||
@@ -151,6 +153,7 @@ export const createSocketMiddleware = (): Middleware => {
 
     switch (socketAction.type) {
       case SOCKET_CONNECT:
+        console.log("Handling SOCKET_CONNECT action"); // Add this line
         // Skip if already connecting
         if (isConnecting) {
           return next(action);
@@ -459,6 +462,7 @@ export const createSocketMiddleware = (): Middleware => {
         break;
 
       case SOCKET_DISCONNECT:
+        console.log("Handling SOCKET_DISCONNECT action"); // Add this line
         if (socket) {
           // Use code 1000 to indicate normal closure (prevents reconnect)
           socket.close(1000, "Intentional disconnect");
@@ -479,6 +483,7 @@ export const createSocketMiddleware = (): Middleware => {
         break;
 
       case SOCKET_SEND:
+        console.log("Handling SOCKET_SEND action with payload:", socketAction.payload); // Add this line
         if (socket && socket.readyState === WebSocket.OPEN) {
           socket.send(
             JSON.stringify((socketAction as SocketSendAction).payload)
@@ -495,6 +500,8 @@ export const createSocketMiddleware = (): Middleware => {
 
       // Auth-related actions
       case SOCKET_AUTH_TOKEN_VERIFICATION:
+        console.log("Handling SOCKET_AUTH_TOKEN_VERIFICATION action with payload:", socketAction.payload); // Add this line
+        console.log(`socket is ${socket} with state ${socket?.readyState}`);
         if (socket && socket.readyState === WebSocket.OPEN) {
           socket.send(
             JSON.stringify({
@@ -521,6 +528,7 @@ export const createSocketMiddleware = (): Middleware => {
         break;
 
       case SOCKET_LOGIN:
+        console.log("Handling SOCKET_LOGIN action with payload:", socketAction.payload); // Add this line
         if (socket && socket.readyState === WebSocket.OPEN) {
           socket.send(
             JSON.stringify({
@@ -545,6 +553,7 @@ export const createSocketMiddleware = (): Middleware => {
         break;
 
       case SOCKET_REGISTER:
+        console.log("Handling SOCKET_REGISTER action with payload:", socketAction.payload); // Add this line
         if (socket && socket.readyState === WebSocket.OPEN) {
           socket.send(
             JSON.stringify({
@@ -570,6 +579,7 @@ export const createSocketMiddleware = (): Middleware => {
 
       // Game-related actions
       case SOCKET_START_MATCHMAKING:
+        console.log("Handling SOCKET_START_MATCHMAKING action with payload:", socketAction.payload); // Add this line
         if (state.game?.currentPlayer?.id) {
           const playerID = state.game.currentPlayer.id;
 
@@ -610,6 +620,7 @@ export const createSocketMiddleware = (): Middleware => {
         break;
 
       case SOCKET_CANCEL_MATCHMAKING:
+        console.log("Handling SOCKET_CANCEL_MATCHMAKING action"); // Add this line
         dispatch({
           type: SOCKET_SEND,
           payload: {
@@ -619,6 +630,7 @@ export const createSocketMiddleware = (): Middleware => {
         break;
 
       case SOCKET_PLAYER_READY:
+        console.log("Handling SOCKET_PLAYER_READY action"); // Add this line
         if (state.game?.gameID && state.game?.currentPlayer?.id) {
           dispatch({
             type: SOCKET_SEND,
@@ -634,6 +646,7 @@ export const createSocketMiddleware = (): Middleware => {
         break;
 
       case SOCKET_MAKE_MOVE:
+        console.log("Handling SOCKET_MAKE_MOVE action with payload:", socketAction.payload); // Add this line
         if (state.game?.gameID && state.game?.currentPlayer?.id) {
           const { position, symbol } = (socketAction as SocketMakeMoveAction)
             .payload;
@@ -654,6 +667,7 @@ export const createSocketMiddleware = (): Middleware => {
         break;
 
       case SOCKET_FORFEIT_GAME:
+        console.log("Handling SOCKET_FORFEIT_GAME action"); // Add this line
         if (state.game?.gameID && state.game?.currentPlayer?.id) {
           dispatch({
             type: SOCKET_SEND,
@@ -669,6 +683,7 @@ export const createSocketMiddleware = (): Middleware => {
         break;
 
       case SOCKET_REQUEST_REMATCH:
+        console.log("Handling SOCKET_REQUEST_REMATCH action with payload:", socketAction.payload); // Add this line
         if (state.game?.gameID && state.game?.currentPlayer?.id) {
           dispatch({
             type: SOCKET_SEND,
@@ -685,6 +700,7 @@ export const createSocketMiddleware = (): Middleware => {
         break;
 
       default:
+        console.log("Unhandled action type:", socketAction.type); // Add this line
         break;
     }
 

@@ -17,14 +17,16 @@ import AuthForm from "./components/AuthForm";
 import FeatureCards from "./components/FeatureCards";
 // import { useAuth } from "@/store/hooks/useAuth";
 // import { AnyAction } from "redux";
-import { socketConnect } from "@/store/middleware/gameSocketMiddleware";
-import { useAppDispatch } from "@/store/store";
+import { socketConnect, verifyAuthToken, login } from "@/store/middleware/gameSocketMiddleware";
+import { useAppDispatch, useAppSelector } from "@/store/store"; // Add this line
 import { useGetFakeApiDataQuery } from "@/store/slices/test/testApiSlice";
+import { Action, AnyAction, UnknownAction } from "@reduxjs/toolkit";
 
 export default function Auth() {
-  const { data, isLoading } = useGetFakeApiDataQuery("");
+  //const { data, isLoading } = useGetFakeApiDataQuery("");
+  //console.log(data, "testData");
   const dispatch = useAppDispatch();
-  console.log(data, "testData");
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated); // Add this line
   //   const { isAuthenticated, isLoading, error, login, register, resetError } =
   //     useAuth();
   const [windowWidth, setWindowWidth] = useState(
@@ -36,20 +38,23 @@ export default function Auth() {
 
   // Ensure we have a connection
   useEffect(() => {
-    dispatch(socketConnect() as AnyAction);
+    console.log("Dispatching socketConnect action"); // Add this line
+    dispatch(socketConnect() as UnknownAction);
+    const initializeAuth = async () => {
+      const authToken = 'defaultToken';
+      console.log("Dispatching verifyAuthToken action with token:", authToken); // Add this line
+      dispatch(verifyAuthToken(String(authToken)) as UnknownAction);
+    };
+    initializeAuth();
   }, [dispatch]);
 
   // Redirect if authenticated
-  //   useEffect(() => {
-  //     if (isAuthenticated) {
-  //       router.replace("/(home)");
-  //     }
-  //   }, [isAuthenticated]);
   useEffect(() => {
-    if (false) {
+    if (isAuthenticated) {
+      console.log("User is authenticated, redirecting to home"); // Add this line
       router.replace("/(home)");
     }
-  }, [false]);
+  }, [isAuthenticated]);
 
   // Update dimensions when window size changes
   useEffect(() => {
@@ -60,16 +65,13 @@ export default function Auth() {
   }, []);
 
   // Login handler
-  //   const handleLogin = useCallback(
-  //     (username: string, password: string) => {
-  //       // Reset any previous errors
-  //       resetError();
-
-  //       // Call Redux login action
-  //       login(username, password);
-  //     },
-  //     [login, resetError]
-  //   );
+  const handleLogin = useCallback(
+    (username: string, password: string) => {
+      console.log("Dispatching login action with username and password"); // Add this line
+      dispatch(login(username, password) as UnknownAction);
+    },
+    [dispatch]
+  );
 
   // Signup handler
   //   const handleSignup = useCallback(
@@ -178,31 +180,22 @@ export default function Auth() {
               isMobileView && authStyles.formCardContainerMobile,
             ]}
           >
-            {/* <AuthForm
-              onLogin={handleLogin}
-              onSignup={handleSignup}
-              message={error || ""}
-              isLoading={isLoading}
-              isMobileView={isMobileView}
-              devModeEnabled={true}
-              onDevModeNavigate={goDirectlyToHome}
-            /> */}
-
             <AuthForm
-              onLogin={() => {}}
+              onLogin={handleLogin} // Update this line
               onSignup={() => {}}
               message=""
-              //   message={error || ""}
-              //   isLoading={isLoading}
               isLoading={false}
               isMobileView={isMobileView}
               devModeEnabled={true}
               onDevModeNavigate={goDirectlyToHome}
             />
           </View>
+          {/*
           <Text style={authStyles.subHeaderText}>
-            {JSON.stringify(data, null, 2)} {/* Show formatted JSON */}
+            {JSON.stringify(data, null, 2)}  Show formatted JSON
           </Text>
+           */}
+          
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

@@ -16,19 +16,19 @@ interface AuthFormProps {
   onLogin: (username: string, password: string) => void;
   onSignup: (email: string, username: string, password: string) => void;
   message: string;
-  isLoading?: boolean;
-  isMobileView?: boolean;
-  devModeEnabled?: boolean;
-  onDevModeNavigate?: () => void;
+  isLoading: boolean;
+  isMobileView: boolean;
+  devModeEnabled: boolean;
+  onDevModeNavigate: () => void;
 }
 
 const AuthForm: React.FC<AuthFormProps> = ({
   onLogin,
   onSignup,
   message,
-  isLoading = false,
-  isMobileView = false,
-  devModeEnabled = false,
+  isLoading,
+  isMobileView,
+  devModeEnabled,
   onDevModeNavigate,
 }) => {
   // Form states

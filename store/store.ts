@@ -14,6 +14,8 @@ import storage from "redux-persist/lib/storage";
 import { apiSlice } from "./api/apiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import testReducer from "./slices/test/testSlice";
+import { createSocketMiddleware } from "./middleware/gameSocketMiddleware";
+
 const persistConfig = {
   key: "root",
   storage,
@@ -28,6 +30,9 @@ const allReducers = combineReducers({
 
 const persistedReducer = persistReducer(persistConfig, allReducers);
 
+// Create the socket middleware
+const socketMiddleware = createSocketMiddleware();
+
 export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
@@ -35,7 +40,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(apiSlice.middleware),
+    }).concat(apiSlice.middleware, socketMiddleware),
   devTools: true,
 });
 
