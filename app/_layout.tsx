@@ -3,19 +3,20 @@ import { Stack } from "expo-router";
 import { View, Text, ActivityIndicator } from "react-native";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { store, persistor } from "@/store";
-import { useAuth } from "@/store/hooks/useAuth";
+import { store, persistor } from "@/store/store";
+// import { useAuth } from "@/store/hooks/useAuth";
 
 // Inner layout component that has access to Redux state
 function InnerLayout() {
-  const { isAuthenticated, isLoading, verifyToken } = useAuth();
+  //   const { isAuthenticated, isLoading, verifyToken } = useAuth();
 
-  useEffect(() => {
-    // Verify token when app loads
-    verifyToken();
-  }, [verifyToken]);
+  //   useEffect(() => {
+  //     // Verify token when app loads
+  //     verifyToken();
+  //   }, [verifyToken]);
 
-  if (isLoading) {
+  //   if (isLoading) {
+  if (false) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#00ff00" />
@@ -30,7 +31,8 @@ function InnerLayout() {
       }}
     >
       {/* Redirect based on auth status */}
-      {isAuthenticated ? (
+      {/* {isAuthenticated ? ( */}
+      {false ? (
         <Stack.Screen name="(home)" options={{ headerShown: false }} />
       ) : (
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
